@@ -1,0 +1,286 @@
+@import 'tailwindcss';
+
+@import '@fontsource-variable/archivo/standard.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   DECK — a hi-fi faceplate.
+   Light  = brushed anodized aluminium, warm grey, ink black silkscreen.
+   Dark   = warm gunmetal, the front panel of a Nakamichi in a dim room.
+   One accent: Braun signal orange. It means "live". Nothing else gets it.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --panel: #c9c5bd;
+  --panel-deep: #b8b3aa;
+  --surface: #e2dfd8;
+  --surface-hi: #eeebe5;
+  --ink: #16150f;
+  --ink-dim: #6a655b;
+  --ink-faint: #918b80;
+  --line: rgb(0 0 0 / 0.16);
+  --line-soft: rgb(0 0 0 / 0.08);
+  --signal: #d2481f;
+  --signal-glow: rgb(210 72 31 / 0.28);
+  --well: inset 0 2px 5px rgb(0 0 0 / 0.26), inset 0 -1px 0 rgb(255 255 255 / 0.4);
+  --raise: 0 1px 0 rgb(255 255 255 / 0.55), 0 2px 6px rgb(0 0 0 / 0.14);
+  --grain: rgb(255 255 255 / 0.5);
+  --grain-dark: rgb(0 0 0 / 0.035);
+  color-scheme: light;
+}
+
+.dark {
+  --panel: #131316;
+  --panel-deep: #0c0c0e;
+  --surface: #1c1d21;
+  --surface-hi: #26272c;
+  --ink: #ece9e2;
+  --ink-dim: #8b867c;
+  --ink-faint: #625e57;
+  --line: rgb(255 255 255 / 0.11);
+  --line-soft: rgb(255 255 255 / 0.055);
+  --signal: #ff6a3d;
+  --signal-glow: rgb(255 106 61 / 0.3);
+  --well: inset 0 2px 6px rgb(0 0 0 / 0.6), inset 0 -1px 0 rgb(255 255 255 / 0.06);
+  --raise: 0 1px 0 rgb(255 255 255 / 0.07), 0 2px 8px rgb(0 0 0 / 0.45);
+  --grain: rgb(255 255 255 / 0.028);
+  --grain-dark: rgb(0 0 0 / 0.16);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-panel: var(--panel);
+  --color-panel-deep: var(--panel-deep);
+  --color-surface: var(--surface);
+  --color-surface-hi: var(--surface-hi);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-signal: var(--signal);
+
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Deliberate, shared motion curves. Everything in the app uses one of these. */
+  --ease-panel: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snap: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--panel-deep);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+
+  /* Touch device: no text selection drag on controls, but keep it in lists. */
+  button,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 99px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-faint);
+    background-clip: content-box;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Silkscreened panel label: the tiny caps text printed on real gear. */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* Display type: Archivo pushed wide, like faceplate silkscreen. */
+  .display {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 112;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .display-wide {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 125;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Brushed aluminium: fine horizontal grain. Pure CSS, no image, works offline. */
+  .brushed {
+    background-image: repeating-linear-gradient(
+      0deg,
+      var(--grain) 0px,
+      var(--grain) 1px,
+      transparent 1px,
+      transparent 2px,
+      var(--grain-dark) 2px,
+      var(--grain-dark) 3px,
+      transparent 3px,
+      transparent 4px
+    );
+    background-size: 100% 4px;
+  }
+
+  /* A recessed well — where artwork and the visualiser sit. */
+  .well {
+    box-shadow: var(--well);
+  }
+
+  /* A raised control surface — buttons, the transport bar. */
+  .raise {
+    box-shadow: var(--raise);
+  }
+
+  /* Numeric readouts: timecode, track no., kHz. Tabular so they don't jitter. */
+  .readout {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  /* A transport button: recessed on press, like a real deck's button travel. */
+  .control-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    color: var(--ink-dim);
+    transition: color 0.15s var(--ease-panel), background-color 0.15s var(--ease-panel), transform 0.1s var(--ease-snap);
+  }
+  .control-btn:hover {
+    color: var(--ink);
+    background: var(--line-soft);
+  }
+  .control-btn:active {
+    transform: scale(0.92);
+  }
+
+  /* The play/pause button: the one control with real physical presence. */
+  .control-btn-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--ink);
+    color: var(--panel);
+    box-shadow: var(--raise);
+  }
+  .dark .control-btn-main {
+    background: var(--surface-hi);
+    color: var(--ink);
+  }
+  .control-btn-main:disabled {
+    opacity: 0.4;
+  }
+  .control-btn-main:not(:disabled):hover {
+    background: var(--signal);
+    color: white;
+  }
+
+  /* Sidebar nav row */
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    padding: 0.6rem 0.6rem;
+    border-radius: 0.35rem;
+    color: var(--ink-dim);
+    font-size: 0.875rem;
+    justify-content: center;
+    transition: background-color 0.15s var(--ease-panel), color 0.15s var(--ease-panel);
+  }
+  @media (min-width: 1024px) {
+    .nav-item {
+      justify-content: flex-start;
+      padding: 0.55rem 0.65rem;
+    }
+  }
+  .nav-item:hover {
+    background: var(--line-soft);
+    color: var(--ink);
+  }
+  .nav-item-active {
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 9999px;
+    background: var(--ink);
+    color: var(--panel);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.875rem;
+    box-shadow: var(--raise);
+    transition: background-color 0.15s var(--ease-panel), transform 0.1s var(--ease-snap);
+  }
+  .dark .pill-btn {
+    background: var(--surface-hi);
+    color: var(--ink);
+  }
+  .pill-btn:hover {
+    background: var(--signal);
+    color: white;
+  }
+  .pill-btn:active {
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
