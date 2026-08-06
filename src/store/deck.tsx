@@ -39,6 +39,7 @@ import {
   scanLibrary,
   scanLibraryFromFiles,
   supportsFileSystemAccess,
+  type ScanMode,
 } from '../lib/scan'
 
 type Theme = 'light' | 'dark'
@@ -210,8 +211,12 @@ export function DeckProvider({ children }: { children: ReactNode }) {
         if (cancelled) return
         if (perm === 'granted') {
           setStatus(savedTracks.length ? 'ready' : 'empty')
-          // Pick up files added outside the app since we last looked.
-          if (savedTracks.length) void runScan(handle, savedTracks, true)
+          // Pick up files added outside the app since we last looked. This
+          // only re-walks the one folder DECK has a live handle for, so it
+          // must merge rather than sync — otherwise every track that came
+          // from a *different* folder (FSA can only hold one handle, the
+          // fallback path can hold many) would look deleted and vanish.
+          if (savedTracks.length) void runScan(handle, savedTracks, true, 'merge')
         } else {
           setStatus(savedTracks.length ? 'needs-permission' : 'empty')
         }
@@ -304,7 +309,8 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     async (
       run: () => Promise<{ tracks: Track[]; removed: string[] }>,
       existing: Track[],
-      quiet: boolean
+      quiet: boolean,
+      mode: ScanMode
     ) => {
       if (!quiet) setStatus('scanning')
       setProgress({ ...idle, phase: 'listing' })
@@ -313,12 +319,19 @@ export function DeckProvider({ children }: { children: ReactNode }) {
         await putTracks(found)
         if (removed.length) await deleteTracks(removed)
         await pruneArt()
-        setTracks(found)
-        setStatus(found.length ? 'ready' : 'empty')
+        // 'merge' scans only cover the folder just picked — fold its results
+        // into the full library instead of replacing it, so tracks from
+        // folders added earlier stick around.
+        const merged =
+          mode === 'merge'
+            ? [...existing.filter((t) => !found.some((f) => f.id === t.id)), ...found]
+            : found
+        setTracks(merged)
+        setStatus(merged.length ? 'ready' : 'empty')
         if (!quiet) {
           setNotice(
             found.length
-              ? `${found.length} track${found.length === 1 ? '' : 's'} in your library.`
+              ? `${found.length} track${found.length === 1 ? '' : 's'} added.`
               : 'No MP3s found in that folder.'
           )
         }
@@ -336,29 +349,48 @@ export function DeckProvider({ children }: { children: ReactNode }) {
   )
 
   const runScan = useCallback(
-    (handle: FileSystemDirectoryHandle, existing: Track[], quiet = false) =>
-      applyScanResult(() => scanLibrary(handle, existing, setProgress), existing, quiet),
-    [applyScanResult]
-  )
-
-  const runScanFromFiles = useCallback(
-    (files: File[], existing: Track[], quiet = false) =>
+    (
+      handle: FileSystemDirectoryHandle,
+      existing: Track[],
+      quiet = false,
+      mode: ScanMode = 'sync'
+    ) =>
       applyScanResult(
-        () => scanLibraryFromFiles(files, existing, setProgress),
+        () => scanLibrary(handle, existing, setProgress, undefined, mode),
         existing,
-        quiet
+        quiet,
+        mode
       ),
     [applyScanResult]
   )
 
+  const runScanFromFiles = useCallback(
+    (files: File[], existing: Track[], quiet = false, mode: ScanMode = 'sync') =>
+      applyScanResult(
+        () => scanLibraryFromFiles(files, existing, setProgress, undefined, mode),
+        existing,
+        quiet,
+        mode
+      ),
+    [applyScanResult]
+  )
+
+  /**
+   * Picking a folder always adds to the library rather than replacing it —
+   * `mode: 'merge'` on the scan is what keeps tracks from folders chosen
+   * earlier in the session. Note that FSA mode can only hold one live
+   * directory handle at a time, so playing a track from an *earlier* FSA
+   * folder after picking a *different* one won't resolve until that folder
+   * is re-picked — the fallback path doesn't have this limitation, since it
+   * copies bytes into IndexedDB per track instead of relying on a handle.
+   */
   const chooseFolder = useCallback(async () => {
     if (supportsFileSystemAccess()) {
       const handle = await pickLibraryFolder()
       if (!handle) return
       dirRef.current = handle
-      fallbackFilesRef.current = null
       await saveDirHandle(handle)
-      await runScan(handle, [])
+      await runScan(handle, await getAllTracks(), false, 'merge')
       return
     }
 
@@ -367,7 +399,7 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     // Best-effort: without this, browsers are free to evict IndexedDB under
     // storage pressure, which would silently take a copied library with it.
     void navigator.storage?.persist?.()
-    const cache = new Map<string, File>()
+    const cache = fallbackFilesRef.current ?? new Map<string, File>()
     for (const file of files) {
       const rel = (file as any).webkitRelativePath as string | undefined
       const id = (rel ? rel.split('/').slice(1) : [file.name]).join('/')
@@ -376,9 +408,9 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     fallbackFilesRef.current = cache
     dirRef.current = null
     await clearDirHandle()
-    // Reuse existing library rows so relinking the same folder after a
-    // reload doesn't re-parse tags/art it already has cached.
-    await runScanFromFiles(files, await getAllTracks())
+    // Reuse existing library rows so relinking a previously-picked folder
+    // doesn't re-parse tags/art it already has cached.
+    await runScanFromFiles(files, await getAllTracks(), false, 'merge')
   }, [runScan, runScanFromFiles])
 
   const grantAccess = useCallback(async () => {
