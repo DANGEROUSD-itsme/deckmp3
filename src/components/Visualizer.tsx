@@ -125,12 +125,100 @@ function Rig({ children }: { children: ReactNode }) {
   return <group ref={group}>{children}</group>
 }
 
+/* --------------------------------------------------------------- orbit -- */
+
+const ORBIT_COUNT = 180
+
 /**
- * The centerpiece: a ring of GPU-instanced bars reacting to real frequency
- * data from the AnalyserNode. One draw call, no post-processing, cheap enough
- * for integrated graphics. Renders behind the cover art in Now Playing.
+ * A cloud of instanced points on nested rings. Each particle's radius is
+ * pushed outward by the band it listens to, so bass makes the whole cloud
+ * breathe while treble puts a shimmer on the outer shells.
  */
-export function Visualizer({ className = '' }: { className?: string }) {
+function Orbit({ reduceMotion, color }: { reduceMotion: boolean; color: string }) {
+  const meshRef = useRef<THREE.InstancedMesh>(null)
+  const dummy = useMemo(() => new THREE.Object3D(), [])
+  const smoothed = useRef(new Float32Array(ORBIT_COUNT))
+
+  // A fixed, evenly distributed set of seeds — recomputing these per frame
+  // would make the cloud boil rather than orbit.
+  const seeds = useMemo(
+    () =>
+      new Array(ORBIT_COUNT).fill(0).map((_, i) => {
+        // Golden-angle spiral: the cheapest way to get an even sphere.
+        const t = i / ORBIT_COUNT
+        const angle = i * 2.399963
+        const y = 1 - t * 2
+        const radius = Math.sqrt(Math.max(0, 1 - y * y))
+        return {
+          x: Math.cos(angle) * radius,
+          y: y * 0.55,
+          z: Math.sin(angle) * radius,
+          band: Math.floor(t * 48),
+          speed: 0.12 + (i % 7) * 0.02,
+          size: 0.012 + (i % 5) * 0.003,
+        }
+      }),
+    []
+  )
+
+  useFrame((state) => {
+    const mesh = meshRef.current
+    if (!mesh) return
+    const data = engine.sample()
+    const time = state.clock.elapsedTime
+
+    for (let i = 0; i < ORBIT_COUNT; i++) {
+      const seed = seeds[i]
+      const raw = data.length ? (data[seed.band] ?? 0) / 255 : 0
+      const target = reduceMotion ? 0 : raw * raw
+      const prev = smoothed.current[i]
+      smoothed.current[i] = prev + (target - prev) * (target > prev ? 0.4 : 0.06)
+
+      const push = 1 + smoothed.current[i] * 0.75
+      const spin = time * seed.speed
+      const x = seed.x * Math.cos(spin) - seed.z * Math.sin(spin)
+      const z = seed.x * Math.sin(spin) + seed.z * Math.cos(spin)
+
+      dummy.position.set(x * push, seed.y * push, z * push)
+      const scale = seed.size * (1 + smoothed.current[i] * 2.4)
+      dummy.scale.setScalar(scale / 0.012)
+      dummy.updateMatrix()
+      mesh.setMatrixAt(i, dummy.matrix)
+    }
+    mesh.instanceMatrix.needsUpdate = true
+  })
+
+  const geom = useMemo(() => new THREE.SphereGeometry(0.012, 8, 6), [])
+
+  return (
+    <instancedMesh ref={meshRef} args={[geom, undefined, ORBIT_COUNT]}>
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.45}
+        roughness={0.3}
+        metalness={0.1}
+      />
+    </instancedMesh>
+  )
+}
+
+/**
+ * The centerpiece: GPU-instanced geometry reacting to real frequency data
+ * from the AnalyserNode. One draw call per scene, no post-processing, cheap
+ * enough for integrated graphics. Renders behind the cover art in Now Playing.
+ *
+ * `mode` picks the scene. The 2D modes ('bars', 'wave') never reach here —
+ * NowPlaying renders those from Spectrum.tsx so they cost no WebGL context
+ * at all.
+ */
+export function Visualizer({
+  className = '',
+  mode = 'ring',
+}: {
+  className?: string
+  mode?: 'ring' | 'orbit'
+}) {
   const reduceMotion = useMemo(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     []
@@ -140,7 +228,7 @@ export function Visualizer({ className = '' }: { className?: string }) {
   return (
     <div className={className} aria-hidden="true" style={{ width: '100%', height: '100%' }}>
       <Canvas
-        camera={{ position: [0, 0.9, 2.4], fov: 45 }}
+        camera={{ position: mode === 'orbit' ? [0, 0.35, 2.7] : [0, 0.9, 2.4], fov: 45 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         frameloop={reduceMotion ? 'demand' : 'always'}
@@ -148,9 +236,13 @@ export function Visualizer({ className = '' }: { className?: string }) {
         <ambientLight intensity={0.65} />
         <pointLight position={[2, 3, 2]} intensity={40} color="#ffdcc4" />
         <pointLight position={[-2, -1, -2]} intensity={12} color="#5a6b8c" />
-        <Rig>
-          <Ring reduceMotion={reduceMotion} color={signalColor} />
-        </Rig>
+        {mode === 'orbit' ? (
+          <Orbit reduceMotion={reduceMotion} color={signalColor} />
+        ) : (
+          <Rig>
+            <Ring reduceMotion={reduceMotion} color={signalColor} />
+          </Rig>
+        )}
       </Canvas>
     </div>
   )
