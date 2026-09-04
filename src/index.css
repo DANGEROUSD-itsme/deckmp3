@@ -33,8 +33,9 @@
   --raise: 0 1px 0 rgb(255 255 255 / 0.55), 0 2px 6px rgb(0 0 0 / 0.14);
   --raise-lg: 0 1px 0 rgb(255 255 255 / 0.6), 0 12px 34px rgb(0 0 0 / 0.2),
     0 2px 8px rgb(0 0 0 / 0.12);
-  --grain: rgb(255 255 255 / 0.5);
-  --grain-dark: rgb(0 0 0 / 0.035);
+  /* Light: enough grain to read as brushed metal, not as scan lines. */
+  --grain: rgb(255 255 255 / 0.26);
+  --grain-dark: rgb(0 0 0 / 0.022);
   --glass: rgb(226 223 216 / 0.82);
   --scrim: rgb(20 18 14 / 0.42);
   /* Ambient tint sampled from the current cover. Neutral until a track loads. */

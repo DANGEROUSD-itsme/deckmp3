@@ -356,11 +356,20 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
       q.length < 2 ? 0 : 40
     )
 
-    const cmdRows: Row[] = cmdHits.map((h) => ({
-      kind: 'command',
-      command: h.item,
-      positions: h.positions,
-    }))
+    /**
+     * Ranking interleaves groups — two Sleep timer hits either side of a
+     * Transport hit — which would print the same group heading twice. Cluster
+     * by group, keeping each group in the position its best hit earned.
+     */
+    const clusters = new Map<string, Row[]>()
+    for (const h of cmdHits) {
+      const rows = clusters.get(h.item.group)
+      const row: Row = { kind: 'command', command: h.item, positions: h.positions }
+      if (rows) rows.push(row)
+      else clusters.set(h.item.group, [row])
+    }
+    const cmdRows: Row[] = [...clusters.values()].flat()
+
     const trackRows: Row[] = trackHits.map((h) => ({
       kind: 'track',
       track: h.item,
@@ -368,7 +377,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
     }))
 
     // Short queries are almost always a command; longer ones a search.
-    return q.length <= 3 ? [...cmdRows, ...trackRows] : [...trackRows.slice(0, 8), ...cmdRows, ...trackRows.slice(8)]
+    return q.length <= 3 ? [...cmdRows, ...trackRows] : [...trackRows, ...cmdRows]
   }, [commands, query, tracks])
 
   useEffect(() => setActive(0), [query])

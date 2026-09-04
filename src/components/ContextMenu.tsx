@@ -180,7 +180,7 @@ function Menu({ request, onClose }: { request: MenuRequest; onClose: () => void 
         />
         <Item
           icon={<UserIcon className="w-3.5 h-3.5" />}
-          label="Play everything by this artist"
+          label="Play this artist"
           hint={`${artistIds.length} tracks`}
           onClick={act(() => void playNow(track.id, artistIds))}
         />

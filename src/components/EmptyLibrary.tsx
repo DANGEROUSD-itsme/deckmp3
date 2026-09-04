@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useDeck } from '../store/deck'
-import { DiscIcon, FolderIcon } from './icons'
+import { DECK_VERSION } from '../types'
+import { DiscIcon, FolderIcon, SparkIcon, UploadIcon } from './icons'
 
 /**
  * First-run / no-library state. Also doubles as the "grant access again"
@@ -14,12 +15,23 @@ export function EmptyLibrary({ status }: { status: 'empty' | 'loading' }) {
   if (status === 'loading') {
     return (
       <div className="flex-1 grid place-items-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: 'linear' }}
-        >
-          <DiscIcon className="w-9 h-9 text-ink-faint" />
-        </motion.div>
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'linear' }}
+            className="inline-block"
+          >
+            <DiscIcon className="w-9 h-9 text-ink-faint" />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="label mt-5"
+          >
+            Reading your library
+          </motion.p>
+        </div>
       </div>
     )
   }
@@ -30,11 +42,16 @@ export function EmptyLibrary({ status }: { status: 'empty' | 'loading' }) {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="max-w-sm text-center"
+        className="max-w-md text-center"
       >
-        <div className="w-16 h-16 rounded-full bg-surface mx-auto grid place-items-center mb-6 well">
+        <motion.div
+          initial={{ scale: 0.85 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.1 }}
+          className="w-16 h-16 rounded-full bg-surface mx-auto grid place-items-center mb-6 well"
+        >
           <FolderIcon className="w-7 h-7 text-ink-faint" />
-        </div>
+        </motion.div>
 
         {needsPermission ? (
           <>
@@ -56,8 +73,18 @@ export function EmptyLibrary({ status }: { status: 'empty' | 'loading' }) {
               then plays entirely offline from then on.
             </p>
             <button onClick={() => void chooseFolder()} className="pill-btn">
+              <FolderIcon className="w-4 h-4" />
               Choose folder
             </button>
+
+            {/* The drop hint, so the second import path is discoverable. */}
+            <div className="mt-8 rounded-lg border border-dashed border-line px-5 py-4">
+              <div className="flex items-center justify-center gap-2 text-ink-faint">
+                <UploadIcon className="w-4 h-4" />
+                <span className="label">or drop MP3s anywhere on this window</span>
+              </div>
+            </div>
+
             {!supported && (
               <p className="text-xs text-ink-faint mt-4 leading-relaxed">
                 This browser doesn't support the File System Access API, so
@@ -68,7 +95,43 @@ export function EmptyLibrary({ status }: { status: 'empty' | 'loading' }) {
             )}
           </>
         )}
+
+        <p className="label !text-[9px] mt-10 flex items-center justify-center gap-1.5">
+          <SparkIcon className="w-3 h-3 text-signal" />
+          DECK v{DECK_VERSION}
+        </p>
       </motion.div>
     </div>
+  )
+}
+
+/**
+ * The "you have a library but we lost the handle" banner. Shown above a
+ * populated library rather than replacing it — v1 raised this status but no
+ * screen ever rendered it, so the only symptom was every track failing to
+ * play with "Missing file".
+ */
+export function ReconnectBanner() {
+  const { grantAccess, supported } = useDeck()
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      className="shrink-0 bg-surface border-b border-line px-5 py-2.5 flex items-center gap-3 flex-wrap"
+    >
+      <span className="w-2 h-2 rounded-full bg-signal pulse-dot shrink-0" />
+      <p className="text-[13px] flex-1 min-w-0">
+        DECK can see your library but can’t read the files yet.{' '}
+        <span className="text-ink-dim">
+          {supported
+            ? 'Browsers drop folder permission when the tab closes.'
+            : 'Reselect the same folder to relink it.'}
+        </span>
+      </p>
+      <button onClick={() => void grantAccess()} className="ghost-btn shrink-0">
+        {supported ? 'Grant access' : 'Reselect folder'}
+      </button>
+    </motion.div>
   )
 }

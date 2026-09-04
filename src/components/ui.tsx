@@ -373,11 +373,15 @@ export function Row({
 }) {
   return (
     <div className="setting-row">
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-sm leading-tight">{title}</p>
         {hint && <p className="label mt-1 normal-case tracking-normal leading-snug">{hint}</p>}
       </div>
-      <div className="shrink-0 flex items-center gap-2 max-w-[55%]">{children}</div>
+      {/* The control column has to be able to grow, or a flex-1 Slider inside
+          a shrink-0 parent collapses to nothing. */}
+      <div className="flex items-center justify-end gap-2 min-w-0 flex-1 max-w-[52%]">
+        {children}
+      </div>
     </div>
   )
 }

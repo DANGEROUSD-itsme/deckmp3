@@ -221,10 +221,12 @@ export function SlidersIcon({ className }: P) {
 }
 
 export function GearIcon({ className }: P) {
+  // A toothed cog, not a radial burst — at 18px a spoked circle is
+  // indistinguishable from the sun icon two rows above it in the sidebar.
   return (
-    <svg className={className} {...base(1.6)}>
-      <circle cx="12" cy="12" r="3.1" />
-      <path d="M12 2.6v2.6M12 18.8v2.6M21.4 12h-2.6M5.2 12H2.6M18.6 5.4l-1.8 1.8M7.2 16.8l-1.8 1.8M18.6 18.6l-1.8-1.8M7.2 7.2 5.4 5.4" />
+    <svg className={className} {...base(1.5)}>
+      <path d="M10.3 3.2a1 1 0 0 1 1-.85h1.4a1 1 0 0 1 1 .85l.2 1.4a7.4 7.4 0 0 1 1.7.98l1.32-.53a1 1 0 0 1 1.24.43l.7 1.2a1 1 0 0 1-.23 1.28l-1.11.9a7.5 7.5 0 0 1 0 1.96l1.11.9a1 1 0 0 1 .23 1.29l-.7 1.2a1 1 0 0 1-1.24.43l-1.32-.54a7.4 7.4 0 0 1-1.7.99l-.2 1.4a1 1 0 0 1-1 .84h-1.4a1 1 0 0 1-1-.84l-.2-1.4a7.4 7.4 0 0 1-1.7-.99l-1.32.54a1 1 0 0 1-1.24-.43l-.7-1.2a1 1 0 0 1 .23-1.29l1.11-.9a7.5 7.5 0 0 1 0-1.95l-1.11-.9a1 1 0 0 1-.23-1.29l.7-1.2a1 1 0 0 1 1.24-.43l1.32.53a7.4 7.4 0 0 1 1.7-.98l.2-1.4z" />
+      <circle cx="12" cy="12" r="2.7" />
     </svg>
   )
 }
