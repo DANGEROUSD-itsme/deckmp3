@@ -12,6 +12,16 @@ import { CloseIcon } from './icons'
 const EASE = [0.22, 1, 0.36, 1] as const
 
 /**
+ * A stack of the overlays currently mounted, innermost last.
+ *
+ * Every overlay listens for Escape on `document`, and stopPropagation does
+ * nothing between two listeners bound to the same node — so without this, a
+ * confirm dialog opened from inside a settings sheet would close both. Only
+ * the overlay on top of the stack acts on the key.
+ */
+const overlayStack: symbol[] = []
+
+/**
  * Close on Escape, trap Tab inside the overlay, and hand focus back to
  * whatever was focused when it opened. Without the last part, closing a panel
  * with the keyboard drops focus onto <body> and the next Tab starts from the
@@ -23,9 +33,12 @@ export function useOverlay(onClose: () => void, active = true) {
   useEffect(() => {
     if (!active) return
     const opener = document.activeElement as HTMLElement | null
+    const token = Symbol('overlay')
+    overlayStack.push(token)
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        if (overlayStack[overlayStack.length - 1] !== token) return
         e.stopPropagation()
         onClose()
         return
@@ -63,6 +76,8 @@ export function useOverlay(onClose: () => void, active = true) {
       document.removeEventListener('keydown', onKey, true)
       document.body.style.overflow = prevOverflow
       window.clearTimeout(timer)
+      const at = overlayStack.indexOf(token)
+      if (at !== -1) overlayStack.splice(at, 1)
       opener?.focus?.()
     }
   }, [active, onClose])

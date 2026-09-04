@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDeck } from '../store/deck'
 import { DECK_VERSION, SMART_VIEWS, type SmartViewId } from '../types'
@@ -55,6 +55,17 @@ export function Sidebar({ view, onNavigate }: Props) {
     setCreating(false)
     onNavigate({ kind: 'playlist', id: p.id })
   }
+
+  /**
+   * Each smart view is a full scan of the library, so deriving six of them
+   * inline would be O(6n) on every sidebar render — and the sidebar renders
+   * whenever anything in the store moves.
+   */
+  const counts = useMemo(() => {
+    const out: Partial<Record<SmartViewId, number>> = {}
+    for (const sv of SMART_VIEWS) out[sv.id] = smartList(sv.id).length
+    return out
+  }, [smartList])
 
   const visibleSmart = smartOpen ? SMART_VIEWS : SMART_VIEWS.slice(0, SMART_LIMIT)
 
@@ -116,7 +127,7 @@ export function Sidebar({ view, onNavigate }: Props) {
         </div>
 
         {visibleSmart.map((sv) => {
-          const count = smartList(sv.id).length
+          const count = counts[sv.id] ?? 0
           const active = view.kind === 'smart' && view.id === sv.id
           return (
             <button
