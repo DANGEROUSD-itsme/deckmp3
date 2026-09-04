@@ -7,10 +7,14 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ---------------------------------------------------------------------------
-   DECK — a hi-fi faceplate.
+   DECK v2.01 — a hi-fi faceplate.
    Light  = brushed anodized aluminium, warm grey, ink black silkscreen.
    Dark   = warm gunmetal, the front panel of a Nakamichi in a dim room.
-   One accent: Braun signal orange. It means "live". Nothing else gets it.
+   One accent at a time. It means "live". Nothing else gets it.
+
+   V2 adds: six switchable accents, a density scale, a glass layer for
+   overlays, a shared keyframe library, and an album-derived ambient tint
+   that only ever colours light, never text.
    --------------------------------------------------------------------------- */
 
 :root {
@@ -27,14 +31,21 @@
   --signal-glow: rgb(210 72 31 / 0.28);
   --well: inset 0 2px 5px rgb(0 0 0 / 0.26), inset 0 -1px 0 rgb(255 255 255 / 0.4);
   --raise: 0 1px 0 rgb(255 255 255 / 0.55), 0 2px 6px rgb(0 0 0 / 0.14);
+  --raise-lg: 0 1px 0 rgb(255 255 255 / 0.6), 0 12px 34px rgb(0 0 0 / 0.2),
+    0 2px 8px rgb(0 0 0 / 0.12);
   --grain: rgb(255 255 255 / 0.5);
   --grain-dark: rgb(0 0 0 / 0.035);
+  --glass: rgb(226 223 216 / 0.82);
+  --scrim: rgb(20 18 14 / 0.42);
+  /* Ambient tint sampled from the current cover. Neutral until a track loads. */
+  --ambient: 210 72 31;
+  --ambient-strength: 0;
   color-scheme: light;
 }
 
 .dark {
   --panel: #131316;
-  --panel-deep: #0c0c0e;
+  --panel-deep: #0f0f12;
   --surface: #1c1d21;
   --surface-hi: #26272c;
   --ink: #ece9e2;
@@ -46,9 +57,74 @@
   --signal-glow: rgb(255 106 61 / 0.3);
   --well: inset 0 2px 6px rgb(0 0 0 / 0.6), inset 0 -1px 0 rgb(255 255 255 / 0.06);
   --raise: 0 1px 0 rgb(255 255 255 / 0.07), 0 2px 8px rgb(0 0 0 / 0.45);
+  --raise-lg: 0 1px 0 rgb(255 255 255 / 0.08), 0 16px 44px rgb(0 0 0 / 0.6),
+    0 2px 10px rgb(0 0 0 / 0.5);
   --grain: rgb(255 255 255 / 0.028);
   --grain-dark: rgb(0 0 0 / 0.16);
+  --glass: rgb(24 25 29 / 0.8);
+  --scrim: rgb(0 0 0 / 0.58);
   color-scheme: dark;
+}
+
+/* --- Accent switch --------------------------------------------------------
+   The accent is the only hue in the interface. Each option ships a light and
+   a dark variant, because a colour that reads as "live" on aluminium is too
+   dark to read at all on gunmetal. */
+
+[data-accent='ice'] {
+  --signal: #0f6f92;
+  --signal-glow: rgb(15 111 146 / 0.28);
+}
+.dark[data-accent='ice'] {
+  --signal: #3fc4f0;
+  --signal-glow: rgb(63 196 240 / 0.3);
+}
+[data-accent='lime'] {
+  --signal: #4c7a10;
+  --signal-glow: rgb(76 122 16 / 0.28);
+}
+.dark[data-accent='lime'] {
+  --signal: #a8e04a;
+  --signal-glow: rgb(168 224 74 / 0.3);
+}
+[data-accent='violet'] {
+  --signal: #6435c9;
+  --signal-glow: rgb(100 53 201 / 0.28);
+}
+.dark[data-accent='violet'] {
+  --signal: #a98cff;
+  --signal-glow: rgb(169 140 255 / 0.3);
+}
+[data-accent='gold'] {
+  --signal: #9a6b06;
+  --signal-glow: rgb(154 107 6 / 0.28);
+}
+.dark[data-accent='gold'] {
+  --signal: #f5c451;
+  --signal-glow: rgb(245 196 81 / 0.3);
+}
+[data-accent='rose'] {
+  --signal: #b32155;
+  --signal-glow: rgb(179 33 85 / 0.28);
+}
+.dark[data-accent='rose'] {
+  --signal: #ff7aa8;
+  --signal-glow: rgb(255 122 168 / 0.3);
+}
+
+/* --- Density --------------------------------------------------------------
+   One variable, read by list rows and nav items. Compact fits roughly a third
+   more rows on screen without shrinking the type below readable. */
+
+:root {
+  --row-pad-y: 0.625rem;
+  --row-gap: 0.875rem;
+  --row-art: 2.5rem;
+}
+[data-density='compact'] {
+  --row-pad-y: 0.35rem;
+  --row-gap: 0.65rem;
+  --row-art: 2rem;
 }
 
 @theme inline {
@@ -62,6 +138,7 @@
   --color-line: var(--line);
   --color-line-soft: var(--line-soft);
   --color-signal: var(--signal);
+  --color-glass: var(--glass);
 
   --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -69,6 +146,7 @@
   /* Deliberate, shared motion curves. Everything in the app uses one of these. */
   --ease-panel: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-snap: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-swift: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @layer base {
@@ -96,6 +174,13 @@
     touch-action: manipulation;
   }
 
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+    color: inherit;
+  }
+
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -117,6 +202,11 @@
   :focus-visible {
     outline: 2px solid var(--signal);
     outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--signal);
+    color: #fff;
   }
 }
 
@@ -172,6 +262,18 @@
     box-shadow: var(--raise);
   }
 
+  /* Floating chrome — palettes, sheets, dialogs. */
+  .raise-lg {
+    box-shadow: var(--raise-lg);
+  }
+
+  /* Frosted overlay surface. Falls back to a solid panel where blur is off. */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  }
+
   /* Numeric readouts: timecode, track no., kHz. Tabular so they don't jitter. */
   .readout {
     font-family: var(--font-mono);
@@ -186,7 +288,8 @@
     justify-content: center;
     border-radius: 9999px;
     color: var(--ink-dim);
-    transition: color 0.15s var(--ease-panel), background-color 0.15s var(--ease-panel), transform 0.1s var(--ease-snap);
+    transition: color 0.15s var(--ease-panel), background-color 0.15s var(--ease-panel),
+      transform 0.1s var(--ease-snap);
   }
   .control-btn:hover {
     color: var(--ink);
@@ -194,6 +297,19 @@
   }
   .control-btn:active {
     transform: scale(0.92);
+  }
+  .control-btn:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  /* An engaged toggle — shuffle on, repeat on, EQ active. */
+  .control-btn-on {
+    color: var(--signal);
+    background: color-mix(in srgb, var(--signal) 14%, transparent);
+  }
+  .control-btn-on:hover {
+    color: var(--signal);
+    background: color-mix(in srgb, var(--signal) 22%, transparent);
   }
 
   /* The play/pause button: the one control with real physical presence. */
@@ -205,6 +321,8 @@
     background: var(--ink);
     color: var(--panel);
     box-shadow: var(--raise);
+    transition: background-color 0.18s var(--ease-panel), color 0.18s var(--ease-panel),
+      box-shadow 0.25s var(--ease-panel);
   }
   .dark .control-btn-main {
     background: var(--surface-hi);
@@ -216,15 +334,17 @@
   .control-btn-main:not(:disabled):hover {
     background: var(--signal);
     color: white;
+    box-shadow: var(--raise), 0 0 0 6px var(--signal-glow);
   }
 
   /* Sidebar nav row */
   .nav-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.7rem;
     width: 100%;
-    padding: 0.6rem 0.6rem;
+    padding: var(--row-pad-y) 0.6rem;
     border-radius: 0.35rem;
     color: var(--ink-dim);
     font-size: 0.875rem;
@@ -234,7 +354,7 @@
   @media (min-width: 1024px) {
     .nav-item {
       justify-content: flex-start;
-      padding: 0.55rem 0.65rem;
+      padding: var(--row-pad-y) 0.65rem;
     }
   }
   .nav-item:hover {
@@ -245,6 +365,17 @@
     background: var(--surface);
     color: var(--ink);
     font-weight: 500;
+  }
+  /* The signal tab down the left edge of the selected row. */
+  .nav-item-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 2px;
+    border-radius: 99px;
+    background: var(--signal);
   }
 
   .pill-btn {
@@ -259,7 +390,8 @@
     font-weight: 600;
     font-size: 0.875rem;
     box-shadow: var(--raise);
-    transition: background-color 0.15s var(--ease-panel), transform 0.1s var(--ease-snap);
+    transition: background-color 0.15s var(--ease-panel), transform 0.1s var(--ease-snap),
+      box-shadow 0.2s var(--ease-panel);
   }
   .dark .pill-btn {
     background: var(--surface-hi);
@@ -268,10 +400,298 @@
   .pill-btn:hover {
     background: var(--signal);
     color: white;
+    box-shadow: var(--raise), 0 0 0 5px var(--signal-glow);
   }
   .pill-btn:active {
     transform: scale(0.96);
   }
+
+  /* A quieter, outlined button for secondary actions in panels. */
+  .ghost-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 9999px;
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    font-size: 0.8125rem;
+    transition: color 0.15s var(--ease-panel), border-color 0.15s var(--ease-panel),
+      background-color 0.15s var(--ease-panel);
+  }
+  .ghost-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink-faint);
+    background: var(--line-soft);
+  }
+  .ghost-btn-danger:hover {
+    color: #fff;
+    background: #c0392b;
+    border-color: #c0392b;
+  }
+
+  /* Segmented control — view switchers, density, theme mode. */
+  .segment {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px;
+    border-radius: 9999px;
+    background: var(--surface);
+    box-shadow: var(--well);
+  }
+  .segment-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    color: var(--ink-faint);
+    transition: color 0.18s var(--ease-panel);
+    white-space: nowrap;
+  }
+  .segment-item:hover {
+    color: var(--ink-dim);
+  }
+  .segment-item-active {
+    color: var(--ink);
+  }
+
+  /* Text field with a faceplate well rather than a floating border. */
+  .field {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid transparent;
+    border-radius: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s var(--ease-panel), box-shadow 0.2s var(--ease-panel);
+  }
+  .field:focus {
+    border-color: var(--signal);
+    box-shadow: 0 0 0 3px var(--signal-glow);
+  }
+  .field::placeholder {
+    color: var(--ink-faint);
+  }
+
+  /* A settings row: label on the left, control on the right. */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .setting-row:last-child {
+    border-bottom: 0;
+  }
+
+  /* Physical toggle switch. */
+  .switch {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--well);
+    flex-shrink: 0;
+    transition: background-color 0.22s var(--ease-panel);
+  }
+  .switch-on {
+    background: var(--signal);
+  }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+    transition: transform 0.22s var(--ease-snap), background-color 0.22s var(--ease-panel);
+  }
+  .dark .switch::after {
+    background: var(--ink-dim);
+  }
+  .switch-on::after {
+    transform: translateX(18px);
+    background: #fff;
+  }
+
+  /* A vertical EQ fader track. */
+  .fader {
+    position: relative;
+    width: 6px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--well);
+  }
+
+  /* Keyboard key cap, for the shortcuts sheet. */
+  .kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.55rem;
+    height: 1.55rem;
+    padding: 0 0.4rem;
+    border-radius: 0.3rem;
+    background: var(--surface-hi);
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--ink-dim);
+  }
+
+  /* The ambient wash behind Now Playing, driven by the cover's own colour. */
+  .ambient-wash {
+    background:
+      radial-gradient(
+        60% 55% at 50% 38%,
+        rgb(var(--ambient) / calc(var(--ambient-strength) * 0.5)) 0%,
+        transparent 70%
+      ),
+      radial-gradient(
+        90% 70% at 50% 100%,
+        rgb(var(--ambient) / calc(var(--ambient-strength) * 0.22)) 0%,
+        transparent 80%
+      );
+    transition: background 0.9s var(--ease-panel);
+  }
+
+  /* Hairline separator that fades out at both ends, like a printed rule. */
+  .rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line) 12%, var(--line) 88%, transparent);
+  }
+}
+
+@layer utilities {
+  /* Two-line clamp for track titles in tight cards. */
+  .clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Fade the bottom of a scroll area so content doesn't hard-cut. */
+  .fade-bottom {
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent 100%);
+  }
+
+  .drag-none {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Keyframes. Everything reusable lives here rather than inline, so the whole
+   app shares one motion vocabulary and reduced-motion can switch it all off.
+   --------------------------------------------------------------------------- */
+
+@keyframes deck-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes deck-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes deck-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--signal-glow);
+  }
+  50% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+@keyframes deck-shimmer {
+  from {
+    background-position: -180% 0;
+  }
+  to {
+    background-position: 180% 0;
+  }
+}
+
+@keyframes deck-marquee {
+  0%,
+  12% {
+    transform: translateX(0);
+  }
+  88%,
+  100% {
+    transform: translateX(var(--marquee-shift, -50%));
+  }
+}
+
+@keyframes deck-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.spin-slow {
+  animation: deck-spin 2.4s linear infinite;
+}
+
+.pulse-dot {
+  animation: deck-pulse 1.6s var(--ease-panel) infinite;
+}
+
+.breathe {
+  animation: deck-breathe 2.4s var(--ease-panel) infinite;
+}
+
+/* Loading placeholder — a brushed sheen travelling across a blank tile. */
+.skeleton {
+  background-image: linear-gradient(
+    90deg,
+    var(--surface) 0%,
+    var(--surface-hi) 45%,
+    var(--surface) 90%
+  );
+  background-size: 220% 100%;
+  animation: deck-shimmer 1.5s linear infinite;
+}
+
+/* Long titles scroll gently rather than truncating, but only on hover. */
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+}
+.marquee-run:hover .marquee {
+  animation: deck-marquee 9s var(--ease-swift) infinite alternate;
+}
+
+.rise-in {
+  animation: deck-rise 0.35s var(--ease-panel) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

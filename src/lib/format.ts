@@ -1,4 +1,5 @@
-import type { Album, SortKey, Track } from '../types'
+import type { Album, Artist, SortKey, Track } from '../types'
+import { fuzzyScore } from './fuzzy'
 
 export function fmtTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) seconds = 0
@@ -126,4 +127,156 @@ export function initials(name: string) {
     .map((w) => w[0] ?? '')
     .join('')
     .toUpperCase()
+}
+
+/* ===========================================================================
+   V2.01 additions
+   =========================================================================== */
+
+/** "3.4 MB" — file sizes in the track info panel. */
+export function fmtBytes(bytes: number) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '—'
+  const units = ['B', 'KB', 'MB', 'GB']
+  let v = bytes
+  let u = 0
+  while (v >= 1024 && u < units.length - 1) {
+    v /= 1024
+    u++
+  }
+  return `${v < 10 && u > 0 ? v.toFixed(1) : Math.round(v)} ${units[u]}`
+}
+
+/** "2 days ago" — relative time, in the units a person would actually say. */
+export function fmtRelative(ms: number) {
+  if (!ms) return 'never'
+  const diff = Date.now() - ms
+  if (diff < 45_000) return 'just now'
+  const table: [number, Intl.RelativeTimeFormatUnit][] = [
+    [60_000, 'minute'],
+    [3_600_000, 'hour'],
+    [86_400_000, 'day'],
+    [604_800_000, 'week'],
+    [2_629_800_000, 'month'],
+    [31_557_600_000, 'year'],
+  ]
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+  let unitMs = 60_000
+  let unit: Intl.RelativeTimeFormatUnit = 'minute'
+  for (const [size, name] of table) {
+    if (diff >= size) {
+      unitMs = size
+      unit = name
+    }
+  }
+  return rtf.format(-Math.round(diff / unitMs), unit)
+}
+
+/** "1 234" — play counts, grouped so four figures stay readable. */
+export function fmtCount(n: number) {
+  return new Intl.NumberFormat().format(n)
+}
+
+/** "4:03 / 51:12" style totals for the stats panel. */
+export function fmtLongDuration(seconds: number) {
+  const total = Math.floor(seconds)
+  const d = Math.floor(total / 86400)
+  const h = Math.floor(total / 3600) % 24
+  const m = Math.floor(total / 60) % 60
+  if (d) return `${d}d ${h}h`
+  if (h) return `${h}h ${m}m`
+  return `${m}m`
+}
+
+/** Round a rate to the nearest label the UI offers, so 1.0 reads as "1×". */
+export function fmtRate(rate: number) {
+  return `${Number(rate.toFixed(2))}×`
+}
+
+/** Signed dB for EQ readouts — "+4.5" reads better than "4.5". */
+export function fmtDb(db: number) {
+  const v = Math.round(db * 10) / 10
+  return `${v > 0 ? '+' : ''}${v.toFixed(1)}`
+}
+
+/**
+ * Group tracks by album artist. Each artist carries its albums pre-grouped so
+ * the artist page doesn't have to re-derive them per render.
+ */
+export function groupArtists(tracks: Track[]): Artist[] {
+  const map = new Map<string, Track[]>()
+  for (const t of tracks) {
+    const key = t.albumArtist.toLowerCase()
+    const list = map.get(key)
+    if (list) list.push(t)
+    else map.set(key, [t])
+  }
+  const out: Artist[] = [...map.entries()].map(([key, list]) => ({
+    key,
+    name: list[0].albumArtist,
+    tracks: sortTracks(list, 'album'),
+    albums: groupAlbums(list, 'album'),
+    duration: list.reduce((s, t) => s + t.duration, 0),
+    artKey: list.find((t) => t.artKey)?.artKey ?? null,
+  }))
+  return out.sort((a, b) => collator.compare(nameKey(a.name), nameKey(b.name)))
+}
+
+/** Every genre in the library, with its track count, most common first. */
+export function groupGenres(tracks: Track[]): { name: string; tracks: Track[] }[] {
+  const map = new Map<string, Track[]>()
+  for (const t of tracks) {
+    const name = t.genre?.trim() || 'Unfiled'
+    const list = map.get(name)
+    if (list) list.push(t)
+    else map.set(name, [t])
+  }
+  return [...map.entries()]
+    .map(([name, list]) => ({ name, tracks: list }))
+    .sort((a, b) => b.tracks.length - a.tracks.length || collator.compare(a.name, b.name))
+}
+
+/** Decade buckets — "1970s", "1980s" … plus "Undated" for year-less tracks. */
+export function groupDecades(tracks: Track[]): { name: string; tracks: Track[] }[] {
+  const map = new Map<string, Track[]>()
+  for (const t of tracks) {
+    const name = t.year ? `${Math.floor(t.year / 10) * 10}s` : 'Undated'
+    const list = map.get(name)
+    if (list) list.push(t)
+    else map.set(name, [t])
+  }
+  return [...map.entries()]
+    .map(([name, list]) => ({ name, tracks: list }))
+    .sort((a, b) => (a.name === 'Undated' ? 1 : b.name === 'Undated' ? -1 : a.name.localeCompare(b.name)))
+}
+
+/**
+ * Library search, upgraded. Substring matching still wins — it is what people
+ * expect when they type a full word — but a query that matches nothing falls
+ * through to fuzzy scoring, so "drk sd mn" still finds Dark Side of the Moon.
+ */
+export function searchTracksRanked(tracks: Track[], query: string): Track[] {
+  const q = query.trim()
+  if (!q) return tracks
+  const strict = searchTracks(tracks, q)
+  if (strict.length) return strict
+
+  const scored: { track: Track; score: number }[] = []
+  for (const t of tracks) {
+    const hay = `${t.title} ${t.artist} ${t.album}`
+    const hit = fuzzyScore(q, hay)
+    if (hit) scored.push({ track: t, score: hit.score })
+  }
+  scored.sort((a, b) => b.score - a.score)
+  return scored.map((s) => s.track)
+}
+
+/** Pick `n` random items without repeats — the "surprise me" shuffle source. */
+export function sample<T>(items: T[], n: number): T[] {
+  if (items.length <= n) return shuffled(items)
+  return shuffled(items).slice(0, n)
+}
+
+/** A stable, human-readable id for a new playlist or saved queue. */
+export function newId(prefix: string) {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
 }

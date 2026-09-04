@@ -1,5 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { Playlist, SavedState, Track } from '../types'
+import type { Playlist, SavedState, Settings, Track, TrackStats } from '../types'
+import { defaultSettings } from '../types'
 
 interface DeckDB extends DBSchema {
   tracks: {
@@ -26,6 +27,16 @@ interface DeckDB extends DBSchema {
     key: string
     value: Playlist
   }
+  /**
+   * Listening history, one row per track id. Kept in its own store rather
+   * than on the Track row so a rescan (which rewrites every Track) can never
+   * clobber play counts, favourites, or ratings.
+   */
+  stats: {
+    key: string
+    value: TrackStats
+    indexes: { plays: number; lastPlayed: number }
+  }
   /** Directory handle, saved player state, settings. */
   kv: {
     key: string
@@ -37,7 +48,7 @@ let dbp: Promise<IDBPDatabase<DeckDB>> | null = null
 
 export function db() {
   if (!dbp) {
-    dbp = openDB<DeckDB>('deck', 2, {
+    dbp = openDB<DeckDB>('deck', 3, {
       upgrade(d, oldVersion) {
         if (oldVersion < 1) {
           const tracks = d.createObjectStore('tracks', { keyPath: 'id' })
@@ -50,6 +61,11 @@ export function db() {
         }
         if (oldVersion < 2) {
           d.createObjectStore('audio', { keyPath: 'id' })
+        }
+        if (oldVersion < 3) {
+          const stats = d.createObjectStore('stats', { keyPath: 'id' })
+          stats.createIndex('plays', 'plays')
+          stats.createIndex('lastPlayed', 'lastPlayed')
         }
       },
     })
@@ -79,6 +95,11 @@ export async function deleteTracks(ids: string[]) {
   ])
 }
 
+/**
+ * Wipe the library. Listening history survives on purpose: re-importing the
+ * same folder produces the same track ids, so play counts, favourites and
+ * ratings come straight back. `clearStats` is the explicit opt-in.
+ */
 export async function clearLibrary() {
   const d = await db()
   const tx = d.transaction(['tracks', 'art', 'audio'], 'readwrite')
@@ -181,4 +202,51 @@ export async function saveTheme(t: 'light' | 'dark') {
 
 export async function loadTheme(): Promise<'light' | 'dark' | null> {
   return ((await (await db()).get('kv', THEME_KEY)) as 'light' | 'dark') ?? null
+}
+
+/* ------------------------------------------------------------------ stats -- */
+
+export async function getAllStats(): Promise<TrackStats[]> {
+  return (await db()).getAll('stats')
+}
+
+export async function putStats(s: TrackStats) {
+  return (await db()).put('stats', s)
+}
+
+export async function putManyStats(rows: TrackStats[]) {
+  if (!rows.length) return
+  const d = await db()
+  const tx = d.transaction('stats', 'readwrite')
+  await Promise.all([...rows.map((r) => tx.store.put(r)), tx.done])
+}
+
+/** Explicit "forget what I've listened to" — never implied by clearLibrary. */
+export async function clearStats() {
+  return (await db()).clear('stats')
+}
+
+/* --------------------------------------------------------------- settings -- */
+
+const SETTINGS_KEY = 'settings'
+
+export async function saveSettings(s: Settings) {
+  return (await db()).put('kv', s, SETTINGS_KEY)
+}
+
+/**
+ * Settings are stored whole, so a build that adds a field would otherwise
+ * read `undefined` for it on every existing install. Merging over the
+ * defaults (and over the nested `eq` object, which is the only nested one)
+ * keeps old rows forward-compatible without a migration.
+ */
+export async function loadSettings(): Promise<Settings> {
+  const base = defaultSettings()
+  const raw = (await (await db()).get('kv', SETTINGS_KEY)) as Partial<Settings> | undefined
+  if (!raw) return base
+  return {
+    ...base,
+    ...raw,
+    eq: { ...base.eq, ...(raw.eq ?? {}) },
+  }
 }
