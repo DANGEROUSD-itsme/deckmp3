@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geographies of Interconnections &amp; Global Tourism — Year 10 Revision</title>
+<meta name="description" content="Exam revision app for the Year 10 Geography trimester test: Interconnections, global supply chains and tourism.">
+
+<!-- CDN dependency 1 of 2: Tailwind (JIT) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ink:   { 950:'#070a12', 900:'#0c111c', 850:'#111827', 800:'#171f30', 750:'#1e2739', 700:'#2a3448',
+                 600:'#3c4761', 500:'#5b6780', 400:'#8892a8', 300:'#b3bccd', 200:'#d8dee8', 100:'#eef1f6' },
+        brand: { 50:'#eef0ff', 100:'#e0e3ff', 200:'#c5c9ff', 300:'#a3a6ff', 400:'#837ffb',
+                 500:'#6b5df2', 600:'#5a45e0', 700:'#4b36bd', 800:'#3d2f97', 900:'#2f2676' },
+        pos:   { 50:'#e9fbf3', 200:'#a7ead0', 400:'#43c78f', 500:'#22ab74', 600:'#16875b', 900:'#0a3327' },
+        neg:   { 50:'#fdecef', 200:'#f6b9c5', 400:'#ef6f8b', 500:'#e14a6d', 600:'#c02f52', 900:'#4a0f20' },
+        warn:  { 50:'#fff6e8', 200:'#f9d9a4', 400:'#eab868', 500:'#e0a044', 600:'#b87c25', 900:'#442d07' }
+      },
+      fontFamily: {
+        sans: ['ui-sans-serif','system-ui','-apple-system','Segoe UI','Roboto','Helvetica Neue','Arial','sans-serif']
+      },
+      borderRadius: { 'card':'1.1rem', 'ctl':'0.65rem' },
+      transitionDuration: { '250':'250ms' }
+    }
+  }
+}
+</script>
+<style>
+  /* ---- Design system notes ----------------------------------------------
+     Radius scale : rounded-ctl (controls) / rounded-card (cards) only.
+     Spacing scale: 3 / 4 / 6 / 10 (gap + padding) only.
+     Type         : system sans stack (no 3rd network dependency for fonts).
+     Colour roles : brand = primary/nav, pos = correct/positive, neg = wrong/negative.
+     ---------------------------------------------------------------------- */
+  html { scroll-behavior: smooth; }
+  body { background:
+      radial-gradient(1100px 520px at 12% -8%, rgba(107,93,242,.20), transparent 60%),
+      radial-gradient(900px 460px at 92% 0%, rgba(34,171,116,.13), transparent 55%),
+      #070a12;
+      -webkit-font-smoothing: antialiased; }
+  .view { display:none; }
+  .view.is-active { display:block; animation: viewIn .25s ease both; }
+  @keyframes viewIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform:none; } }
+
+  .card { background:linear-gradient(180deg, rgba(23,31,48,.92), rgba(12,17,28,.92));
+          border:1px solid rgba(139,149,173,.16); }
+  .card-soft { background:rgba(23,31,48,.55); border:1px solid rgba(139,149,173,.13); }
+
+  /* Flashcard 3D flip */
+  .flip { perspective: 1600px; }
+  .flip-inner { position:relative; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,.2,.2,1); }
+  .flip.is-flipped .flip-inner { transform: rotateY(180deg); }
+  .flip-face { backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  .flip-back { position:absolute; inset:0; transform: rotateY(180deg); overflow:auto; }
+
+  /* Collapsibles */
+  .acc-body { max-height:0; overflow:hidden; transition:max-height .3s ease, opacity .2s ease; opacity:0; }
+  .acc.is-open .acc-body { max-height: 6000px; opacity:1; }
+  .acc.is-open .acc-chev { transform: rotate(180deg); }
+  .acc-chev { transition: transform .25s ease; }
+
+  input, textarea, select, button { font: inherit; }
+  textarea { resize: vertical; }
+  :focus-visible { outline:2px solid #837ffb; outline-offset:2px; border-radius:6px; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:#2a3448; border-radius:8px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  [data-lucide] { stroke-width:1.9; }
+  .tag-T  { background:rgba(107,93,242,.18); border-bottom:2px solid #837ffb; }
+  .tag-E1 { background:rgba(34,171,116,.15); border-bottom:2px solid #43c78f; }
+  .tag-E2 { background:rgba(224,160,68,.15); border-bottom:2px solid #e0a044; }
+  .tag-T2 { background:rgba(225,74,109,.15); border-bottom:2px solid #ef6f8b; }
+  @media print { nav, footer { display:none } }
+</style>
+</head>
+<body class="text-ink-200 font-sans min-h-screen">
+
+<!-- ============================ NAV ============================ -->
+<nav class="sticky top-0 z-40 backdrop-blur-xl bg-ink-950/80 border-b border-ink-700/60">
+  <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center gap-4">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 rounded-ctl bg-brand-500/20 border border-brand-400/40 grid place-items-center shrink-0">
+        <i data-lucide="globe-2" class="w-5 h-5 text-brand-300"></i>
+      </div>
+      <div class="min-w-0 hidden sm:block">
+        <p class="text-[13px] font-semibold text-ink-100 leading-tight truncate">Interconnections &amp; Global Tourism</p>
+        <p class="text-[11px] text-ink-400 leading-tight">Year 10 · Trimester Test Revision</p>
+      </div>
+    </div>
+    <div id="nav-links" class="ml-auto flex items-center gap-1 overflow-x-auto"></div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10">
+  <section id="view-dashboard"  class="view" aria-labelledby="h-dashboard"></section>
+  <section id="view-notes"      class="view" aria-labelledby="h-notes"></section>
+  <section id="view-flashcards" class="view" aria-labelledby="h-flashcards"></section>
+  <section id="view-teet"       class="view" aria-labelledby="h-teet"></section>
+  <section id="view-test"       class="view" aria-labelledby="h-test"></section>
+</main>
+
+<footer class="border-t border-ink-800 mt-10">
+  <div class="max-w-7xl mx-auto px-4 md:px-6 py-6 text-[12px] text-ink-500 flex flex-wrap gap-x-6 gap-y-2">
+    <span>Requires an internet connection on first load (Tailwind &amp; Lucide load from a CDN) — it will not render offline.</span>
+    <span class="ml-auto">Progress is session-only and resets when the page is closed.</span>
+  </div>
+</footer>
+
+<!-- CDN dependency 2 of 2: Lucide icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+/* =========================================================================
+   ALL CURRICULUM CONTENT LIVES IN THE DATA OBJECTS BELOW.
+   Everything in the UI is rendered from this data — edit content here only.
+
+   NOTE ON PERSISTENCE: state is held in memory only (see `state` below) so the
+   file works in sandboxed environments that block Web Storage. To persist
+   progress across sessions outside such a sandbox, JSON-serialise `state`
+   into localStorage on change and hydrate it in boot().
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- 1. EXAM */
+const EXAM = {
+  duration: 45,
+  total: 37,
+  parts: [
+    { id:'A', name:'Part A — Multiple Choice',            marks:12, color:'#837ffb', note:'12 questions × 1 mark' },
+    { id:'B', name:'Part B — Short Answer & Data Analysis', marks:13, color:'#43c78f', note:'3 questions (2 + 4 + 7)' },
+    { id:'C', name:'Part C — Extended Response',           marks:12, color:'#e0a044', note:'1 question (6 + 4 + 2)' }
+  ],
+  model: 'T.E.E.T — Topic sentence, Explanation, Example, Tie-back'
+};
+
+/* --------------------------------------------------- 2. CORE DEFINITIONS */
+const DEFINITIONS = [
+  { term:'Interconnection', icon:'share-2',
+    text:'The relationship between all things, both animate and inanimate, and all processes, both natural and human, on Earth.' },
+  { term:'Tourism', icon:'palmtree',
+    text:'The business of attracting, accommodating and entertaining tourists, and the business of operating tours.' },
+  { term:'Overtourism', icon:'users',
+    text:'The phenomenon whereby certain places of interest are visited by excessive numbers of tourists, causing undesirable effects and negative impacts on that place’s environment, local people, culture and infrastructure.' },
+  { term:'Supply Chain', icon:'workflow',
+    text:'A complex system of organisations, people, activities, information and resources involved in moving a product or service from supplier to customer — transforming natural resources, raw materials and components into a finished product delivered to the end customer.' },
+  { term:'Logistics', icon:'truck',
+    text:'The detailed management of the flow of things between the point of origin and the point of consumption to meet customer or corporate requirements. It covers physical goods (food, materials, equipment) and abstract assets (time, information), integrating transport, warehousing, inventory and packaging.' }
+];
+
+/* ------------------------------------------------ 3. PERCEPTIONS OF PLACE */
+const PERCEPTION = {
+  definition: '“The way in which something is regarded, understood, or interpreted.”',
+  factors: ['Age','Cultural background','Social background','Media and expectations','Socio-economic factors','Environmental factors'],
+  criteria: [
+    { key:'spiritual', name:'Spiritual', icon:'sparkles',
+      desc:'Deep sacred, emotional or belief-based connections to a place.',
+      caseTitle:'Case study — Murujuga (Burrup Peninsula), Pilbara WA',
+      caseText:'Indigenous Australians hold a profound spiritual connection to Murujuga, home to sacred ancient rock art (petroglyphs) of deep cultural and spiritual significance, tying present-day custodians to ancestral Country.' },
+    { key:'economic', name:'Economic', icon:'banknote',
+      desc:'Connections driven by employment, income, trade or resource extraction.',
+      caseTitle:'Case study — the opposing lens on the same place',
+      caseText:'Resource and mining corporations view the Burrup Peninsula as a major industrial hub for natural gas processing and mining exports — the same landscape valued for output, jobs and export revenue rather than sacredness.' },
+    { key:'cultural', name:'Cultural', icon:'drama',
+      desc:'Social connections based on shared community history, traditions, language and cultural practices.',
+      caseTitle:'Applying it',
+      caseText:'Communities connect to place through festivals, language, food, art and shared customs practised in that location — perception is shaped by the culture a person belongs to.' },
+    { key:'historical', name:'Historical', icon:'landmark',
+      desc:'Connection established through past events, heritage buildings or ancestral lineage.',
+      caseTitle:'Applying it',
+      caseText:'A place can be valued because something significant happened there, because heritage architecture survives, or because a person’s ancestors lived there.' }
+  ],
+  dualNaming: 'Dual naming is a tool used to recognise First Nations connections to place — for example Mandurah is also named Mandjoogoordap.',
+  twoLenses: {
+    place: 'Burrup Peninsula / Murujuga, Pilbara WA',
+    left:  { label:'Spiritual lens', who:'Indigenous Australians (Traditional Custodians)', icon:'sparkles',
+             points:['Sacred ancient rock art with deep spiritual significance','Place is inseparable from identity, law and ancestry','Value is intrinsic — it cannot be substituted or relocated','Industrial emissions and development are seen as a threat to sacred heritage'] },
+    right: { label:'Economic lens', who:'Resource and mining corporations', icon:'factory',
+             points:['Major industrial hub for natural gas processing','Export node for mining products feeding global supply chains','Value is measured in output, employment and export revenue','Development is framed as national and regional economic benefit'] },
+    takeaway: 'One place, two legitimate but competing perceptions. Contested perspectives like this are a classic exam angle — always name WHO holds the perception and WHY their background produces it.'
+  }
+};
+
+/* ------------------------------------------------------ 4. ICT CASE STUDIES */
+const ICT = {
+  intro: 'The internet and personal devices interconnect people globally — linking them to goods, services, information and to other people, almost instantly and across enormous distances. ICT collapses the friction of distance so that isolation no longer means disconnection.',
+  cases: [
+    { name:'School of the Air', icon:'radio',
+      desc:'Satellite and radio networks connect geographically isolated students across remote Australia to teachers, classrooms and schooling.',
+      matters:'Why it matters: ICT overcomes the barrier of distance so remote students access the same services as urban students.' },
+    { name:'Royal Flying Doctor Service (RFDS)', icon:'plane',
+      desc:'Telehealth, radio and communications networks combined with emergency aviation link remote rural patients to life-saving medical care.',
+      matters:'Why it matters: interconnection through ICT plus transport turns an isolated location into one with access to specialist healthcare.' },
+    { name:'Offshore call centres', icon:'headset',
+      desc:'Western corporations outsource customer service and IT support to business-processing hubs in India and the Philippines.',
+      matters:'Why it matters: ICT lets a service be produced in one country and consumed in another — an interconnection of labour markets, not just goods.' },
+    { name:'iPhone sourcing', icon:'smartphone',
+      desc:'A single phone contains 300+ components. Materials such as gold, silicon, cobalt, silver and rare-earth elements are mined globally across complex international networks.',
+      matters:'Why it matters: an everyday device is physical proof of a worldwide supply chain — one product interconnects dozens of countries.' }
+  ]
+};
+
+/* -------------------------------------------- 5. TRANSPORT & GLOBAL LOGISTICS */
+const TRANSPORT = {
+  modes: [
+    { name:'Shipping', icon:'ship', stat:'~90%',
+      desc:'Around 90% of all international physical trade in goods moves by sea — bulk oil, gas and grain plus consumer goods in containers.',
+      extra:'Valued at over $18 trillion annually.' },
+    { name:'Air transport', icon:'plane-takeoff', stat:'<24 hrs',
+      desc:'Air travel has reshaped the world over the last 100 years, moving high-value goods and millions of international tourists across the globe in under 24 hours.',
+      extra:'Speed makes both global tourism and just-in-time manufacturing possible.' }
+  ],
+  toyota: {
+    intro: 'The Toyota car supply chain is a textbook example of globalisation: a single finished vehicle depends on components manufactured in more than twenty countries, moved by integrated shipping, air and road logistics.',
+    rows: [
+      { country:'Belgium',      parts:'Tubes, seat pads, brakes, radio' },
+      { country:'Netherlands',  parts:'Tires, paint' },
+      { country:'Denmark',      parts:'Fanbelts' },
+      { country:'Norway',       parts:'Exhaust flanges' },
+      { country:'Sweden',       parts:'Hose clamps, cylinder bolts' },
+      { country:'Germany',      parts:'Locks, pistons, cylinder head gaskets, batteries' },
+      { country:'Switzerland',  parts:'Underbody coating, speedometers' },
+      { country:'Austria',      parts:'Radiators, heater hoses' },
+      { country:'Italy',        parts:'Cylinder heads, defroster grills' },
+      { country:'Britain',      parts:'Gearboxes, steering columns, engines' },
+      { country:'France',       parts:'Alternators, master cylinders, clutch release bearings' },
+      { country:'Spain',        parts:'Air filters, mirrors' },
+      { country:'South Africa', parts:'Clutch cases, suspension bushes' },
+      { country:'Mauritius',    parts:'Wiring harnesses' },
+      { country:'Middle East (Bahrain, Kuwait, Oman, Qatar, Saudi Arabia, UAE)', parts:'Petroleum' },
+      { country:'India',        parts:'Carburetors, suspension bushes, steering shafts' },
+      { country:'Indonesia',    parts:'Seat stitching, hose clamps, weatherstrips' },
+      { country:'Mexico',       parts:'Wheels, brake discs' },
+      { country:'Brazil',       parts:'Oil pumps, distributors, body panels' },
+      { country:'USA',          parts:'Bearings, bumper shock absorbers' },
+      { country:'Canada',       parts:'Glass, radios' }
+    ]
+  },
+  trade: {
+    title: 'Global Trade Flow Analysis (Figure 1: Global Trade Flows, 2012)',
+    items: [
+      { label:'Smallest exporting region', region:'Sub-Saharan Africa', tone:'neg', icon:'trending-down',
+        reasons:['Lower manufacturing infrastructure','Exports low-value raw materials rather than finished manufactured goods','Lower regional GDP limits production capacity and trade volume'] },
+      { label:'Trade surplus region (exports exceed imports)', region:'East Asia (China / Japan)', tone:'pos', icon:'trending-up',
+        reasons:['Massive manufacturing-led economies','Lower domestic production costs','High global demand for finished electronics, machinery and consumer goods'] }
+    ]
+  }
+};
+
+/* ---------------------------------------------------- 6. TYPES OF TOURISM */
+const TOURISM_TYPES = [
+  { name:'Recreational', icon:'umbrella', desc:'Travel for leisure, relaxation and holidaying — beaches, resorts and rest.' },
+  { name:'Cultural',     icon:'drama',    desc:'Travel to explore different cultures, lifestyles, art or language.' },
+  { name:'Historical',   icon:'landmark', desc:'Touring historic ruins, museums, heritage sites and architecture.' },
+  { name:'Event / Ecotourism', icon:'leaf', desc:'Travel for sporting or cultural events; or travel to natural, undisturbed areas designed to conserve the environment and support local communities.' }
+];
+
+/* ------------------------------------- 7. CASE STUDY: OVERTOURISM IN PARIS */
+const PARIS = {
+  profile: {
+    arrivals: '~50 million tourist arrivals annually',
+    attractions: ['Eiffel Tower','Louvre','Notre-Dame','Arc de Triomphe','Sacré-Cœur','Montmartre'],
+    infrastructure: 'High-density public transport infrastructure — Metro, buses and trains.'
+  },
+  tbl: [
+    { pillar:'Economic', icon:'banknote',
+      positives:[
+        'Record tourist revenue of ~€24 billion in 2025 — an 8% increase on 2019.',
+        'International visitors alone contributed €16 billion.',
+        'Employs 290,000+ people across the Paris region.'
+      ],
+      negatives:[
+        'Over-dependency on a volatile sector that collapses in crises.',
+        'Severe economic leakage — major tourist spend flows to international hotel chains, global tour operators and Airbnb, bypassing local small businesses.'
+      ] },
+    { pillar:'Social', icon:'users',
+      positives:[
+        'Cultural exchange between visitors and residents.',
+        'Tourist interest helps preserve local historical heritage.'
+      ],
+      negatives:[
+        'Housing supply squeezed by ~75,000 short-term holiday rentals (e.g. Airbnb), pricing residents out.',
+        'Mayor Anne Hidalgo and Deputy Ian Brossat warn of Paris turning into an “open-air museum” serving only tourists.',
+        '“Disneyfication” of Montmartre — changing local character, residential conflict over crowds and noise, and the loss of everyday services for residents.'
+      ] },
+    { pillar:'Environmental', icon:'leaf',
+      positives:[
+        'Funding generated by tourism can support heritage conservation works.'
+      ],
+      negatives:[
+        'Physical wear and tear on landmarks — Sacré-Cœur, Notre-Dame and the Louvre.',
+        'Waste and litter accumulation in high-traffic districts.',
+        'Heavy traffic congestion, noise pollution and a high carbon footprint from air and road transport.'
+      ],
+      policy:'Adaptive policy connection: new energy-efficiency laws in rental housing (banning G-rated rentals from 2025 and F-rated from 2028) intersect with the short-term rental housing crisis, further reducing the stock available to residents.' }
+  ],
+  strategies: [
+    { id:'louvre', name:'Louvre Timed Entry & Capacity Controls', icon:'ticket',
+      mechanism:'Strict mandatory pre-booked entry tickets have applied since 2026; visitors without a reservation are turned away at the door.',
+      pros:['Effectively manages visitor flow inside the museum','Spreads visitors evenly throughout the day','Prevents dangerous indoor overcrowding'],
+      cons:['Does not reduce the overall number of tourists in Paris','Tickets sell out weeks in advance, excluding spontaneous visitors'],
+      rating:'Moderately Effective', level:2 },
+    { id:'airbnb', name:'Airbnb Short-Term Rental Regulations', icon:'home',
+      mechanism:'Primary-residence rentals are capped at 120 days per year (with a proposed drop to 90 days in hot-spots), centralised digital registration is required, and fines range from €15,000 to €100,000.',
+      pros:['Slows the conversion of housing into tourist accommodation','Encourages compliance — court-issued fines fell from €3.5 million in 2021 to €535k in the first 7 months of 2023, indicating fewer violations'],
+      cons:['The housing shortage and high rent prices remain','Enforcement is difficult and imperfect across tens of thousands of listings'],
+      rating:'Moderately Effective', level:2 },
+    { id:'dispersal', name:'Active Tourist Dispersal (Proposed Strategy)', icon:'route',
+      mechanism:'Promoting alternative, lesser-known areas (the 19th and 20th Arrondissements, Belleville) and nearby regional towns such as Fontainebleau through improved transport links and targeted advertising.',
+      pros:['Targets the root cause by redistributing crowds rather than managing them at the door','Spreads economic spending into local neighbourhoods, reducing leakage','Relieves pressure on hot-spots such as Montmartre','Low-cost and scalable through existing tourism boards'],
+      cons:['Highly dependent on tourists being willing to travel away from primary sites'],
+      rating:'Very Effective Potential', level:3,
+      support:'Supported by successful dispersal models already used in Amsterdam and Venice.' }
+  ]
+};
+/* ------------------------------------------------ 8. FLASHCARD SUB-DECKS */
+const DECKS = [
+  { id:'defs', name:'Core Definitions', icon:'book-marked', blurb:'The five terms you must be able to define precisely.',
+    cards:[
+      { q:'Define <em>Interconnection</em>.', a:'The relationship between all things, both animate and inanimate, and all processes, both natural and human, on Earth.' },
+      { q:'Define <em>Supply Chain</em>.', a:'A complex system of organisations, people, activities, information and resources involved in moving a product or service from supplier to customer — transforming natural resources, raw materials and components into a finished product delivered to the end customer.' },
+      { q:'Define <em>Logistics</em>.', a:'The detailed management of the flow of things between the point of origin and the point of consumption to meet customer or corporate requirements. It covers physical goods (food, materials, equipment) and abstract assets (time, information), and integrates transport, warehousing, inventory and packaging.' },
+      { q:'Define <em>Overtourism</em>.', a:'The phenomenon whereby certain places of interest are visited by excessive numbers of tourists, causing undesirable effects and negative impacts on that place’s environment, local people, culture and infrastructure.' },
+      { q:'Define <em>Perception</em> (of place).', a:'“The way in which something is regarded, understood, or interpreted.” It is shaped by age, cultural background, social background, media and expectations, and socio-economic and environmental factors.' },
+      { q:'Define <em>Tourism</em>.', a:'The business of attracting, accommodating and entertaining tourists, and the business of operating tours.' }
+    ] },
+  { id:'criteria', name:'The Four Connection Criteria', icon:'sparkles', blurb:'Spiritual, Economic, Cultural, Historical — plus the Murujuga case study.',
+    cards:[
+      { q:'What is a <em>Spiritual</em> connection to place? Give the case study.', a:'A deep sacred, emotional or belief-based connection.<br><br><strong>Case study:</strong> Indigenous Australians’ connection to Murujuga (the Burrup Peninsula), Pilbara WA — sacred ancient rock art of profound spiritual significance linking custodians to ancestral Country.' },
+      { q:'What is an <em>Economic</em> connection to place? Give the case study.', a:'A connection driven by employment, income, trade or resource extraction.<br><br><strong>Case study (same place, opposing lens):</strong> resource and mining corporations view the Burrup Peninsula as a major industrial hub for natural gas processing and mining exports.' },
+      { q:'What is a <em>Cultural</em> connection to place?', a:'A social connection based on shared community history, traditions, language and cultural practices.' },
+      { q:'What is a <em>Historical</em> connection to place?', a:'A connection established through past events, heritage buildings or ancestral lineage.' },
+      { q:'What is <em>dual naming</em> and give an example.', a:'A tool used to recognise First Nations connections to place by using both names — for example Mandurah / <strong>Mandjoogoordap</strong>.' },
+      { q:'Why can two groups perceive the Burrup Peninsula so differently?', a:'Because perception is shaped by background: cultural and spiritual heritage produces a sacred, non-substitutable valuation of the land, while an economic/industrial background produces a valuation measured in output, jobs and export revenue. Same place, two legitimate but competing perceptions.' },
+      { q:'List the factors that shape a person’s perception of place.', a:'Age; cultural background; social background; media and expectations; socio-economic and environmental factors.' }
+    ] },
+  { id:'ict', name:'ICT Case Studies', icon:'wifi', blurb:'Four examples of ICT interconnecting people globally.',
+    cards:[
+      { q:'<em>School of the Air</em> — what does it demonstrate?', a:'Satellite and radio networks connect geographically isolated students in remote Australia to teachers and schooling. It shows ICT overcoming distance so remote students access the same services as urban students.' },
+      { q:'<em>Royal Flying Doctor Service (RFDS)</em> — what does it demonstrate?', a:'Telehealth, radio communications and emergency aviation networks link remote rural patients to life-saving medical care — ICT combined with air transport turns an isolated location into one with access to specialist healthcare.' },
+      { q:'<em>Offshore call centres</em> — what do they demonstrate?', a:'Western corporations outsource customer service and IT support to business-processing hubs in India and the Philippines. ICT allows a service to be produced in one country and consumed in another — an interconnection of labour markets, not just goods.' },
+      { q:'<em>iPhone sourcing</em> — what does it demonstrate?', a:'A single phone contains 300+ components; materials such as gold, silicon, cobalt, silver and rare-earth elements are mined globally across complex international networks. One everyday device interconnects dozens of countries.' }
+    ] },
+  { id:'toyota', name:'Car Supply Chain', icon:'car', blurb:'Country ↔ component recall practice from the Toyota supply chain.',
+    cards:[
+      { q:'Toyota supply chain: what does <strong>Germany</strong> supply?', a:'Locks, pistons, cylinder head gaskets, batteries.' },
+      { q:'Toyota supply chain: what does <strong>Britain</strong> supply?', a:'Gearboxes, steering columns, engines.' },
+      { q:'Toyota supply chain: what does <strong>Mauritius</strong> supply?', a:'Wiring harnesses.' },
+      { q:'Toyota supply chain: what does <strong>Canada</strong> supply?', a:'Glass, radios.' },
+      { q:'Toyota supply chain: what does <strong>Brazil</strong> supply?', a:'Oil pumps, distributors, body panels.' },
+      { q:'Toyota supply chain: what does <strong>Mexico</strong> supply?', a:'Wheels, brake discs.' },
+      { q:'Toyota supply chain: what does the <strong>Middle East</strong> (Bahrain, Kuwait, Oman, Qatar, Saudi Arabia, UAE) supply?', a:'Petroleum.' },
+      { q:'Toyota supply chain: what does <strong>France</strong> supply?', a:'Alternators, master cylinders, clutch release bearings.' },
+      { q:'Toyota supply chain: what does <strong>Indonesia</strong> supply?', a:'Seat stitching, hose clamps, weatherstrips.' },
+      { q:'Toyota supply chain: what does <strong>India</strong> supply?', a:'Carburetors, suspension bushes, steering shafts.' },
+      { q:'Toyota supply chain: what does the <strong>Netherlands</strong> supply?', a:'Tires, paint.' },
+      { q:'Toyota supply chain: what does <strong>Italy</strong> supply?', a:'Cylinder heads, defroster grills.' },
+      { q:'Which two countries both supply <strong>suspension bushes</strong>?', a:'South Africa (with clutch cases) and India (with carburetors and steering shafts).' }
+    ] },
+  { id:'paris-stats', name:'Paris Key Statistics', icon:'bar-chart-3', blurb:'The numbers that turn a Part C answer into an A+ answer.',
+    cards:[
+      { q:'Paris tourist revenue in 2025?', a:'~<strong>€24 billion</strong> — a record, and an 8% increase on 2019.' },
+      { q:'How much did international visitors alone contribute?', a:'<strong>€16 billion</strong> of the ~€24 billion total.' },
+      { q:'How many people does tourism employ in the Paris region?', a:'<strong>290,000+</strong> people.' },
+      { q:'How many short-term holiday rentals squeeze Paris housing supply?', a:'~<strong>75,000</strong> short-term holiday rentals (e.g. Airbnb), pricing residents out of the housing market.' },
+      { q:'How many tourists arrive in Paris annually?', a:'~<strong>50 million</strong> tourist arrivals per year.' },
+      { q:'What did fines for illegal short-term letting show between 2021 and 2023?', a:'Court-issued fines fell from <strong>€3.5 million in 2021</strong> to <strong>€535k in the first 7 months of 2023</strong>, indicating improved compliance and fewer violations.' },
+      { q:'What is the fine range for breaching Paris short-term rental rules?', a:'<strong>€15,000 to €100,000</strong>, alongside a 120-day annual cap and mandatory centralised digital registration.' },
+      { q:'Which Paris energy-efficiency rental deadlines matter for housing?', a:'G-rated rentals banned in <strong>2025</strong> and F-rated rentals banned in <strong>2028</strong> — further shrinking the housing stock available to residents.' },
+      { q:'Who warned Paris risks becoming an “open-air museum”, and what did they mean?', a:'Mayor <strong>Anne Hidalgo</strong> and Deputy <strong>Ian Brossat</strong> — warning that residents are being displaced until the city serves only tourists, not the people who live there.' },
+      { q:'Name Paris’s key tourist attractions.', a:'Eiffel Tower, Louvre, Notre-Dame, Arc de Triomphe, Sacré-Cœur and Montmartre — served by a high-density Metro, bus and train network.' }
+    ] },
+  { id:'paris-strats', name:'Paris Strategies', icon:'shield-check', blurb:'Mechanism / Pros / Cons / Effectiveness for all three strategies.',
+    cards:[
+      { q:'<strong>Louvre timed entry</strong> — mechanism?', a:'Strict mandatory pre-booked entry tickets since 2026; visitors without a reservation are turned away at the door.' },
+      { q:'<strong>Louvre timed entry</strong> — pros, cons and effectiveness?', a:'<strong>Pros:</strong> manages flow inside, spreads visitors through the day, prevents indoor overcrowding.<br><strong>Cons:</strong> does not reduce overall tourist numbers in Paris; tickets sell out weeks in advance.<br><strong>Rating:</strong> Moderately Effective.' },
+      { q:'<strong>Airbnb regulations</strong> — mechanism?', a:'Primary-residence rentals capped at 120 days/year (proposed drop to 90 days in hot-spots), centralised digital registration required, and fines of €15,000–€100,000.' },
+      { q:'<strong>Airbnb regulations</strong> — pros, cons and effectiveness?', a:'<strong>Pros:</strong> slows housing conversion; encourages compliance — fines fell from €3.5M (2021) to €535k (first 7 months of 2023).<br><strong>Cons:</strong> housing shortage and high rents remain; enforcement is difficult and imperfect.<br><strong>Rating:</strong> Moderately Effective.' },
+      { q:'<strong>Active tourist dispersal</strong> — mechanism?', a:'Promoting lesser-known areas (19th &amp; 20th Arrondissements, Belleville) and nearby regional towns (Fontainebleau) via improved transport links and targeted advertising.' },
+      { q:'<strong>Active tourist dispersal</strong> — pros, cons and effectiveness?', a:'<strong>Pros:</strong> targets root causes by redistributing crowds; spreads spending to local neighbourhoods; relieves hot-spots like Montmartre; low-cost and scalable via existing tourism boards.<br><strong>Cons:</strong> depends on tourists being willing to leave the primary sites.<br><strong>Rating:</strong> Very Effective Potential — supported by successful models in Amsterdam and Venice.' },
+      { q:'Which strategy best addresses the <em>cause</em> rather than the <em>symptom</em> of overtourism, and why?', a:'Active tourist dispersal. Timed entry and rental caps manage or contain pressure at hot-spots, but dispersal redistributes the tourist load itself and pushes spending into under-visited neighbourhoods, tackling both overcrowding and economic leakage.' }
+    ] }
+];
+
+/* ------------------------------------------------------ 9. TEET BUILDER */
+const TEET_QUESTIONS = [
+  { id:'q1', label:'Explain the negative social impacts of overtourism on a selected city.',
+    icon:'users', marks:'Typical: 4–6 marks',
+    hints:{
+      t:{ title:'Topic sentence starters',
+        starters:['Overtourism produces severe negative social impacts on the residents of Paris, particularly through the loss of affordable housing and local character.',
+                  'The rapid growth of tourism in Paris has significantly damaged the social fabric of the city for its permanent residents.'],
+        phrases:['negative social impacts','local residents','loss of liveability','residential displacement'] },
+      e1:{ title:'Explanation — link mechanism to consequence',
+        starters:['This occurs because property owners can earn far more from short-term holiday letting than from long-term residential leases, which removes housing from the residential market and drives rents upward.',
+                  'As a result, the everyday services residents rely on are replaced by tourist-oriented businesses, meaning the neighbourhood no longer functions as a place to live.'],
+        phrases:['This occurs because…','As a consequence…','which means that…','This directly leads to…','over time this results in…'] },
+      e2:{ title:'Example — use hard evidence',
+        starters:['For example, approximately 75,000 short-term holiday rentals such as Airbnb operate in Paris, squeezing housing supply and pricing local residents out.',
+                  'For instance, Mayor Anne Hidalgo and Deputy Ian Brossat have warned that Paris risks becoming an “open-air museum”, while the “Disneyfication” of Montmartre has driven residential conflict over crowds, noise and the loss of daily services.'],
+        phrases:['~75,000 short-term rentals','~50 million arrivals annually','Montmartre “Disneyfication”','“open-air museum” — Hidalgo & Brossat','residential conflict: crowds, noise, lost services'] },
+      t2:{ title:'Tie-back — answer the question again',
+        starters:['Therefore, the social cost of overtourism in Paris falls directly on residents, who lose both affordable housing and the everyday character of their own neighbourhoods.',
+                  'Consequently, overtourism has socially transformed Paris from a functioning residential city into one increasingly serving visitors rather than the people who live there.'],
+        phrases:['Therefore…','Consequently…','This clearly demonstrates that…','Ultimately, the negative social impact is…'] }
+    } },
+  { id:'q2', label:'Evaluate the effectiveness of a strategy used to manage overtourism in a selected city.',
+    icon:'scale', marks:'Typical: 6 marks',
+    hints:{
+      t:{ title:'Topic sentence starters (make a judgement immediately)',
+        starters:['The Louvre’s timed-entry and capacity control system is only moderately effective at managing overtourism in Paris.',
+                  'Active tourist dispersal has very strong potential as a management strategy because, unlike other measures, it addresses the root cause of overtourism.'],
+        phrases:['is moderately effective','has strong potential','only partially addresses','effective at… but limited by…'] },
+      e1:{ title:'Explanation — how the mechanism is supposed to work',
+        starters:['This strategy works by requiring strict mandatory pre-booked tickets, so visitor numbers are capped per time slot and flow is spread evenly across the day, preventing dangerous indoor overcrowding.',
+                  'Dispersal works by using transport links and targeted advertising to redirect visitors to lesser-known areas, which reduces pressure at hot-spots while spreading tourist spending into local neighbourhoods.'],
+        phrases:['This strategy works by…','The mechanism is…','It is effective because…','However, its limitation is that…'] },
+      e2:{ title:'Example — evidence for and against',
+        starters:['For example, since 2026 the Louvre has turned away non-reserved visitors; however, this does not reduce the overall number of tourists in Paris and tickets now sell out weeks in advance.',
+                  'For example, Airbnb regulation caps primary-residence letting at 120 days per year with fines of €15,000–€100,000, and court-issued fines fell from €3.5 million in 2021 to €535k in the first 7 months of 2023, indicating improved compliance — yet the housing shortage remains.'],
+        phrases:['120-day cap; fines €15,000–€100,000','fines fell €3.5M (2021) → €535k (2023)','19th & 20th Arrondissements, Belleville, Fontainebleau','Amsterdam and Venice dispersal models'] },
+      t2:{ title:'Tie-back — restate the judgement with a qualifier',
+        starters:['Overall, the strategy is moderately effective because it successfully manages visitor flow at a single site, but it fails to reduce the total tourist pressure on the city.',
+                  'Overall, dispersal is the most effective long-term option because it is low-cost, scalable and targets the cause of overtourism, though its success ultimately depends on tourist willingness to leave the primary sites.'],
+        phrases:['Overall, the strategy is…','effective in the short term, but…','the most effective option because…','its effectiveness is limited by…'] }
+    } },
+  { id:'q3', label:'Explain how transport networks connect manufacturers and global supply chains.',
+    icon:'ship', marks:'Typical: 4–6 marks',
+    hints:{
+      t:{ title:'Topic sentence starters',
+        starters:['Global transport networks are the physical foundation of modern manufacturing, allowing a single product to be assembled from components sourced across dozens of countries.',
+                  'Shipping, air and road transport interconnect manufacturers worldwide by moving raw materials and components from their point of origin to the point of assembly.'],
+        phrases:['transport networks','global supply chain','point of origin → point of consumption','integrated logistics'] },
+      e1:{ title:'Explanation — how and why',
+        starters:['This occurs because logistics manages the flow of goods, time and information between the point of origin and the point of consumption, integrating transport, warehousing, inventory and packaging so components arrive exactly when required for assembly.',
+                  'As a result, manufacturers can source each component from wherever it is produced most cheaply or expertly, rather than being limited to their own country.'],
+        phrases:['This occurs because…','logistics integrates transport, warehousing, inventory and packaging','just-in-time assembly','lower production costs / specialisation'] },
+      e2:{ title:'Example — Toyota / shipping data',
+        starters:['For example, a single Toyota vehicle relies on gearboxes, steering columns and engines from Britain, wiring harnesses from Mauritius, wheels and brake discs from Mexico, glass and radios from Canada and petroleum from the Middle East.',
+                  'For example, around 90% of all international physical trade in goods travels by sea — a trade valued at over $18 trillion annually — while air freight moves high-value goods across the globe in under 24 hours.'],
+        phrases:['Britain: gearboxes, steering columns, engines','Mauritius: wiring harnesses','Germany: locks, pistons, gaskets, batteries','~90% of trade by sea, >$18 trillion annually','air freight: under 24 hours'] },
+      t2:{ title:'Tie-back',
+        starters:['Therefore, without integrated global transport networks the modern supply chain could not function, as no single country supplies every component required to build a finished product.',
+                  'Consequently, transport networks are what physically interconnect manufacturers, turning components produced in over twenty countries into one finished vehicle.'],
+        phrases:['Therefore…','Consequently…','This demonstrates that transport is…','Without these networks…'] }
+    } }
+];
+
+/* -------------------------------------------------- 10. MOCK TEST (37) */
+const PART_A = [
+  { q:'Which of the following is the most accurate definition of <em>interconnection</em>?',
+    options:['The movement of tourists between two countries',
+             'The relationship between all things, both animate and inanimate, and all processes, both natural and human, on Earth',
+             'The trade of manufactured goods between developed nations',
+             'The physical distance separating two places on a map'],
+    answer:1,
+    explain:'Interconnection is deliberately broad — it covers relationships between all things and all processes, natural and human. The other options describe single examples of interconnection (tourism, trade) or the opposite idea (distance), not the concept itself.' },
+  { q:'<em>Overtourism</em> is best described as:',
+    options:['Any city that receives international tourists',
+             'A government policy limiting tourist visas',
+             'Visitation by excessive numbers of tourists causing negative impacts on a place’s environment, people, culture and infrastructure',
+             'Tourism that occurs outside the traditional holiday season'],
+    answer:2,
+    explain:'The defining feature of overtourism is that visitor numbers are excessive enough to cause undesirable impacts. Simply receiving tourists (option A) is not overtourism — the harm to environment, residents, culture and infrastructure is what makes it “over”.' },
+  { q:'Indigenous Australians’ connection to the ancient rock art at Murujuga (Burrup Peninsula) is best classified as which connection criterion?',
+    options:['Economic','Spiritual','Recreational','Political'],
+    answer:1,
+    explain:'A sacred, belief-based connection to Country is a spiritual connection. Economic would be the correct answer for the mining and gas corporations that value the same site as an industrial hub — the classic contested-perspectives pairing.' },
+  { q:'Dual naming, such as Mandurah / Mandjoogoordap, is used primarily to:',
+    options:['Attract more international tourists to a location',
+             'Make place names easier to pronounce for visitors',
+             'Recognise First Nations connections to place',
+             'Distinguish between two separate towns with the same name'],
+    answer:2,
+    explain:'Dual naming is a recognition tool: it formally acknowledges the enduring First Nations connection to a place alongside its colonial name. Any tourism benefit is incidental, not the purpose.' },
+  { q:'Which case study best demonstrates ICT being used to overcome distance in order to deliver <em>healthcare</em>?',
+    options:['School of the Air','Offshore call centres','The Royal Flying Doctor Service','iPhone component sourcing'],
+    answer:2,
+    explain:'The RFDS combines telehealth and radio communications with emergency aviation to link remote patients to life-saving medical care. School of the Air uses very similar technology, but delivers education rather than healthcare — a common trap in this question.' },
+  { q:'An iPhone containing over 300 components sourced from mines and factories worldwide best illustrates:',
+    options:['Economic leakage','A complex global supply chain','Ecotourism','Trade surplus'],
+    answer:1,
+    explain:'A supply chain is the system of organisations, people, activities and resources moving materials and components into a finished product. Economic leakage is a tourism-revenue concept and is unrelated here.' },
+  { q:'Approximately what proportion of international physical trade in goods is carried by sea?',
+    options:['About 40%','About 60%','About 90%','About 25%'],
+    answer:2,
+    explain:'Around 90% of all international physical trade in goods moves by sea — bulk oil, gas and grain plus containerised consumer goods — a trade valued at over $18 trillion annually. Air freight is fast but carries only high-value, low-bulk goods.' },
+  { q:'In the Toyota global supply chain, <strong>wiring harnesses</strong> are supplied by:',
+    options:['Mauritius','Mexico','Denmark','Austria'],
+    answer:0,
+    explain:'Mauritius supplies wiring harnesses. Denmark supplies fanbelts, Austria supplies radiators and heater hoses, and Mexico supplies wheels and brake discs — all frequently confused in recall questions.' },
+  { q:'According to Figure 1 (Global Trade Flows, 2012), which region was the smallest exporter, and why?',
+    options:['East Asia — because it imports more than it exports',
+             'Western Europe — because of high labour costs',
+             'Sub-Saharan Africa — because of lower manufacturing infrastructure, low-value raw material exports and lower regional GDP',
+             'North America — because of strong domestic consumption'],
+    answer:2,
+    explain:'Sub-Saharan Africa exported least because it has limited manufacturing infrastructure and exports low-value raw materials rather than finished goods, alongside a lower regional GDP. East Asia is the opposite case — a trade surplus region.' },
+  { q:'East Asia (China / Japan) recorded a trade surplus in 2012 mainly because:',
+    options:['It has the world’s largest population of tourists',
+             'It has massive manufacturing-led economies, lower production costs and high global demand for its finished goods',
+             'It imports almost no raw materials',
+             'It has the shortest shipping routes to Europe'],
+    answer:1,
+    explain:'A trade surplus means exports exceed imports. East Asia achieves this through manufacturing-led economies, lower domestic production costs and strong global demand for its electronics, machinery and consumer goods — it actually imports large volumes of raw materials.' },
+  { q:'The ~75,000 short-term holiday rentals operating in Paris are most closely associated with which impact?',
+    options:['A positive environmental impact through reduced hotel construction',
+             'A negative social impact — squeezed housing supply that prices residents out',
+             'A positive economic impact for local small businesses',
+             'A negative environmental impact on landmark buildings'],
+    answer:1,
+    explain:'Short-term rentals remove housing from the residential market, driving up rents and displacing residents — a social impact. They also worsen economic leakage (revenue flowing to Airbnb rather than local businesses), which is why option C is wrong.' },
+  { q:'Travel to natural, undisturbed areas designed to conserve the environment and support local communities is known as:',
+    options:['Recreational tourism','Historical tourism','Ecotourism','Cultural tourism'],
+    answer:2,
+    explain:'Ecotourism is defined by its conservation and community-support purpose, not simply by being outdoors. Recreational tourism is leisure-focused (beaches, resorts) and carries no conservation obligation.' }
+];
+
+const PART_B = [
+  { marks:2, q:'Define “Interconnection”.',
+    rubric:['<strong>1 mark:</strong> a clear, accurate definition identifying interconnection as the relationship between things and processes on Earth.',
+            '<strong>1 mark:</strong> correct use of geographical terminology — recognising that it includes both animate and inanimate things, and both natural and human processes.'],
+    model:'Interconnection is the relationship between all things, both animate and inanimate, and all processes, both natural and human, on Earth. It means that places, people, goods and environments are linked together, so that an action or process occurring in one location can influence people, environments and economies in another.' },
+  { marks:4, q:'Explain how transport and logistics connect car manufacturers globally, using the car supply chain example.',
+    rubric:['<strong>1 mark:</strong> accurate reference to the role of transport (sea, air and road) in physically moving components between countries.',
+            '<strong>1 mark:</strong> accurate use of the term logistics — managing the flow of goods, time and information between the point of origin and the point of consumption, integrating transport, warehousing, inventory and packaging.',
+            '<strong>1 mark:</strong> at least two specific, correct country–component pairs from the Toyota supply chain.',
+            '<strong>1 mark:</strong> explanation of the geographical significance — no single country supplies every component, so global interconnection is necessary for assembly to occur.'],
+    model:'Transport and logistics physically interconnect car manufacturers with suppliers located across the world. Logistics is the detailed management of the flow of goods, time and information between the point of origin and the point of consumption, integrating transport, warehousing, inventory and packaging so that components arrive at the assembly plant exactly when they are required. Shipping carries the bulk of these components — around 90% of international physical trade in goods travels by sea — while air freight moves smaller, high-value parts across the globe in under 24 hours. In the Toyota supply chain, gearboxes, steering columns and engines are supplied by Britain, locks, pistons, cylinder head gaskets and batteries by Germany, wiring harnesses by Mauritius, wheels and brake discs by Mexico, glass and radios by Canada, and petroleum by the Middle East. Because no single country produces every one of these components, the manufacturer is entirely dependent on integrated global transport networks; without them the finished vehicle could not be assembled at all.' },
+  { marks:7, q:'Using Figure 1 (Global Trade Flows, 2012), identify the region with the smallest export volume and explain why, then identify a region with a trade surplus and explain the factors producing it.',
+    rubric:['<strong>1 mark:</strong> correctly identifies Sub-Saharan Africa as the smallest exporting region.',
+            '<strong>2 marks:</strong> two valid reasons for low exports — lower manufacturing infrastructure; export of low-value raw materials rather than finished goods; lower regional GDP (1 mark each).',
+            '<strong>1 mark:</strong> correctly identifies East Asia (China / Japan) as a region whose exports exceed imports (a trade surplus).',
+            '<strong>2 marks:</strong> two valid factors producing the surplus — massive manufacturing-led economies; lower domestic production costs; high global demand for finished electronics, machinery and consumer goods (1 mark each).',
+            '<strong>1 mark:</strong> explicit data reference and comparison drawn from the figure, using geographical terminology (exports, imports, trade surplus, raw materials, finished goods).'],
+    model:'Figure 1 shows that Sub-Saharan Africa recorded the smallest export volume of any region in 2012. This is because the region has comparatively low manufacturing infrastructure, meaning it is unable to process materials into finished goods at scale. Instead, it predominantly exports low-value raw materials, which generate far less trade value per unit than manufactured products, and its lower regional GDP further limits investment in production and export capacity.\n\nIn contrast, East Asia — particularly China and Japan — shows a clear trade surplus, with exports substantially exceeding imports. This surplus is produced by massive manufacturing-led economies capable of high-volume production, lower domestic production costs that make East Asian goods competitively priced on the world market, and consistently high global demand for the finished electronics, machinery and consumer goods the region specialises in.\n\nComparing the two regions demonstrates the central pattern in global trade flows: regions that export finished manufactured goods accumulate trade surpluses and high trade values, whereas regions exporting primarily low-value raw materials remain at the periphery of global trade despite participating in it.' }
+];
+
+const PART_C = {
+  question:'Write an extended response on how the global growth of tourism has impacted Paris, and outline what is being done to make it more sustainable.',
+  parts:[
+    { id:'impacts',   name:'Part 1 — Impacts of tourism on Paris', marks:6,
+      prompt:'Cover economic, social and environmental impacts (both positive and negative) using specific data.' },
+    { id:'strategies',name:'Part 2 — Sustainability strategies',   marks:4,
+      prompt:'Outline and evaluate the strategies being used or proposed to manage overtourism.' },
+    { id:'structure', name:'Structure / TEET coherence',           marks:2,
+      prompt:'Self-assess: does each paragraph have a clear Topic sentence, Explanation, Example and Tie-back?' }
+  ],
+  exemplar:[
+    { heading:'Paragraph 1 — Economic impacts', body:[
+      { tag:'T',  text:'The global growth of tourism has generated enormous economic benefits for Paris, but has simultaneously made the city economically vulnerable and allowed much of that wealth to bypass local people.' },
+      { tag:'E1', text:'This occurs because a tourism-dominated economy concentrates income in a single volatile sector, while much of the spending is captured by international hotel chains, global tour operators and platforms such as Airbnb rather than by Parisian businesses — a process known as economic leakage.' },
+      { tag:'E2', text:'For example, Paris recorded a record tourist revenue of approximately €24 billion in 2025, an 8% increase on 2019, of which international visitors alone contributed €16 billion, and the sector now employs more than 290,000 people across the Paris region; however, a substantial share of that spend leaves the local economy entirely.' },
+      { tag:'T2', text:'Therefore, while the growth of global tourism has made Paris financially dependent on a single, highly profitable industry, the distribution of that wealth is uneven and leaves the city exposed if visitor numbers fall.' } ] },
+    { heading:'Paragraph 2 — Social impacts', body:[
+      { tag:'T',  text:'Socially, the growth of tourism has damaged the liveability of Paris for its permanent residents, despite providing genuine cultural exchange and heritage preservation.' },
+      { tag:'E1', text:'This occurs because property owners can earn considerably more from short-term holiday letting than from long-term residential leases, which removes housing from the residential market, drives rents beyond the reach of local people, and gradually replaces everyday neighbourhood services with businesses catering only to visitors.' },
+      { tag:'E2', text:'For example, approximately 75,000 short-term holiday rentals now operate in Paris; Mayor Anne Hidalgo and Deputy Ian Brossat have warned that the city risks becoming an “open-air museum” serving only tourists, and the “Disneyfication” of Montmartre has changed the character of the district, producing residential conflict over crowds, noise and the loss of daily services.' },
+      { tag:'T2', text:'Consequently, the social cost of overtourism falls directly on Parisians, who are progressively displaced from a city that increasingly functions as a tourist attraction rather than as a place to live.' } ] },
+    { heading:'Paragraph 3 — Environmental impacts', body:[
+      { tag:'T',  text:'The environmental impact of mass tourism on Paris is overwhelmingly negative, although tourist revenue does fund some heritage conservation.' },
+      { tag:'E1', text:'This occurs because approximately 50 million arrivals each year concentrate intense physical and atmospheric pressure onto a small number of historic sites and transport corridors, accelerating material decay and raising emissions faster than the city can mitigate them.' },
+      { tag:'E2', text:'For example, landmarks including Sacré-Cœur, Notre-Dame and the Louvre suffer measurable physical wear and tear, waste and litter accumulate in high-traffic districts, and heavy traffic congestion, noise pollution and the carbon footprint of international air and road transport degrade air quality — pressures that intersect with new energy-efficiency laws banning G-rated rentals in 2025 and F-rated rentals in 2028.' },
+      { tag:'T2', text:'Therefore, the environmental consequences of global tourism growth in Paris outweigh the conservation funding it generates, making environmental management central to any sustainable tourism plan.' } ] },
+    { heading:'Paragraph 4 — Management strategies and evaluation', body:[
+      { tag:'T',  text:'In response, Paris has implemented site-based controls and housing regulation, and is proposing active tourist dispersal, which together represent a shift from managing the symptoms of overtourism to addressing its causes.' },
+      { tag:'E1', text:'This occurs because capacity controls and rental caps limit pressure at individual sites without reducing the total number of visitors, whereas dispersal redistributes the tourist load itself and pushes spending outwards into under-visited neighbourhoods, tackling overcrowding and economic leakage at the same time.' },
+      { tag:'E2', text:'For example, the Louvre has required strict mandatory pre-booked entry since 2026, turning away non-reservations — moderately effective, since it spreads visitors through the day but does not reduce citywide numbers and tickets sell out weeks ahead; Airbnb regulation caps primary-residence letting at 120 days per year (with a proposed 90-day limit in hot-spots), requires centralised digital registration and imposes fines of €15,000–€100,000, with court-issued fines falling from €3.5 million in 2021 to €535k in the first seven months of 2023, indicating improved compliance although the housing shortage persists; and proposed dispersal would promote the 19th and 20th Arrondissements, Belleville and regional towns such as Fontainebleau through transport links and targeted advertising, following successful models in Amsterdam and Venice.' },
+      { tag:'T2', text:'Overall, the existing strategies are only moderately effective because they manage tourist pressure rather than reduce it, whereas active dispersal has very effective potential as it is low-cost, scalable through existing tourism boards and targets the root cause — though its success ultimately depends on tourists being willing to travel beyond the primary sites.' } ] }
+  ]
+};
+/* =========================================================================
+   APP STATE (in-memory only — see persistence note at the top of this script)
+   ========================================================================= */
+const state = {
+  view: 'dashboard',
+  scrollMem: {},
+  deckId: DECKS[0].id,
+  cardPos: 0,
+  filterLearning: false,
+  order: {},                 // deckId -> shuffled index array
+  cardStatus: {},            // "deckId:index" -> 'known' | 'learning'
+  supply: { mode:'explore', revealed:{}, quiz:{} },
+  teet: { qid: TEET_QUESTIONS[0].id, boxes:{}, hints:{}, done:{}, compiled:'' },
+  test: {
+    started:false, remaining: EXAM.duration*60, timerId:null, lockedAB:false, finished:false,
+    a:{}, bText:{}, bRevealed:{}, bSelf:{}, cText:{}, cSelf:{}, exemplar:false
+  }
+};
+
+/* ------------------------------------------------------------- helpers */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const icons = () => { if (window.lucide) lucide.createIcons(); };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const words = s => (s.trim().match(/\S+/g) || []).length;
+
+const NAV = [
+  { id:'dashboard',  label:'Dashboard',    icon:'layout-dashboard' },
+  { id:'notes',      label:'Study Notes',  icon:'book-open' },
+  { id:'flashcards', label:'Flashcards',   icon:'layers' },
+  { id:'teet',       label:'TEET Builder', icon:'pen-line' },
+  { id:'test',       label:'Mock Test',    icon:'clipboard-check' }
+];
+
+const BTN = 'inline-flex items-center gap-2 rounded-ctl px-3.5 py-2 text-[13px] font-medium transition-colors duration-250';
+const BTN_PRIMARY = BTN + ' bg-brand-500 hover:bg-brand-400 text-white shadow-lg shadow-brand-900/40';
+const BTN_GHOST   = BTN + ' bg-ink-800/70 hover:bg-ink-700 text-ink-200 border border-ink-700';
+const CARD  = 'card rounded-card p-5 md:p-6';
+const CHIP  = 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold';
+
+function pageHead(id, icon, title, sub) {
+  return '<header class="mb-6 md:mb-8 flex items-start gap-4">' +
+    '<span class="w-11 h-11 rounded-card bg-brand-500/15 border border-brand-400/30 grid place-items-center shrink-0">' +
+      '<i data-lucide="' + icon + '" class="w-5 h-5 text-brand-300"></i></span>' +
+    '<div><h1 id="h-' + id + '" class="text-xl md:text-2xl font-bold text-ink-100 tracking-tight">' + title + '</h1>' +
+    '<p class="text-[13px] md:text-sm text-ink-400 mt-1 max-w-3xl">' + sub + '</p></div></header>';
+}
+
+/* ============================== NAVIGATION ============================== */
+function navBtnClass(active) {
+  return BTN + ' shrink-0 ' + (active
+    ? 'bg-brand-500/20 text-brand-200 border border-brand-400/40'
+    : 'text-ink-400 hover:text-ink-100 hover:bg-ink-800 border border-transparent');
+}
+function renderNav() {
+  $('#nav-links').innerHTML = NAV.map(n =>
+    '<button data-nav="' + n.id + '" class="' + navBtnClass(n.id === state.view) + '" aria-current="' +
+    (n.id === state.view ? 'page' : 'false') + '" title="' + n.label + '">' +
+    '<i data-lucide="' + n.icon + '" class="w-4 h-4"></i>' +
+    '<span class="hidden lg:inline">' + n.label + '</span></button>').join('');
+}
+function setView(id) {
+  if (state.view !== id) state.scrollMem[state.view] = window.scrollY;
+  state.view = id;
+  $$('.view').forEach(v => v.classList.toggle('is-active', v.id === 'view-' + id));
+  renderNav();
+  if (id === 'dashboard') renderDashboard();
+  icons();
+  requestAnimationFrame(() => window.scrollTo({ top: state.scrollMem[id] || 0 }));
+}
+
+/* ============================== DASHBOARD ============================== */
+function deckStats() {
+  let total = 0, known = 0, learning = 0;
+  DECKS.forEach(d => d.cards.forEach((_, i) => {
+    total++;
+    const s = state.cardStatus[d.id + ':' + i];
+    if (s === 'known') known++; else if (s === 'learning') learning++;
+  }));
+  return { total, known, learning };
+}
+function testScores() {
+  const t = state.test;
+  const a = PART_A.reduce((n, q, i) => n + (t.a[i] === q.answer ? 1 : 0), 0);
+  const b = PART_B.reduce((n, q, i) => n + (Number(t.bSelf[i]) || 0), 0);
+  const c = PART_C.parts.reduce((n, p) => n + (Number(t.cSelf[p.id]) || 0), 0);
+  return { a, b, c, total: a + b + c };
+}
+function bar(pct, color) {
+  return '<div class="h-2 rounded-full bg-ink-800 overflow-hidden"><div class="h-full rounded-full transition-all duration-250" style="width:' +
+    Math.max(0, Math.min(100, pct)) + '%;background:' + color + '"></div></div>';
+}
+function statTile(icon, label, value, sub, pct, color) {
+  return '<div class="' + CARD + '">' +
+    '<div class="flex items-center gap-2 text-ink-400 text-[12px] font-medium uppercase tracking-wide">' +
+    '<i data-lucide="' + icon + '" class="w-4 h-4"></i>' + label + '</div>' +
+    '<p class="mt-3 text-2xl font-bold text-ink-100">' + value + '</p>' +
+    '<p class="text-[12px] text-ink-400 mb-3">' + sub + '</p>' + bar(pct, color) + '</div>';
+}
+function donutSVG() {
+  const r = 54, C = 2 * Math.PI * r;
+  let off = 0;
+  const arcs = EXAM.parts.map(p => {
+    const len = C * p.marks / EXAM.total;
+    const s = '<circle cx="70" cy="70" r="' + r + '" fill="none" stroke="' + p.color + '" stroke-width="17" ' +
+      'stroke-dasharray="' + (len - 2.5) + ' ' + (C - len + 2.5) + '" stroke-dashoffset="' + (-off) +
+      '" transform="rotate(-90 70 70)"></circle>';
+    off += len; return s;
+  }).join('');
+  return '<svg viewBox="0 0 140 140" class="w-36 h-36 shrink-0" role="img" aria-label="Mark allocation: Part A 12 marks, Part B 13 marks, Part C 12 marks, total 37">' +
+    '<circle cx="70" cy="70" r="' + r + '" fill="none" stroke="#1e2739" stroke-width="17"></circle>' + arcs +
+    '<text x="70" y="66" text-anchor="middle" fill="#eef1f6" font-size="24" font-weight="700">37</text>' +
+    '<text x="70" y="86" text-anchor="middle" fill="#8892a8" font-size="11">marks</text></svg>';
+}
+function renderDashboard() {
+  const ds = deckStats(), sc = testScores();
+  const teetDone = Object.keys(state.teet.done).length;
+  const answered = Object.keys(state.test.a).length;
+  const html = pageHead('dashboard', 'layout-dashboard', 'Revision Dashboard',
+    'Session progress across your flashcards, TEET paragraphs and mock test. Everything resets when you close the page.') +
+
+    '<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">' +
+      statTile('layers', 'Flashcards mastered', ds.known + ' / ' + ds.total,
+        ds.learning + ' still learning · ' + (ds.total - ds.known - ds.learning) + ' not yet seen',
+        ds.total ? ds.known / ds.total * 100 : 0, '#43c78f') +
+      statTile('pen-line', 'TEET paragraphs', teetDone + ' / ' + TEET_QUESTIONS.length,
+        'Paragraphs compiled in the builder', teetDone / TEET_QUESTIONS.length * 100, '#837ffb') +
+      statTile('list-checks', 'Part A answered', answered + ' / ' + PART_A.length,
+        sc.a + ' correct so far', answered / PART_A.length * 100, '#e0a044') +
+      statTile('clipboard-check', 'Mock test score', sc.total + ' / ' + EXAM.total,
+        'A ' + sc.a + '/12 · B ' + sc.b + '/13 · C ' + sc.c + '/12', sc.total / EXAM.total * 100, '#6b5df2') +
+    '</div>' +
+
+    '<div class="grid gap-4 lg:grid-cols-3">' +
+      '<div class="' + CARD + ' lg:col-span-2">' +
+        '<h2 class="font-semibold text-ink-100 mb-1">Exam at a glance</h2>' +
+        '<p class="text-[13px] text-ink-400 mb-5">' + EXAM.duration + ' minutes · ' + EXAM.total + ' marks · writing model: ' + EXAM.model + '</p>' +
+        '<div class="flex flex-col sm:flex-row items-center gap-6">' + donutSVG() +
+          '<div class="flex-1 w-full space-y-3">' + EXAM.parts.map(p =>
+            '<div><div class="flex items-baseline gap-2 mb-1"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:' + p.color + '"></span>' +
+            '<span class="text-[13px] font-medium text-ink-200">' + p.name + '</span>' +
+            '<span class="ml-auto text-[13px] font-semibold text-ink-100">' + p.marks + '</span></div>' +
+            bar(p.marks / EXAM.total * 100, p.color) +
+            '<p class="text-[11px] text-ink-500 mt-1">' + p.note + '</p></div>').join('') +
+          '</div></div></div>' +
+      '<div class="' + CARD + '">' +
+        '<h2 class="font-semibold text-ink-100 mb-3">Jump back in</h2>' +
+        '<div class="space-y-2">' + NAV.filter(n => n.id !== 'dashboard').map(n =>
+          '<button data-nav="' + n.id + '" class="' + BTN_GHOST + ' w-full justify-start">' +
+          '<i data-lucide="' + n.icon + '" class="w-4 h-4 text-brand-300"></i>' + n.label +
+          '<i data-lucide="arrow-right" class="w-4 h-4 ml-auto text-ink-500"></i></button>').join('') +
+        '</div>' +
+        '<p class="text-[12px] text-ink-500 mt-4 leading-relaxed">Aim to mark every flashcard “Know it” at least once, compile all three TEET paragraphs, then sit the full 45-minute mock test.</p>' +
+      '</div></div>';
+  $('#view-dashboard').innerHTML = html;
+  icons();
+}
+
+/* ============================== STUDY NOTES ============================== */
+function acc(id, icon, title, sub, body, open) {
+  return '<section class="acc card rounded-card overflow-hidden' + (open ? ' is-open' : '') + '">' +
+    '<h2><button data-acc="1" aria-expanded="' + (open ? 'true' : 'false') +
+      '" class="w-full flex items-center gap-4 p-5 text-left hover:bg-ink-800/40 transition-colors duration-250">' +
+      '<span class="w-10 h-10 rounded-ctl bg-brand-500/15 border border-brand-400/30 grid place-items-center shrink-0">' +
+      '<i data-lucide="' + icon + '" class="w-5 h-5 text-brand-300"></i></span>' +
+      '<span class="min-w-0 flex-1"><span class="block font-semibold text-ink-100">' + title + '</span>' +
+      '<span class="block text-[12px] text-ink-400 mt-0.5">' + sub + '</span></span>' +
+      '<i data-lucide="chevron-down" class="acc-chev w-5 h-5 text-ink-400 shrink-0"></i></button></h2>' +
+    '<div class="acc-body" id="accb-' + id + '"><div class="px-5 pb-6 pt-2 border-t border-ink-700/50">' + body + '</div></div></section>';
+}
+const li = items => '<ul class="space-y-2">' + items.map(t =>
+  '<li class="flex gap-2.5 text-[13px] text-ink-300 leading-relaxed"><span class="text-brand-400 mt-1.5 shrink-0">▪</span><span>' + t + '</span></li>').join('') + '</ul>';
+
+function notesExam() {
+  return '<div class="flex flex-col md:flex-row gap-6 items-center">' + donutSVG() +
+    '<div class="flex-1 w-full">' +
+      '<div class="grid sm:grid-cols-3 gap-3 mb-4">' + EXAM.parts.map(p =>
+        '<div class="card-soft rounded-ctl p-4"><div class="flex items-center gap-2 mb-1"><span class="w-2.5 h-2.5 rounded-full" style="background:' + p.color + '"></span>' +
+        '<span class="text-[12px] text-ink-400">Part ' + p.id + '</span></div>' +
+        '<p class="text-xl font-bold text-ink-100">' + p.marks + ' <span class="text-[12px] font-normal text-ink-400">marks</span></p>' +
+        '<p class="text-[12px] text-ink-400 mt-1">' + p.note + '</p></div>').join('') + '</div>' +
+      '<div class="card-soft rounded-ctl p-4"><p class="text-[13px] text-ink-300"><strong class="text-ink-100">Duration:</strong> ' + EXAM.duration +
+      ' minutes for ' + EXAM.total + ' marks — roughly one minute per mark plus reading time.</p>' +
+      '<p class="text-[13px] text-ink-300 mt-2"><strong class="text-ink-100">Core writing model:</strong> ' + EXAM.model + '</p></div>' +
+    '</div></div>';
+}
+function notesDefinitions() {
+  return '<div class="grid gap-4 md:grid-cols-2">' + DEFINITIONS.map(d =>
+    '<div class="card-soft rounded-ctl p-4"><div class="flex items-center gap-2.5 mb-2">' +
+    '<i data-lucide="' + d.icon + '" class="w-4 h-4 text-brand-300"></i>' +
+    '<h3 class="font-semibold text-ink-100 text-[15px]">' + d.term + '</h3></div>' +
+    '<p class="text-[13px] text-ink-300 leading-relaxed">' + d.text + '</p></div>').join('') + '</div>';
+}
+function notesPerception() {
+  const p = PERCEPTION;
+  const lens = (l, tone) => '<div class="rounded-ctl p-4 border ' +
+    (tone === 'brand' ? 'bg-brand-500/10 border-brand-400/30' : 'bg-warn-500/10 border-warn-400/30') + '">' +
+    '<div class="flex items-center gap-2 mb-1"><i data-lucide="' + l.icon + '" class="w-4 h-4 ' + (tone === 'brand' ? 'text-brand-300' : 'text-warn-400') + '"></i>' +
+    '<h4 class="font-semibold text-ink-100 text-[14px]">' + l.label + '</h4></div>' +
+    '<p class="text-[12px] text-ink-400 mb-3">' + l.who + '</p>' + li(l.points) + '</div>';
+  return '<div class="card-soft rounded-ctl p-4 mb-5"><p class="text-[13px] text-ink-300"><strong class="text-ink-100">Perception:</strong> ' + p.definition + '</p>' +
+    '<p class="text-[12px] text-ink-400 mt-3 mb-2">Factors that shape perception:</p>' +
+    '<div class="flex flex-wrap gap-2">' + p.factors.map(f => '<span class="' + CHIP + ' bg-ink-800 text-ink-300 border border-ink-700">' + f + '</span>').join('') + '</div></div>' +
+
+    '<h3 class="font-semibold text-ink-100 mb-3">The four connection criteria</h3>' +
+    '<div class="grid gap-4 md:grid-cols-2 mb-6">' + p.criteria.map(c =>
+      '<div class="card-soft rounded-ctl p-4"><div class="flex items-center gap-2.5 mb-2">' +
+      '<i data-lucide="' + c.icon + '" class="w-4 h-4 text-brand-300"></i><h4 class="font-semibold text-ink-100 text-[15px]">' + c.name + '</h4></div>' +
+      '<p class="text-[13px] text-ink-300 leading-relaxed mb-3">' + c.desc + '</p>' +
+      '<div class="rounded-ctl bg-ink-950/60 border border-ink-700/60 p-3">' +
+      '<p class="text-[11px] uppercase tracking-wide text-brand-300 font-semibold mb-1">' + c.caseTitle + '</p>' +
+      '<p class="text-[12.5px] text-ink-300 leading-relaxed">' + c.caseText + '</p></div></div>').join('') + '</div>' +
+
+    '<h3 class="font-semibold text-ink-100 mb-1">Two lenses, one place</h3>' +
+    '<p class="text-[13px] text-ink-400 mb-4">' + p.twoLenses.place + '</p>' +
+    '<div class="grid gap-4 md:grid-cols-2 items-stretch relative">' + lens(p.twoLenses.left, 'brand') + lens(p.twoLenses.right, 'warn') + '</div>' +
+    '<div class="mt-4 rounded-ctl bg-ink-950/60 border border-ink-700/60 p-4 flex gap-3">' +
+      '<i data-lucide="lightbulb" class="w-4 h-4 text-warn-400 shrink-0 mt-0.5"></i>' +
+      '<p class="text-[13px] text-ink-300 leading-relaxed">' + p.twoLenses.takeaway + '</p></div>' +
+    '<div class="mt-4 rounded-ctl bg-ink-950/60 border border-ink-700/60 p-4 flex gap-3">' +
+      '<i data-lucide="languages" class="w-4 h-4 text-brand-300 shrink-0 mt-0.5"></i>' +
+      '<p class="text-[13px] text-ink-300 leading-relaxed">' + p.dualNaming + '</p></div>';
+}
+function notesICT() {
+  return '<p class="text-[13px] text-ink-300 leading-relaxed mb-5 max-w-3xl">' + ICT.intro + '</p>' +
+    '<div class="grid gap-4 md:grid-cols-2">' + ICT.cases.map(c =>
+      '<div class="card-soft rounded-ctl p-4"><div class="flex items-center gap-2.5 mb-2">' +
+      '<i data-lucide="' + c.icon + '" class="w-4 h-4 text-brand-300"></i><h3 class="font-semibold text-ink-100 text-[15px]">' + c.name + '</h3></div>' +
+      '<p class="text-[13px] text-ink-300 leading-relaxed mb-3">' + c.desc + '</p>' +
+      '<p class="text-[12.5px] text-pos-400 leading-relaxed">' + c.matters + '</p></div>').join('') + '</div>';
+}
+function notesTransport() {
+  const t = TRANSPORT;
+  return '<div class="grid gap-4 md:grid-cols-2 mb-6">' + t.modes.map(m =>
+      '<div class="card-soft rounded-ctl p-4"><div class="flex items-center gap-3 mb-2">' +
+      '<i data-lucide="' + m.icon + '" class="w-5 h-5 text-brand-300"></i>' +
+      '<h3 class="font-semibold text-ink-100">' + m.name + '</h3>' +
+      '<span class="ml-auto text-lg font-bold text-brand-200">' + m.stat + '</span></div>' +
+      '<p class="text-[13px] text-ink-300 leading-relaxed">' + m.desc + '</p>' +
+      '<p class="text-[12.5px] text-ink-400 mt-2">' + m.extra + '</p></div>').join('') + '</div>' +
+
+    '<h3 class="font-semibold text-ink-100 mb-1">The Toyota car supply chain</h3>' +
+    '<p class="text-[13px] text-ink-400 mb-4 max-w-3xl">' + t.toyota.intro + '</p>' +
+    '<div class="flex flex-wrap gap-2 mb-4" id="toyota-controls">' +
+      '<button data-ty-mode="explore" class="' + BTN_GHOST + '"><i data-lucide="mouse-pointer-click" class="w-4 h-4"></i>Explore</button>' +
+      '<button data-ty-all="1" class="' + BTN_GHOST + '"><i data-lucide="eye" class="w-4 h-4"></i>Reveal all</button>' +
+      '<button data-ty-all="0" class="' + BTN_GHOST + '"><i data-lucide="eye-off" class="w-4 h-4"></i>Hide all</button>' +
+      '<button data-ty-mode="quiz" class="' + BTN_GHOST + '"><i data-lucide="help-circle" class="w-4 h-4"></i>Quiz me</button>' +
+    '</div>' +
+    '<div id="toyota-status" class="mb-3"></div>' +
+    '<div id="toyota-grid" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"></div>' +
+
+    '<h3 class="font-semibold text-ink-100 mt-8 mb-1">' + t.trade.title + '</h3>' +
+    '<div class="grid gap-4 md:grid-cols-2 mt-4">' + t.trade.items.map(it => {
+      const tone = it.tone === 'pos'
+        ? { br:'border-pos-400/30', bg:'bg-pos-500/10', tx:'text-pos-400' }
+        : { br:'border-neg-400/30', bg:'bg-neg-500/10', tx:'text-neg-400' };
+      return '<div class="rounded-ctl p-4 border ' + tone.br + ' ' + tone.bg + '">' +
+        '<div class="flex items-center gap-2 mb-1"><i data-lucide="' + it.icon + '" class="w-4 h-4 ' + tone.tx + '"></i>' +
+        '<span class="text-[11px] uppercase tracking-wide ' + tone.tx + ' font-semibold">' + it.label + '</span></div>' +
+        '<h4 class="font-bold text-ink-100 text-[16px] mb-3">' + it.region + '</h4>' + li(it.reasons) + '</div>';
+    }).join('') + '</div>';
+}
+function renderToyota() {
+  const grid = $('#toyota-grid'); if (!grid) return;
+  const s = state.supply, quiz = s.mode === 'quiz';
+  $$('#toyota-controls [data-ty-mode]').forEach(b =>
+    b.className = (b.dataset.tyMode === s.mode ? BTN + ' bg-brand-500/20 text-brand-200 border border-brand-400/40' : BTN_GHOST));
+  $$('#toyota-controls [data-ty-all]').forEach(b => b.classList.toggle('hidden', quiz));
+
+  grid.innerHTML = TRANSPORT.toyota.rows.map((r, i) => {
+    const shown = !!s.revealed[i], res = s.quiz[i];
+    let inner = '<div class="flex items-start gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-brand-300 shrink-0 mt-0.5"></i>' +
+      '<span class="font-semibold text-ink-100 text-[13.5px] leading-snug">' + r.country + '</span></div>';
+    if (quiz) {
+      inner += shown
+        ? '<p class="text-[13px] text-ink-300 mt-2">' + r.parts + '</p>' +
+          '<div class="flex gap-2 mt-3"><button data-ty-q="' + i + '" data-v="1" class="' + BTN + ' flex-1 justify-center bg-pos-500/15 text-pos-400 border border-pos-400/30 hover:bg-pos-500/25">✓ Got it</button>' +
+          '<button data-ty-q="' + i + '" data-v="0" class="' + BTN + ' flex-1 justify-center bg-neg-500/15 text-neg-400 border border-neg-400/30 hover:bg-neg-500/25">✕ Missed</button></div>'
+        : '<p class="text-[12px] text-ink-500 mt-2">Which component(s) does this country supply?</p>' +
+          '<button data-ty="' + i + '" class="' + BTN_GHOST + ' mt-3 w-full justify-center">Reveal answer</button>';
+      if (res !== undefined) inner += '<p class="text-[11px] mt-2 ' + (res ? 'text-pos-400' : 'text-neg-400') + '">' + (res ? 'Marked correct' : 'Marked as missed — revise this one') + '</p>';
+      return '<div class="card-soft rounded-ctl p-4' + (res === 0 ? ' border-neg-400/40' : res === 1 ? ' border-pos-400/40' : '') + '">' + inner + '</div>';
+    }
+    inner += shown
+      ? '<p class="text-[13px] text-ink-300 mt-2">' + r.parts + '</p>'
+      : '<p class="text-[12px] text-ink-500 mt-2">Tap to reveal components</p>';
+    return '<button data-ty="' + i + '" class="card-soft rounded-ctl p-4 text-left hover:border-brand-400/40 hover:bg-ink-800/70 transition-colors duration-250' +
+      (shown ? ' border-brand-400/30' : '') + '">' + inner + '</button>';
+  }).join('');
+
+  const st = $('#toyota-status');
+  if (quiz) {
+    const done = Object.keys(s.quiz).length;
+    const right = Object.values(s.quiz).filter(v => v === 1).length;
+    st.innerHTML = '<div class="card-soft rounded-ctl p-3 flex flex-wrap items-center gap-3 text-[13px]">' +
+      '<span class="text-ink-300">Self-check recall: <strong class="text-ink-100">' + right + '</strong> correct of ' + done + ' attempted (' + TRANSPORT.toyota.rows.length + ' total)</span>' +
+      '<button data-ty-reset="1" class="' + BTN_GHOST + ' ml-auto"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Reset quiz</button></div>';
+  } else st.innerHTML = '';
+  icons();
+}
+function notesTourismTypes() {
+  return '<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">' + TOURISM_TYPES.map(t =>
+    '<div class="card-soft rounded-ctl p-4 text-center"><div class="w-11 h-11 rounded-card bg-brand-500/15 border border-brand-400/30 grid place-items-center mx-auto mb-3">' +
+    '<i data-lucide="' + t.icon + '" class="w-5 h-5 text-brand-300"></i></div>' +
+    '<h3 class="font-semibold text-ink-100 text-[15px] mb-1">' + t.name + '</h3>' +
+    '<p class="text-[12.5px] text-ink-300 leading-relaxed">' + t.desc + '</p></div>').join('') + '</div>';
+}
+function ratingBar(level) {
+  return '<span class="inline-flex gap-1 items-center" aria-hidden="true">' + [1, 2, 3].map(n =>
+    '<span class="w-6 h-1.5 rounded-full" style="background:' + (n <= level ? (level === 3 ? '#43c78f' : '#e0a044') : '#2a3448') + '"></span>').join('') + '</span>';
+}
+function notesParis() {
+  const p = PARIS;
+  const posneg = (title, items, tone) => {
+    const c = tone === 'pos'
+      ? { br:'border-pos-400/25', bg:'bg-pos-500/10', tx:'text-pos-400', ic:'plus-circle' }
+      : { br:'border-neg-400/25', bg:'bg-neg-500/10', tx:'text-neg-400', ic:'minus-circle' };
+    return '<div class="rounded-ctl border ' + c.br + ' ' + c.bg + ' p-3">' +
+      '<div class="flex items-center gap-1.5 mb-2"><i data-lucide="' + c.ic + '" class="w-3.5 h-3.5 ' + c.tx + '"></i>' +
+      '<span class="text-[11px] font-bold uppercase tracking-wide ' + c.tx + '">' + title + '</span></div>' +
+      '<ul class="space-y-2">' + items.map(t => '<li class="text-[12.5px] text-ink-300 leading-relaxed flex gap-2">' +
+      '<span class="' + c.tx + ' shrink-0">' + (tone === 'pos' ? '+' : '−') + '</span><span>' + t + '</span></li>').join('') + '</ul></div>';
+  };
+  return '<div class="card-soft rounded-ctl p-4 mb-6"><div class="flex flex-wrap items-center gap-x-6 gap-y-3">' +
+      '<div><p class="text-[11px] uppercase tracking-wide text-ink-400">Annual arrivals</p><p class="text-xl font-bold text-ink-100">' + p.profile.arrivals + '</p></div>' +
+      '<div class="flex-1 min-w-[240px]"><p class="text-[11px] uppercase tracking-wide text-ink-400 mb-2">Key attractions</p>' +
+      '<div class="flex flex-wrap gap-2">' + p.profile.attractions.map(a => '<span class="' + CHIP + ' bg-ink-800 text-ink-200 border border-ink-700">' + a + '</span>').join('') + '</div></div>' +
+    '</div><p class="text-[12.5px] text-ink-400 mt-3">' + p.profile.infrastructure + '</p></div>' +
+
+    '<h3 class="font-semibold text-ink-100 mb-1">Triple Bottom Line — impacts of overtourism</h3>' +
+    '<p class="text-[12.5px] text-ink-400 mb-4">Positives are marked <span class="text-pos-400 font-semibold">+</span> and negatives <span class="text-neg-400 font-semibold">−</span> as well as colour-coded.</p>' +
+    '<div class="grid gap-4 lg:grid-cols-3">' + p.tbl.map(col =>
+      '<div class="card-soft rounded-ctl p-4"><div class="flex items-center gap-2 mb-3">' +
+      '<i data-lucide="' + col.icon + '" class="w-4 h-4 text-brand-300"></i><h4 class="font-semibold text-ink-100">' + col.pillar + '</h4></div>' +
+      '<div class="space-y-3">' + posneg('Positive', col.positives, 'pos') + posneg('Negative', col.negatives, 'neg') +
+      (col.policy ? '<div class="rounded-ctl bg-ink-950/60 border border-ink-700/60 p-3 text-[12.5px] text-ink-300 leading-relaxed">' + col.policy + '</div>' : '') +
+      '</div></div>').join('') + '</div>' +
+
+    '<h3 class="font-semibold text-ink-100 mt-8 mb-1">Management strategies — compare, then drill in</h3>' +
+    '<p class="text-[12.5px] text-ink-400 mb-4">Effectiveness at a glance, then expand any strategy for Mechanism / Pros / Cons.</p>' +
+    '<div class="space-y-3">' + p.strategies.map(s =>
+      '<div class="acc card-soft rounded-ctl overflow-hidden">' +
+        '<button data-acc="1" aria-expanded="false" class="w-full flex flex-wrap items-center gap-3 p-4 text-left hover:bg-ink-800/50 transition-colors duration-250">' +
+          '<i data-lucide="' + s.icon + '" class="w-4 h-4 text-brand-300 shrink-0"></i>' +
+          '<span class="font-semibold text-ink-100 text-[14px] flex-1 min-w-[180px]">' + s.name + '</span>' +
+          ratingBar(s.level) +
+          '<span class="' + CHIP + ' ' + (s.level === 3 ? 'bg-pos-500/15 text-pos-400 border border-pos-400/30' : 'bg-warn-500/15 text-warn-400 border border-warn-400/30') + '">' + s.rating + '</span>' +
+          '<i data-lucide="chevron-down" class="acc-chev w-4 h-4 text-ink-400"></i></button>' +
+        '<div class="acc-body"><div class="px-4 pb-5 pt-1 border-t border-ink-700/50 space-y-3">' +
+          '<div class="rounded-ctl bg-ink-950/60 border border-ink-700/60 p-3"><p class="text-[11px] uppercase tracking-wide text-brand-300 font-semibold mb-1">Mechanism</p>' +
+          '<p class="text-[13px] text-ink-300 leading-relaxed">' + s.mechanism + '</p></div>' +
+          '<div class="grid gap-3 md:grid-cols-2">' + posneg('Pros', s.pros, 'pos') + posneg('Cons', s.cons, 'neg') + '</div>' +
+          (s.support ? '<p class="text-[12.5px] text-pos-400">' + s.support + '</p>' : '') +
+        '</div></div></div>').join('') + '</div>';
+}
+function renderNotes() {
+  $('#view-notes').innerHTML = pageHead('notes', 'book-open', 'Study Notes',
+    'The full syllabus for the trimester test. Expand a module to revise it — every case study, statistic and figure you need is here.') +
+    '<div class="space-y-4">' +
+      acc('exam', 'target', 'Exam specifications', EXAM.duration + ' minutes · ' + EXAM.total + ' marks · T.E.E.T writing model', notesExam(), true) +
+      acc('defs', 'book-marked', 'Core definitions', 'Interconnection, Tourism, Overtourism, Supply Chain, Logistics', notesDefinitions(), false) +
+      acc('perception', 'eye', 'Perceptions of place', 'The four connection criteria, Murujuga, contested perspectives, dual naming', notesPerception(), false) +
+      acc('ict', 'wifi', 'ICT global interconnections', 'School of the Air, RFDS, offshore call centres, iPhone sourcing', notesICT(), false) +
+      acc('transport', 'ship', 'Transport & global logistics', 'Shipping and air freight, the Toyota supply chain, global trade flows', notesTransport(), false) +
+      acc('types', 'palmtree', 'Types of tourism', 'Recreational, Cultural, Historical, Event / Ecotourism', notesTourismTypes(), false) +
+      acc('paris', 'building-2', 'Case study — overtourism in Paris', 'Triple Bottom Line impacts and the three management strategies', notesParis(), false) +
+    '</div>';
+  renderToyota();
+  icons();
+}
+
+/* ============================== FLASHCARDS ============================== */
+function currentDeck() { return DECKS.find(d => d.id === state.deckId); }
+function deckOrder(d) { return state.order[d.id] || d.cards.map((_, i) => i); }
+function visibleIndices() {
+  const d = currentDeck();
+  const idx = deckOrder(d);
+  return state.filterLearning ? idx.filter(i => state.cardStatus[d.id + ':' + i] === 'learning') : idx;
+}
+function renderFlashcards() {
+  const learning = DECKS.reduce((n, d) => n + d.cards.filter((_, i) => state.cardStatus[d.id + ':' + i] === 'learning').length, 0);
+  $('#view-flashcards').innerHTML = pageHead('flashcards', 'layers', 'Flashcards',
+    'Click a card (or press Space / Enter) to flip it. Use ← and → to move through the deck, and mark each card so the dashboard can track what you still need.') +
+    '<div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 mb-6">' + DECKS.map(d => {
+      const known = d.cards.filter((_, i) => state.cardStatus[d.id + ':' + i] === 'known').length;
+      const on = d.id === state.deckId;
+      return '<button data-deck="' + d.id + '" class="rounded-card p-4 text-left border transition-colors duration-250 ' +
+        (on ? 'bg-brand-500/15 border-brand-400/40' : 'card-soft hover:bg-ink-800/70 hover:border-brand-400/30') + '">' +
+        '<div class="flex items-center gap-2 mb-1"><i data-lucide="' + d.icon + '" class="w-4 h-4 ' + (on ? 'text-brand-200' : 'text-brand-300') + '"></i>' +
+        '<span class="font-semibold text-ink-100 text-[14px]">' + d.name + '</span>' +
+        '<span class="ml-auto text-[11px] text-ink-400">' + known + '/' + d.cards.length + '</span></div>' +
+        '<p class="text-[12px] text-ink-400 leading-relaxed mb-3">' + d.blurb + '</p>' +
+        bar(known / d.cards.length * 100, '#43c78f') + '</button>';
+    }).join('') + '</div>' +
+    '<div class="flex flex-wrap items-center gap-2 mb-4">' +
+      '<button data-fc="shuffle" class="' + BTN_GHOST + '"><i data-lucide="shuffle" class="w-4 h-4"></i>Shuffle deck</button>' +
+      '<button data-fc="filter" class="' + (state.filterLearning ? BTN + ' bg-warn-500/20 text-warn-400 border border-warn-400/40' : BTN_GHOST) + '">' +
+        '<i data-lucide="filter" class="w-4 h-4"></i>' + (state.filterLearning ? 'Showing “still learning” only' : 'Filter to “still learning”') + '</button>' +
+      '<span class="text-[12px] text-ink-500 ml-auto">' + learning + ' card' + (learning === 1 ? '' : 's') + ' flagged as still learning across all decks</span>' +
+    '</div><div id="fc-area"></div>';
+  renderCardArea();
+}
+function renderCardArea() {
+  const d = currentDeck(), idx = visibleIndices();
+  const area = $('#fc-area');
+  if (!idx.length) {
+    area.innerHTML = '<div class="' + CARD + ' text-center"><i data-lucide="party-popper" class="w-6 h-6 text-pos-400 mx-auto mb-3"></i>' +
+      '<p class="text-ink-200 font-medium">Nothing flagged as “still learning” in this deck.</p>' +
+      '<p class="text-[13px] text-ink-400 mt-1">Turn the filter off to see the whole deck again.</p></div>';
+    icons(); return;
+  }
+  if (state.cardPos >= idx.length) state.cardPos = 0;
+  if (state.cardPos < 0) state.cardPos = idx.length - 1;
+  const i = idx[state.cardPos], c = d.cards[i], status = state.cardStatus[d.id + ':' + i];
+  const face = 'flip-face rounded-card p-6 md:p-10 min-h-[280px] flex flex-col items-center justify-center text-center';
+  area.innerHTML =
+    '<div class="flex items-center gap-3 mb-3">' +
+      '<span class="text-[12px] text-ink-400">Card ' + (state.cardPos + 1) + ' of ' + idx.length + ' · ' + d.name + '</span>' +
+      (status ? '<span class="' + CHIP + ' ' + (status === 'known' ? 'bg-pos-500/15 text-pos-400 border border-pos-400/30' : 'bg-warn-500/15 text-warn-400 border border-warn-400/30') + '">' +
+        (status === 'known' ? 'Know it' : 'Still learning') + '</span>' : '') +
+      '<span class="ml-auto flex-1 max-w-[240px]">' + bar((state.cardPos + 1) / idx.length * 100, '#6b5df2') + '</span>' +
+    '</div>' +
+    '<div id="fc-card" class="flip cursor-pointer select-none" tabindex="0" role="button" aria-label="Flashcard — activate to flip">' +
+      '<div class="flip-inner">' +
+        '<div class="' + face + ' card">' +
+          '<span class="' + CHIP + ' bg-brand-500/15 text-brand-300 border border-brand-400/30 mb-4">Question</span>' +
+          '<p class="text-lg md:text-xl text-ink-100 font-medium leading-relaxed max-w-2xl">' + c.q + '</p>' +
+          '<p class="text-[12px] text-ink-500 mt-6">Click, or press Space / Enter, to flip</p></div>' +
+        '<div class="' + face + ' flip-back card border-brand-400/30">' +
+          '<span class="' + CHIP + ' bg-pos-500/15 text-pos-400 border border-pos-400/30 mb-4">Answer</span>' +
+          '<p class="text-[14px] md:text-[15px] text-ink-200 leading-relaxed max-w-2xl">' + c.a + '</p></div>' +
+      '</div></div>' +
+    '<div class="flex flex-wrap items-center gap-2 mt-4">' +
+      '<button data-fc="prev" class="' + BTN_GHOST + '"><i data-lucide="chevron-left" class="w-4 h-4"></i>Previous</button>' +
+      '<button data-fc="next" class="' + BTN_GHOST + '">Next<i data-lucide="chevron-right" class="w-4 h-4"></i></button>' +
+      '<div class="ml-auto flex gap-2">' +
+        '<button data-mark="learning" class="' + BTN + ' bg-warn-500/15 text-warn-400 border border-warn-400/30 hover:bg-warn-500/25"><i data-lucide="repeat" class="w-4 h-4"></i>Still learning</button>' +
+        '<button data-mark="known" class="' + BTN + ' bg-pos-500/15 text-pos-400 border border-pos-400/30 hover:bg-pos-500/25"><i data-lucide="check" class="w-4 h-4"></i>Know it</button>' +
+      '</div></div>';
+  icons();
+}
+function flipCard() { const el = $('#fc-card'); if (el) el.classList.toggle('is-flipped'); }
+function moveCard(step) { state.cardPos += step; renderCardArea(); }
+function markCard(status) {
+  const d = currentDeck(), idx = visibleIndices();
+  if (!idx.length) return;
+  state.cardStatus[d.id + ':' + idx[state.cardPos]] = status;
+  if (state.filterLearning && status === 'known') renderFlashcards();
+  else { state.cardPos++; renderFlashcards(); }
+}
+
+/* ============================== TEET BUILDER ============================== */
+const BOXES = [
+  { k:'t',  tag:'T', label:'Topic Sentence', help:'State your main point clearly.' },
+  { k:'e1', tag:'E', label:'Explanation',    help:'Explain how or why this occurs.' },
+  { k:'e2', tag:'E', label:'Example',        help:'Provide a specific, concrete example (e.g. Paris €24B, 75k Airbnbs, or Toyota car parts).' },
+  { k:'t2', tag:'T', label:'Tie-Back',       help:'Connect your argument back to the question.' }
+];
+function teetQ() { return TEET_QUESTIONS.find(q => q.id === state.teet.qid); }
+function teetBoxes() {
+  if (!state.teet.boxes[state.teet.qid]) state.teet.boxes[state.teet.qid] = { t:'', e1:'', e2:'', t2:'' };
+  return state.teet.boxes[state.teet.qid];
+}
+function renderTeet() {
+  const q = teetQ(), vals = teetBoxes();
+  const tagColor = { t:'bg-brand-500/20 text-brand-200 border-brand-400/40', e1:'bg-pos-500/15 text-pos-400 border-pos-400/30',
+                     e2:'bg-warn-500/15 text-warn-400 border-warn-400/30', t2:'bg-neg-500/15 text-neg-400 border-neg-400/30' };
+  $('#view-teet').innerHTML = pageHead('teet', 'pen-line', 'T.E.E.T Paragraph Builder',
+    'Pick a question, then build one exam-quality paragraph a box at a time. Open the hints if you get stuck, then compile, copy or download your paragraph.') +
+    '<div class="grid gap-3 md:grid-cols-3 mb-6">' + TEET_QUESTIONS.map(x => {
+      const on = x.id === state.teet.qid, done = state.teet.done[x.id];
+      return '<button data-teetq="' + x.id + '" class="rounded-card p-4 text-left border transition-colors duration-250 ' +
+        (on ? 'bg-brand-500/15 border-brand-400/40' : 'card-soft hover:bg-ink-800/70 hover:border-brand-400/30') + '">' +
+        '<div class="flex items-center gap-2 mb-2"><i data-lucide="' + x.icon + '" class="w-4 h-4 text-brand-300"></i>' +
+        '<span class="text-[11px] uppercase tracking-wide text-ink-400">' + x.marks + '</span>' +
+        (done ? '<span class="ml-auto ' + CHIP + ' bg-pos-500/15 text-pos-400 border border-pos-400/30">Compiled</span>' : '') + '</div>' +
+        '<p class="text-[13.5px] text-ink-100 leading-snug font-medium">' + x.label + '</p></button>';
+    }).join('') + '</div>' +
+
+    '<div class="grid gap-4 lg:grid-cols-2">' + BOXES.map(b =>
+      '<div class="' + CARD + '" id="box-' + b.k + '">' +
+        '<div class="flex items-center gap-2 mb-1">' +
+          '<span class="' + CHIP + ' border ' + tagColor[b.k] + '">[' + b.tag + ']</span>' +
+          '<h3 class="font-semibold text-ink-100 text-[15px]">' + b.label + '</h3>' +
+          '<button data-hint="' + b.k + '" class="' + BTN_GHOST + ' ml-auto py-1 px-2.5 text-[12px]">' +
+          '<i data-lucide="lightbulb" class="w-3.5 h-3.5"></i>' + (state.teet.hints[b.k] ? 'Hide hints' : 'Model phrases') + '</button>' +
+        '</div>' +
+        '<p class="text-[12.5px] text-ink-400 mb-3">' + b.help + '</p>' +
+        (state.teet.hints[b.k] ? teetHints(q.hints[b.k]) : '') +
+        '<textarea data-box="' + b.k + '" rows="5" placeholder="Write your ' + b.label.toLowerCase() + ' here…" ' +
+          'class="w-full rounded-ctl bg-ink-950/70 border border-ink-700 p-3 text-[13.5px] text-ink-100 placeholder-ink-500 leading-relaxed focus:border-brand-400 transition-colors duration-250">' + esc(vals[b.k]) + '</textarea>' +
+        '<div class="flex items-center gap-3 mt-2"><span id="count-' + b.k + '" class="text-[11px] text-ink-500">' +
+          words(vals[b.k]) + ' words · ' + vals[b.k].length + ' characters</span>' +
+          '<span id="err-' + b.k + '" class="text-[11px] text-neg-400 ml-auto"></span></div>' +
+      '</div>').join('') + '</div>' +
+
+    '<div class="flex flex-wrap gap-2 mt-6">' +
+      '<button data-teet="compile" class="' + BTN_PRIMARY + '"><i data-lucide="combine" class="w-4 h-4"></i>Compile paragraph</button>' +
+      '<button data-teet="clear" class="' + BTN_GHOST + '"><i data-lucide="eraser" class="w-4 h-4"></i>Clear boxes</button>' +
+    '</div>' +
+    '<div id="teet-out" class="mt-4"></div>';
+  icons();
+}
+function teetHints(h) {
+  return '<div class="rounded-ctl bg-ink-950/60 border border-brand-400/25 p-3 mb-3">' +
+    '<p class="text-[11px] uppercase tracking-wide text-brand-300 font-semibold mb-2">' + h.title + '</p>' +
+    '<ul class="space-y-2 mb-3">' + h.starters.map(s =>
+      '<li class="text-[12.5px] text-ink-300 leading-relaxed pl-3 border-l-2 border-brand-400/40">' + s + '</li>').join('') + '</ul>' +
+    '<div class="flex flex-wrap gap-1.5">' + h.phrases.map(p =>
+      '<span class="' + CHIP + ' bg-ink-800 text-ink-300 border border-ink-700">' + p + '</span>').join('') + '</div></div>';
+}
+function tidy(s) { s = s.trim(); return s && !/[.!?…]$/.test(s) ? s + '.' : s; }
+function compileTeet() {
+  const vals = teetBoxes();
+  let ok = true;
+  BOXES.forEach(b => {
+    const box = $('#box-' + b.k), err = $('#err-' + b.k);
+    const empty = !vals[b.k].trim();
+    box.classList.toggle('ring-2', empty);
+    box.classList.toggle('ring-neg-400/60', empty);
+    err.textContent = empty ? 'This box is empty — fill it in to compile.' : '';
+    if (empty) ok = false;
+  });
+  const out = $('#teet-out');
+  if (!ok) {
+    out.innerHTML = '<div class="rounded-ctl border border-neg-400/40 bg-neg-500/10 p-4 flex gap-3">' +
+      '<i data-lucide="alert-triangle" class="w-4 h-4 text-neg-400 shrink-0 mt-0.5"></i>' +
+      '<p class="text-[13px] text-neg-400">A complete T.E.E.T paragraph needs all four parts. Fill in the highlighted boxes, then compile again.</p></div>';
+    icons(); return;
+  }
+  state.teet.compiled = BOXES.map(b => tidy(vals[b.k])).join(' ');
+  state.teet.done[state.teet.qid] = true;
+  out.innerHTML = '<div class="' + CARD + '">' +
+    '<div class="flex flex-wrap items-center gap-2 mb-3"><i data-lucide="file-text" class="w-4 h-4 text-brand-300"></i>' +
+      '<h3 class="font-semibold text-ink-100">Compiled paragraph</h3>' +
+      '<span id="teet-msg" class="text-[12px] text-pos-400"></span>' +
+      '<div class="ml-auto flex gap-2">' +
+        '<button data-teet="copy" class="' + BTN_GHOST + '"><i data-lucide="clipboard" class="w-4 h-4"></i>Copy</button>' +
+        '<button data-teet="download" class="' + BTN_GHOST + '"><i data-lucide="download" class="w-4 h-4"></i>Download .txt</button>' +
+      '</div></div>' +
+    '<div class="rounded-ctl bg-ink-950/70 border border-ink-700 p-4"><p id="teet-preview" class="text-[14px] text-ink-200 leading-[1.8] whitespace-pre-wrap"></p></div>' +
+    '<p class="text-[11px] text-ink-500 mt-2">' + words(state.teet.compiled) + ' words · ' + state.teet.compiled.length + ' characters</p></div>';
+  $('#teet-preview').textContent = state.teet.compiled;
+  icons();
+}
+function downloadTeet() {
+  const q = teetQ();
+  const text = 'QUESTION: ' + q.label + '\n\nT.E.E.T PARAGRAPH:\n' + state.teet.compiled + '\n';
+  const url = URL.createObjectURL(new Blob([text], { type:'text/plain' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = 'teet-' + state.teet.qid + '.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ============================== MOCK TEST ============================== */
+function fmtTime(sec) {
+  const m = Math.floor(Math.max(0, sec) / 60), s = Math.max(0, sec) % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+function startTimer() {
+  if (state.test.started || state.test.finished) return;
+  state.test.started = true;
+  state.test.timerId = setInterval(() => {
+    state.test.remaining--;
+    updateTestBar();
+    if (state.test.remaining <= 0) { clearInterval(state.test.timerId); autoSubmitAB(); }
+  }, 1000);
+  updateTestBar();
+}
+function autoSubmitAB() {
+  state.test.lockedAB = true;
+  PART_B.forEach((_, i) => { state.test.bRevealed[i] = true; });
+  renderTest();
+  const n = $('#test-timeup');
+  if (n) n.classList.remove('hidden');
+}
+function updateTestBar() {
+  const sc = testScores(), t = state.test;
+  const answered = Object.keys(t.a).length;
+  const tm = $('#test-timer'); if (tm) {
+    tm.textContent = fmtTime(t.remaining);
+    tm.className = 'font-mono font-bold text-lg ' + (t.remaining <= 300 ? 'text-neg-400' : 'text-ink-100');
+  }
+  const tl = $('#test-tally'); if (tl) tl.textContent = sc.total + ' / ' + EXAM.total + ' marks';
+  const pb = $('#test-progress'); if (pb) pb.style.width = (answered / PART_A.length * 100) + '%';
+  const st = $('#test-subtally'); if (st) st.textContent = 'Part A ' + sc.a + '/12 · Part B ' + sc.b + '/13 · Part C ' + sc.c + '/12';
+}
+function partAQuestionHTML(q, i) {
+  const chosen = state.test.a[i], answered = chosen !== undefined;
+  const opts = q.options.map((o, j) => {
+    let cls = 'w-full text-left rounded-ctl border p-3 text-[13.5px] transition-colors duration-250 flex gap-3 items-start ';
+    if (!answered) cls += 'card-soft text-ink-200 hover:border-brand-400/40 hover:bg-ink-800/70 cursor-pointer';
+    else if (j === q.answer) cls += 'bg-pos-500/15 border-pos-400/40 text-pos-400';
+    else if (j === chosen) cls += 'bg-neg-500/15 border-neg-400/40 text-neg-400';
+    else cls += 'card-soft text-ink-400 opacity-70';
+    const mark = answered ? (j === q.answer ? '✓' : j === chosen ? '✕' : String.fromCharCode(65 + j)) : String.fromCharCode(65 + j);
+    return '<button ' + (answered || state.test.lockedAB ? 'disabled' : '') + ' data-pa="' + i + '" data-opt="' + j + '" class="' + cls + '">' +
+      '<span class="w-5 h-5 rounded-full border border-current grid place-items-center text-[11px] font-bold shrink-0 mt-0.5">' + mark + '</span>' +
+      '<span>' + o + '</span></button>';
+  }).join('');
+  return '<div class="' + CARD + '" id="pa-' + i + '">' +
+    '<div class="flex gap-3 mb-3"><span class="' + CHIP + ' bg-ink-800 text-ink-300 border border-ink-700 shrink-0">Q' + (i + 1) + '</span>' +
+    '<p class="text-[14px] text-ink-100 font-medium leading-relaxed">' + q.q + '</p>' +
+    '<span class="ml-auto text-[11px] text-ink-500 shrink-0">1 mark</span></div>' +
+    '<div class="grid gap-2">' + opts + '</div>' +
+    (answered ? '<div class="mt-3 rounded-ctl border p-3 flex gap-3 ' +
+      (chosen === q.answer ? 'border-pos-400/30 bg-pos-500/10' : 'border-neg-400/30 bg-neg-500/10') + '">' +
+      '<i data-lucide="' + (chosen === q.answer ? 'check-circle-2' : 'x-circle') + '" class="w-4 h-4 shrink-0 mt-0.5 ' +
+      (chosen === q.answer ? 'text-pos-400' : 'text-neg-400') + '"></i>' +
+      '<p class="text-[12.5px] text-ink-300 leading-relaxed"><strong class="' + (chosen === q.answer ? 'text-pos-400' : 'text-neg-400') + '">' +
+      (chosen === q.answer ? 'Correct. ' : 'Not quite. ') + '</strong>' + q.explain + '</p></div>' : '') +
+    '</div>';
+}
+function markSelect(name, i, max, val) {
+  let o = '';
+  for (let m = 0; m <= max; m++) o += '<option value="' + m + '"' + (Number(val) === m ? ' selected' : '') + '>' + m + ' / ' + max + '</option>';
+  return '<select data-self="' + name + '" data-i="' + i + '" class="rounded-ctl bg-ink-950/70 border border-ink-700 text-[13px] text-ink-100 px-3 py-2 focus:border-brand-400">' + o + '</select>';
+}
+function renderTest() {
+  const t = state.test, sc = testScores();
+  const partB = PART_B.map((q, i) =>
+    '<div class="' + CARD + '">' +
+      '<div class="flex gap-3 mb-3"><span class="' + CHIP + ' bg-ink-800 text-ink-300 border border-ink-700 shrink-0">Q' + (i + 1) + '</span>' +
+      '<p class="text-[14px] text-ink-100 font-medium leading-relaxed">' + q.q + '</p>' +
+      '<span class="ml-auto text-[11px] text-ink-500 shrink-0">' + q.marks + ' marks</span></div>' +
+      '<textarea data-pb="' + i + '" rows="' + (q.marks > 4 ? 8 : 5) + '" placeholder="Write your answer here…" ' +
+        'class="w-full rounded-ctl bg-ink-950/70 border border-ink-700 p-3 text-[13.5px] text-ink-100 placeholder-ink-500 leading-relaxed focus:border-brand-400">' + esc(t.bText[i] || '') + '</textarea>' +
+      '<div class="flex flex-wrap items-center gap-2 mt-3">' +
+        '<button data-pbreveal="' + i + '" class="' + BTN_GHOST + '"><i data-lucide="' + (t.bRevealed[i] ? 'eye-off' : 'eye') + '" class="w-4 h-4"></i>' +
+        (t.bRevealed[i] ? 'Hide rubric & model answer' : 'Reveal marking rubric & model answer') + '</button>' +
+        '<label class="ml-auto flex items-center gap-2 text-[12px] text-ink-400">Marks you awarded yourself ' + markSelect('b', i, q.marks, t.bSelf[i] || 0) + '</label>' +
+      '</div>' +
+      (t.bRevealed[i] ?
+        '<div class="mt-3 grid gap-3 lg:grid-cols-2">' +
+          '<div class="rounded-ctl bg-ink-950/60 border border-brand-400/25 p-3"><p class="text-[11px] uppercase tracking-wide text-brand-300 font-semibold mb-2">Marking rubric (' + q.marks + ' marks)</p>' +
+          '<ul class="space-y-2">' + q.rubric.map(r => '<li class="text-[12.5px] text-ink-300 leading-relaxed flex gap-2"><span class="text-brand-400">▪</span><span>' + r + '</span></li>').join('') + '</ul></div>' +
+          '<div class="rounded-ctl bg-ink-950/60 border border-pos-400/25 p-3"><p class="text-[11px] uppercase tracking-wide text-pos-400 font-semibold mb-2">Model answer</p>' +
+          q.model.split('\n\n').map(p => '<p class="text-[12.5px] text-ink-300 leading-relaxed mb-2">' + p + '</p>').join('') + '</div>' +
+        '</div>' : '') +
+    '</div>').join('');
+
+  const partC = '<div class="' + CARD + '">' +
+      '<p class="text-[14px] text-ink-100 font-medium leading-relaxed mb-1">' + PART_C.question + '</p>' +
+      '<p class="text-[12px] text-ink-400 mb-4">12 marks — Impacts (6) + Sustainability strategies (4) + Structure / TEET coherence (2)</p>' +
+      PART_C.parts.map(p =>
+        '<div class="mb-4"><div class="flex flex-wrap items-center gap-2 mb-2">' +
+          '<span class="' + CHIP + ' bg-brand-500/15 text-brand-200 border border-brand-400/30">' + p.marks + ' marks</span>' +
+          '<span class="text-[13.5px] font-semibold text-ink-100">' + p.name + '</span>' +
+          '<label class="ml-auto flex items-center gap-2 text-[12px] text-ink-400">Self-marked ' + markSelect('c', p.id, p.marks, t.cSelf[p.id] || 0) + '</label></div>' +
+        '<p class="text-[12px] text-ink-400 mb-2">' + p.prompt + '</p>' +
+        (p.id === 'structure' ? '' :
+          '<textarea data-pc="' + p.id + '" rows="7" placeholder="Write this section of your extended response here…" ' +
+          'class="w-full rounded-ctl bg-ink-950/70 border border-ink-700 p-3 text-[13.5px] text-ink-100 placeholder-ink-500 leading-relaxed focus:border-brand-400">' + esc(t.cText[p.id] || '') + '</textarea>') +
+        '</div>').join('') +
+      '<button data-pcex="1" class="' + BTN_PRIMARY + '"><i data-lucide="award" class="w-4 h-4"></i>' +
+        (t.exemplar ? 'Hide perfect-score exemplar' : 'Reveal perfect-score exemplar') + '</button>' +
+      (t.exemplar ? exemplarHTML() : '') +
+    '</div>';
+
+  $('#view-test').innerHTML = pageHead('test', 'clipboard-check', 'Mock Test — ' + EXAM.total + ' marks in ' + EXAM.duration + ' minutes',
+    'The timer starts the moment you interact with this page. Part A is marked automatically; Parts B and C are self-marked against the rubrics and exemplar provided.') +
+
+    '<div class="card rounded-card p-4 sticky top-16 z-30 mb-6 backdrop-blur-xl" style="background:rgba(12,17,28,.97)">' +
+      '<div class="flex flex-wrap items-center gap-x-6 gap-y-2">' +
+        '<div class="flex items-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-brand-300"></i>' +
+        '<span id="test-timer" class="font-mono font-bold text-lg text-ink-100">' + fmtTime(t.remaining) + '</span>' +
+        '<span class="text-[11px] text-ink-500">remaining</span></div>' +
+        '<div class="flex items-center gap-2"><i data-lucide="calculator" class="w-4 h-4 text-brand-300"></i>' +
+        '<span id="test-tally" class="font-semibold text-ink-100 text-[14px]">' + sc.total + ' / ' + EXAM.total + ' marks</span></div>' +
+        '<span id="test-subtally" class="text-[12px] text-ink-400">Part A ' + sc.a + '/12 · Part B ' + sc.b + '/13 · Part C ' + sc.c + '/12</span>' +
+        '<div class="w-full h-1.5 rounded-full bg-ink-800 overflow-hidden mt-1"><div id="test-progress" class="h-full bg-brand-500 rounded-full transition-all duration-250" style="width:' +
+          (Object.keys(t.a).length / PART_A.length * 100) + '%"></div></div>' +
+      '</div>' +
+      '<div id="test-timeup" class="' + (t.lockedAB ? '' : 'hidden ') + 'mt-3 rounded-ctl border border-neg-400/40 bg-neg-500/10 p-3 text-[12.5px] text-neg-400">' +
+        'Time is up — Parts A and B have been submitted and their answers revealed. Part C stays open so you can finish writing your extended response.</div>' +
+    '</div>' +
+
+    '<h2 class="text-[15px] font-bold text-ink-100 mb-1">Part A — Multiple Choice <span class="text-ink-400 font-normal">(12 marks)</span></h2>' +
+    '<p class="text-[12.5px] text-ink-400 mb-4">Select one answer per question. Feedback appears immediately and your answer locks in.</p>' +
+    '<div class="grid gap-4 mb-8">' + PART_A.map(partAQuestionHTML).join('') + '</div>' +
+
+    '<h2 class="text-[15px] font-bold text-ink-100 mb-1">Part B — Short Answer &amp; Data Analysis <span class="text-ink-400 font-normal">(13 marks)</span></h2>' +
+    '<p class="text-[12.5px] text-ink-400 mb-4">These answers are <strong class="text-ink-200">self-marked</strong> — write your response first, then reveal the rubric and model answer and award yourself marks honestly.</p>' +
+    '<div class="grid gap-4 mb-8">' + partB + '</div>' +
+
+    '<h2 class="text-[15px] font-bold text-ink-100 mb-1">Part C — Extended Response <span class="text-ink-400 font-normal">(12 marks)</span></h2>' +
+    '<p class="text-[12.5px] text-ink-400 mb-4">Also <strong class="text-ink-200">self-marked</strong> against the exemplar. Aim for T.E.E.T in every paragraph.</p>' +
+    partC +
+
+    '<div class="flex flex-wrap gap-2 mt-6">' +
+      '<button data-test="finish" class="' + BTN_PRIMARY + '"><i data-lucide="flag" class="w-4 h-4"></i>Finish &amp; score my test</button>' +
+      '<button data-test="reset" class="' + BTN_GHOST + '"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Reset test</button>' +
+    '</div><div id="test-summary" class="mt-4"></div>';
+  icons();
+  updateTestBar();
+}
+function exemplarHTML() {
+  const legend = [['T','Topic sentence','tag-T'], ['E1','Explanation','tag-E1'], ['E2','Example','tag-E2'], ['T2','Tie-back','tag-T2']];
+  return '<div class="mt-4 rounded-ctl bg-ink-950/60 border border-warn-400/25 p-4">' +
+    '<p class="text-[11px] uppercase tracking-wide text-warn-400 font-semibold mb-3">Perfect-score exemplar — 12/12</p>' +
+    '<div class="flex flex-wrap gap-2 mb-4">' + legend.map(l =>
+      '<span class="' + CHIP + ' ' + l[2] + ' text-ink-100">' + l[0].replace(/\d/, '') + ' — ' + l[1] + '</span>').join('') + '</div>' +
+    PART_C.exemplar.map(p =>
+      '<div class="mb-5"><p class="text-[12px] uppercase tracking-wide text-brand-300 font-semibold mb-2">' + p.heading + '</p>' +
+      '<p class="text-[13.5px] text-ink-200 leading-[1.9]">' + p.body.map(seg =>
+        '<span class="tag-' + seg.tag + ' px-0.5">' + seg.text + '</span>').join(' ') + '</p></div>').join('') +
+    '<p class="text-[12px] text-ink-500">Notice that every paragraph completes the full T.E.E.T cycle and that each Example carries specific data — that is what separates a 12/12 from a mid-range response.</p></div>';
+}
+function finishTest() {
+  const sc = testScores();
+  if (state.test.timerId) clearInterval(state.test.timerId);
+  state.test.finished = true;
+  const pcts = [
+    { id:'A', pct: sc.a / 12, label:'Part A — Multiple Choice', score: sc.a + '/12',
+      nudge:'Re-read the Study Notes modules on core definitions, connection criteria and the ICT case studies, then run the “Core Definitions” and “ICT Case Studies” flashcard decks.' },
+    { id:'B', pct: sc.b / 13, label:'Part B — Short Answer & Data Analysis', score: sc.b + '/13',
+      nudge:'Revisit the Transport & Global Logistics module — especially the Toyota supply chain and the Figure 1 trade-flow reasoning — then drill the “Car Supply Chain” flashcard deck.' },
+    { id:'C', pct: sc.c / 12, label:'Part C — Extended Response', score: sc.c + '/12',
+      nudge:'Work through the Paris case study module and the “Paris Key Statistics” and “Paris Strategies” decks, then build all three paragraphs in the TEET Builder.' }
+  ];
+  const weakest = pcts.slice().sort((x, y) => x.pct - y.pct)[0];
+  const pct = Math.round(sc.total / EXAM.total * 100);
+  $('#test-summary').innerHTML = '<div class="' + CARD + '">' +
+    '<div class="flex flex-wrap items-end gap-4 mb-4">' +
+      '<div><p class="text-[12px] uppercase tracking-wide text-ink-400">Total score</p>' +
+      '<p class="text-3xl font-bold text-ink-100">' + sc.total + ' <span class="text-lg text-ink-400">/ ' + EXAM.total + '</span></p></div>' +
+      '<span class="' + CHIP + ' ' + (pct >= 75 ? 'bg-pos-500/15 text-pos-400 border border-pos-400/30' : pct >= 50 ? 'bg-warn-500/15 text-warn-400 border border-warn-400/30' : 'bg-neg-500/15 text-neg-400 border border-neg-400/30') + '">' + pct + '%</span>' +
+    '</div>' +
+    '<div class="grid gap-3 md:grid-cols-3 mb-4">' + pcts.map(p =>
+      '<div class="card-soft rounded-ctl p-3"><p class="text-[12px] text-ink-400">' + p.label + '</p>' +
+      '<p class="text-lg font-bold text-ink-100 mb-2">' + p.score + '</p>' + bar(p.pct * 100, p.pct >= .75 ? '#43c78f' : p.pct >= .5 ? '#e0a044' : '#e14a6d') + '</div>').join('') + '</div>' +
+    '<div class="rounded-ctl bg-ink-950/60 border border-brand-400/25 p-4 flex gap-3">' +
+      '<i data-lucide="compass" class="w-4 h-4 text-brand-300 shrink-0 mt-0.5"></i>' +
+      '<p class="text-[13px] text-ink-300 leading-relaxed"><strong class="text-ink-100">Revise next: ' + weakest.label + '.</strong> ' + weakest.nudge + '</p></div>' +
+    '<div class="flex flex-wrap gap-2 mt-4">' +
+      '<button data-nav="notes" class="' + BTN_GHOST + '"><i data-lucide="book-open" class="w-4 h-4"></i>Open Study Notes</button>' +
+      '<button data-nav="flashcards" class="' + BTN_GHOST + '"><i data-lucide="layers" class="w-4 h-4"></i>Open Flashcards</button>' +
+      '<button data-nav="teet" class="' + BTN_GHOST + '"><i data-lucide="pen-line" class="w-4 h-4"></i>Open TEET Builder</button>' +
+    '</div></div>';
+  icons();
+  $('#test-summary').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+/* ============================== EVENT WIRING ============================== */
+document.addEventListener('click', e => {
+  const hit = sel => e.target.closest(sel);
+  let n;
+
+  if ((n = hit('[data-nav]'))) { setView(n.dataset.nav); return; }
+
+  if ((n = hit('[data-acc]'))) {
+    const box = n.closest('.acc');
+    const open = box.classList.toggle('is-open');
+    n.setAttribute('aria-expanded', open ? 'true' : 'false');
+    return;
+  }
+
+  /* --- Toyota supply chain --- */
+  if ((n = hit('[data-ty-mode]'))) { state.supply.mode = n.dataset.tyMode; state.supply.revealed = {}; renderToyota(); return; }
+  if ((n = hit('[data-ty-all]'))) {
+    const on = n.dataset.tyAll === '1';
+    state.supply.revealed = {};
+    if (on) TRANSPORT.toyota.rows.forEach((_, i) => state.supply.revealed[i] = true);
+    renderToyota(); return;
+  }
+  if ((n = hit('[data-ty-reset]'))) { state.supply.quiz = {}; state.supply.revealed = {}; renderToyota(); return; }
+  if ((n = hit('[data-ty-q]'))) { state.supply.quiz[n.dataset.tyQ] = Number(n.dataset.v); state.supply.revealed[n.dataset.tyQ] = false; renderToyota(); return; }
+  if ((n = hit('[data-ty]'))) { const i = n.dataset.ty; state.supply.revealed[i] = !state.supply.revealed[i]; renderToyota(); return; }
+
+  /* --- Flashcards --- */
+  if ((n = hit('[data-deck]'))) { state.deckId = n.dataset.deck; state.cardPos = 0; renderFlashcards(); return; }
+  if ((n = hit('[data-mark]'))) { markCard(n.dataset.mark); return; }
+  if ((n = hit('[data-fc]'))) {
+    const a = n.dataset.fc;
+    if (a === 'prev') moveCard(-1);
+    else if (a === 'next') moveCard(1);
+    else if (a === 'shuffle') {
+      const d = currentDeck(), o = deckOrder(d).slice();
+      for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; }
+      state.order[d.id] = o; state.cardPos = 0; renderCardArea();
+    } else if (a === 'filter') { state.filterLearning = !state.filterLearning; state.cardPos = 0; renderFlashcards(); }
+    return;
+  }
+  if (hit('#fc-card')) { flipCard(); return; }
+
+  /* --- TEET builder --- */
+  if ((n = hit('[data-teetq]'))) { state.teet.qid = n.dataset.teetq; state.teet.compiled = ''; renderTeet(); return; }
+  if ((n = hit('[data-hint]'))) { const k = n.dataset.hint; state.teet.hints[k] = !state.teet.hints[k]; renderTeet(); return; }
+  if ((n = hit('[data-teet]'))) {
+    const a = n.dataset.teet;
+    if (a === 'compile') compileTeet();
+    else if (a === 'clear') { state.teet.boxes[state.teet.qid] = { t:'', e1:'', e2:'', t2:'' }; state.teet.compiled = ''; renderTeet(); }
+    else if (a === 'download') downloadTeet();
+    else if (a === 'copy') {
+      navigator.clipboard.writeText(state.teet.compiled).then(
+        () => { $('#teet-msg').textContent = 'Copied to clipboard.'; },
+        () => { $('#teet-msg').textContent = 'Copy blocked by the browser — select the text and copy manually.'; }
+      );
+    }
+    return;
+  }
+
+  /* --- Mock test --- */
+  if ((n = hit('[data-pa]'))) {
+    if (state.test.lockedAB) return;
+    const i = Number(n.dataset.pa);
+    if (state.test.a[i] !== undefined) return;
+    state.test.a[i] = Number(n.dataset.opt);
+    $('#pa-' + i).outerHTML = partAQuestionHTML(PART_A[i], i);
+    icons(); updateTestBar(); return;
+  }
+  if ((n = hit('[data-pbreveal]'))) { const i = n.dataset.pbreveal; state.test.bRevealed[i] = !state.test.bRevealed[i]; renderTest(); return; }
+  if (hit('[data-pcex]')) { state.test.exemplar = !state.test.exemplar; renderTest(); return; }
+  if (hit('[data-test="finish"]')) { finishTest(); return; }
+  if (hit('[data-test="reset"]')) {
+    if (state.test.timerId) clearInterval(state.test.timerId);
+    state.test = { started:false, remaining: EXAM.duration*60, timerId:null, lockedAB:false, finished:false,
+                   a:{}, bText:{}, bRevealed:{}, bSelf:{}, cText:{}, cSelf:{}, exemplar:false };
+    renderTest(); return;
+  }
+});
+
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.matches('[data-box]')) {
+    const k = t.dataset.box;
+    teetBoxes()[k] = t.value;
+    $('#count-' + k).textContent = words(t.value) + ' words · ' + t.value.length + ' characters';
+    if (t.value.trim()) { $('#box-' + k).classList.remove('ring-2', 'ring-neg-400/60'); $('#err-' + k).textContent = ''; }
+    return;
+  }
+  if (t.matches('[data-pb]')) { state.test.bText[t.dataset.pb] = t.value; return; }
+  if (t.matches('[data-pc]')) { state.test.cText[t.dataset.pc] = t.value; return; }
+});
+
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (!t.matches('[data-self]')) return;
+  if (t.dataset.self === 'b') state.test.bSelf[t.dataset.i] = Number(t.value);
+  else state.test.cSelf[t.dataset.i] = Number(t.value);
+  updateTestBar();
+});
+
+/* Timer starts on the first interaction inside the Mock Test view */
+$('#view-test').addEventListener('pointerdown', startTimer);
+$('#view-test').addEventListener('keydown', startTimer);
+
+/* Keyboard support for the flashcard deck */
+document.addEventListener('keydown', e => {
+  if (state.view !== 'flashcards') return;
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); moveCard(1); }
+  else if (e.key === 'ArrowLeft')  { e.preventDefault(); moveCard(-1); }
+});
+
+/* ================================= BOOT ================================= */
+function boot() {
+  renderNav();
+  renderDashboard();
+  renderNotes();
+  renderFlashcards();
+  renderTeet();
+  renderTest();
+  setView('dashboard');
+  icons();
+}
+boot();
+</script>
+</body>
+</html>
