@@ -83,7 +83,9 @@ export function AboutPanel() {
           DJ mode: two independent decks with waveforms, a 3-band EQ, a sweep
           filter, cue points, pitch-bendable tempo with key lock, tap tempo and
           an equal-power crossfader — load any track from your library onto
-          either deck and mix it live. Everything from 2.01 is still here: a
+          either deck and mix it live. One-tap Auto Mix beatmatches and blends
+          for you with a proper bass swap, and a built-in cheat sheet explains
+          every control. Everything from 2.01 is still here: a
           ten-band equalizer, a command palette, an editable queue, favourites
           and ratings, four visualizer modes, smart views, a sleep timer, A↔B
           looping and drag-and-drop import.

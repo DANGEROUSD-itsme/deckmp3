@@ -63,7 +63,7 @@ const ICON = 'w-4 h-4'
 
 export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => void }) {
   const deck = useDeck()
-  const { openMixer } = useDJ()
+  const { openMixer, startAutoMix } = useDJ()
   const {
     closePanel,
     openPanel,
@@ -167,6 +167,18 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
         keywords: 'mixer decks crossfader beatmatch',
         icon: <DjIcon className={ICON} />,
         run: openMixer,
+      },
+      {
+        id: 'dj-automix',
+        label: 'Auto Mix',
+        hint: 'Beatmatch and blend the two decks automatically',
+        group: 'Panels',
+        keywords: 'mixer transition crossfade automatic sync',
+        icon: <SparkIcon className={ICON} />,
+        run: () => {
+          openMixer()
+          startAutoMix()
+        },
       },
       {
         id: 'eq',
@@ -328,6 +340,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
     isPlaying,
     next,
     openMixer,
+    startAutoMix,
     onNavigate,
     openPanel,
     playNow,

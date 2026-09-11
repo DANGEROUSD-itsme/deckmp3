@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react'
 import type { Track } from '../types'
-import { djEngine, type DeckSide } from '../lib/djEngine'
+import { djEngine, EQ_MIN_DB, type DeckSide } from '../lib/djEngine'
 import { getPeaks, type Peaks } from '../lib/waveform'
 
 export interface DeckState {
@@ -55,6 +55,14 @@ const emptyDeck = (): DeckState => ({
   peaks: null,
 })
 
+/** Progress of an in-flight automatic transition, or null when idle. */
+export interface AutoMixState {
+  from: DeckSide
+  to: DeckSide
+  /** 0..1 through the transition. */
+  progress: number
+}
+
 interface DJValue {
   open: boolean
   openMixer: () => void
@@ -86,6 +94,12 @@ interface DJValue {
   master: number
   setMaster: (value: number) => void
 
+  /** The automatic beatmatch-and-blend transition. null when nothing is running. */
+  autoMix: AutoMixState | null
+  /** Blend from whichever deck currently leads into the other, over `seconds`. */
+  startAutoMix: (seconds?: number) => void
+  cancelAutoMix: () => void
+
   notice: string | null
   dismissNotice: () => void
 }
@@ -109,6 +123,7 @@ export function DJProvider({ children }: { children: ReactNode }) {
   const [crossfader, setCrossfaderState] = useState(0.5)
   const [master, setMasterState] = useState(0.85)
   const [notice, setNotice] = useState<string | null>(null)
+  const [autoMix, setAutoMix] = useState<AutoMixState | null>(null)
 
   /** Rolling tap timestamps per deck, for tap-tempo. Not rendered directly. */
   const taps = useRef<Record<DeckSide, number[]>>({ a: [], b: [] })
@@ -120,6 +135,14 @@ export function DJProvider({ children }: { children: ReactNode }) {
   /** Read the live rate/tappedBpm without depending on `decks` in a callback. */
   const decksRef = useRef(decks)
   decksRef.current = decks
+  const crossfaderRef = useRef(crossfader)
+  crossfaderRef.current = crossfader
+  /** Interval handle driving an in-flight auto-mix, 0 when idle. */
+  const autoMixTimer = useRef(0)
+  /** Indirection so the manual setCrossfader/setEq (defined above
+   *  cancelAutoMix in this file) can still reach it. Reassigned on every
+   *  render, right below where cancelAutoMix itself is defined. */
+  const cancelAutoMixRef = useRef<() => void>(() => {})
 
   useEffect(() => {
     const offPlaying = djEngine.on('playing', (side, playing) => patchDeck(side, { playing }))
@@ -197,6 +220,10 @@ export function DJProvider({ children }: { children: ReactNode }) {
 
   const setEq = useCallback(
     (side: DeckSide, band: 'low' | 'mid' | 'high', db: number) => {
+      // A manual touch on the EQ during an automatic transition means the
+      // user wants to drive from here — hand control back immediately
+      // rather than have the automation fight the fader a moment later.
+      if (autoMixTimer.current) cancelAutoMixRef.current()
       djEngine.setEq(side, band, db)
       patchDeck(side, { eq: { ...decksRef.current[side].eq, [band]: db } })
     },
@@ -220,6 +247,7 @@ export function DJProvider({ children }: { children: ReactNode }) {
   )
 
   const setCrossfader = useCallback((value: number) => {
+    if (autoMixTimer.current) cancelAutoMixRef.current()
     djEngine.setCrossfader(value)
     setCrossfaderState(value)
   }, [])
@@ -263,6 +291,110 @@ export function DJProvider({ children }: { children: ReactNode }) {
     [setRate]
   )
 
+  const cancelAutoMix = useCallback(() => {
+    if (autoMixTimer.current) {
+      window.clearInterval(autoMixTimer.current)
+      autoMixTimer.current = 0
+    }
+    setAutoMix(null)
+  }, [])
+  // Kept fresh every render so setCrossfader/setEq above — defined earlier
+  // in the file, called far more often than this changes identity — can
+  // always reach the current version without being in their own deps.
+  cancelAutoMixRef.current = cancelAutoMix
+
+  /**
+   * The "clean transition" button: beatmatch if both decks have a tapped
+   * BPM, then blend the crossfader across to the quiet deck on an
+   * equal-power curve while swapping the low end — the outgoing bassline
+   * fades out over the first two-thirds of the blend, the incoming one
+   * fades in from a quarter of the way through, so the two basslines hand
+   * off instead of stacking into mud in the middle of the mix. Ends with
+   * the deck that finished playing.
+   */
+  const startAutoMix = useCallback(
+    (seconds = 8) => {
+      if (autoMixTimer.current) return
+
+      const cur = crossfaderRef.current
+      const from: DeckSide =
+        cur !== 0.5 ? (cur < 0.5 ? 'a' : 'b') : decksRef.current.b.playing ? 'b' : 'a'
+      const to = other(from)
+
+      if (!decksRef.current[to].trackId) {
+        setNotice(`Load a track on Deck ${to.toUpperCase()} first.`)
+        return
+      }
+      if (!decksRef.current[from].trackId) {
+        setNotice(`Nothing to mix from — load Deck ${from.toUpperCase()} too.`)
+        return
+      }
+
+      if (decksRef.current[from].tappedBpm && decksRef.current[to].tappedBpm) {
+        matchTempo(to)
+      }
+      if (!decksRef.current[from].playing) void djEngine.play(from)
+      if (!decksRef.current[to].playing) {
+        const startAt = decksRef.current[to].cue || 0
+        djEngine.seek(to, startAt)
+        void djEngine.play(to)
+      }
+
+      const startX = cur
+      const endX = to === 'b' ? 1 : 0
+      const fromStartLow = decksRef.current[from].eq.low
+      const toStartLow = decksRef.current[to].eq.low
+      const startTime = performance.now()
+      const durMs = Math.max(1000, seconds * 1000)
+      // 20 steps/sec: the audible smoothing happens in djEngine's own
+      // setTargetAtTime ramps, so the control loop only needs to be smooth
+      // enough for the sliders to visibly track it, not for the audio.
+      const STEP_MS = 50
+
+      setAutoMix({ from, to, progress: 0 })
+
+      autoMixTimer.current = window.setInterval(() => {
+        const t = Math.min(1, (performance.now() - startTime) / durMs)
+        const eased = t * t * (3 - 2 * t) // smoothstep
+
+        const x = startX + (endX - startX) * eased
+        djEngine.setCrossfader(x)
+        setCrossfaderState(x)
+
+        const outT = Math.min(1, t / 0.65)
+        const inT = Math.max(0, Math.min(1, (t - 0.25) / 0.65))
+        const outLow = fromStartLow + (EQ_MIN_DB - fromStartLow) * outT
+        const inLow = toStartLow + (0 - toStartLow) * inT
+        djEngine.setEq(from, 'low', outLow)
+        djEngine.setEq(to, 'low', inLow)
+        setDecks((all) => ({
+          ...all,
+          [from]: { ...all[from], eq: { ...all[from].eq, low: outLow } },
+          [to]: { ...all[to], eq: { ...all[to].eq, low: inLow } },
+        }))
+
+        setAutoMix({ from, to, progress: t })
+
+        if (t >= 1) {
+          window.clearInterval(autoMixTimer.current)
+          autoMixTimer.current = 0
+          djEngine.pause(from)
+          setAutoMix(null)
+        }
+      }, STEP_MS)
+    },
+    [matchTempo]
+  )
+
+  // A deck ending naturally mid-automix (track ran out) would otherwise
+  // leave the interval driving a paused deck's fader for no one.
+  useEffect(() => {
+    const offEnded = djEngine.on('ended', (side) => {
+      if (autoMix && side === autoMix.from) cancelAutoMix()
+    })
+    return offEnded
+  }, [autoMix, cancelAutoMix])
+
   // Stop both decks if the whole DJ subsystem unmounts (app-level, never in
   // practice — DJProvider lives for the app's lifetime — but cheap to guard).
   useEffect(() => () => djEngine.stopAll(), [])
@@ -291,6 +423,9 @@ export function DJProvider({ children }: { children: ReactNode }) {
       setCrossfader,
       master,
       setMaster,
+      autoMix,
+      startAutoMix,
+      cancelAutoMix,
       notice,
       dismissNotice: () => setNotice(null),
     }),
@@ -317,6 +452,9 @@ export function DJProvider({ children }: { children: ReactNode }) {
       setCrossfader,
       master,
       setMaster,
+      autoMix,
+      startAutoMix,
+      cancelAutoMix,
       notice,
     ]
   )

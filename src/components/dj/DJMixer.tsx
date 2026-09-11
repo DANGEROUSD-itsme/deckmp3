@@ -7,9 +7,10 @@ import type { DeckSide } from '../../lib/djEngine'
 import type { Track } from '../../types'
 import { Drawer } from '../ui'
 import { DeckPanel } from './DeckPanel'
+import { DjHelp } from './DjHelp'
 import { MixerStrip } from './MixerStrip'
 import { TrackBrowser } from './TrackBrowser'
-import { AlertIcon, ChevronIcon, DjIcon, UploadIcon } from '../icons'
+import { AlertIcon, ChevronIcon, DjIcon, HelpIcon, UploadIcon } from '../icons'
 
 /**
  * The DJ mixer — a full-screen overlay, same weight class as Now Playing,
@@ -24,6 +25,7 @@ export function DJMixer({ onClose }: { onClose: () => void }) {
   const dj = useDJ()
   const { resolveFile, toast } = useDeck()
   const [browserOpen, setBrowserOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(() => !hasOfferedHelp)
   const [loadingSide, setLoadingSide] = useState<DeckSide | null>(null)
 
   useEffect(() => {
@@ -31,12 +33,16 @@ export function DJMixer({ onClose }: { onClose: () => void }) {
   }, [])
 
   useEffect(() => {
+    hasOfferedHelp = true
+  }, [])
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !browserOpen) onClose()
+      if (e.key === 'Escape' && !browserOpen && !helpOpen) onClose()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [browserOpen, onClose])
+  }, [browserOpen, helpOpen, onClose])
 
   const handleLoad = async (side: DeckSide, track: Track) => {
     setLoadingSide(side)
@@ -74,6 +80,14 @@ export function DJMixer({ onClose }: { onClose: () => void }) {
           <DjIcon className="w-[18px] h-[18px] text-signal" />
           <span className="display-wide text-lg tracking-wide">DJ MODE</span>
         </div>
+        <button
+          onClick={() => setHelpOpen(true)}
+          className="control-btn w-10 h-10"
+          aria-label="How to mix"
+          title="How to mix"
+        >
+          <HelpIcon className="w-5 h-5" />
+        </button>
         <button onClick={() => setBrowserOpen(true)} className="pill-btn !py-2 !px-4">
           <UploadIcon className="w-3.5 h-3.5" />
           Load a track
@@ -115,6 +129,13 @@ export function DJMixer({ onClose }: { onClose: () => void }) {
           <TrackBrowser onLoad={handleLoad} loadingSide={loadingSide} />
         </Drawer>
       )}
+
+      {helpOpen && <DjHelp onClose={() => setHelpOpen(false)} />}
     </motion.div>
   )
 }
+
+/** Shows the cheat sheet unprompted the first time DJ mode opens in this
+ *  browser tab's lifetime — after that it's one click away via the header's
+ *  "?" button, so this only needs to fire once, in memory, per session. */
+let hasOfferedHelp = false
