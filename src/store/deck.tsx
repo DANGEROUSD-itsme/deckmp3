@@ -22,8 +22,9 @@ import type {
   Toast,
   Track,
   TrackStats,
+  VibeState,
 } from '../types'
-import { ACCENTS, EQ_PRESETS, defaultSettings, emptyStats } from '../types'
+import { ACCENTS, EQ_PRESETS, VIBE_PRESETS, defaultSettings, emptyStats } from '../types'
 import { engine } from '../lib/engine'
 import { artUrl, revokeAllArt } from '../lib/art'
 import { clearSwatches } from '../lib/color'
@@ -71,6 +72,7 @@ export type PanelId =
   | 'none'
   | 'queue'
   | 'equalizer'
+  | 'vibe'
   | 'settings'
   | 'shortcuts'
   | 'about'
@@ -150,6 +152,8 @@ interface DeckValue {
   updateSettings: (patch: Partial<Settings>) => void
   setEq: (patch: Partial<EqState>) => void
   applyEqPreset: (name: string) => void
+  updateVibe: (patch: Partial<VibeState>) => void
+  applyVibePreset: (name: string) => void
 
   /* loop + sleep */
   loop: LoopRange | null
@@ -203,6 +207,7 @@ const idle: ScanProgress = { phase: 'idle', found: 0, parsed: 0, file: '' }
 
 /** Preset name -> band gains. Built once; the list itself never changes. */
 const EQ_PRESET_MAP = new Map(EQ_PRESETS.map((p) => [p.name, p.bands]))
+const VIBE_PRESET_MAP = new Map(VIBE_PRESETS.map((p) => [p.name, p]))
 
 export function DeckProvider({ children }: { children: ReactNode }) {
   const [tracks, setTracks] = useState<Track[]>([])
@@ -431,9 +436,11 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     engine.crossfadeTime = settings.crossfade
     engine.smoothPause = settings.smoothPause
     engine.setRate(settings.rate)
+    engine.setPreservesPitch(settings.pitchLock)
     engine.setBalance(settings.balance)
     engine.setNightMode(settings.nightMode)
     engine.setEq(settings.eq.enabled, settings.eq.preamp, settings.eq.bands)
+    engine.setVibe(settings.vibe)
     if (settings.theme !== 'system') setTheme(settings.theme)
     if (!restoredRef.current) return
     const t = window.setTimeout(() => void saveSettings(settings), 250)
@@ -449,6 +456,29 @@ export function DeckProvider({ children }: { children: ReactNode }) {
       const preset = EQ_PRESET_MAP.get(name)
       if (!preset) return s
       return { ...s, eq: { ...s.eq, bands: [...preset], preset: name, enabled: true } }
+    })
+  }, [])
+
+  const updateVibe = useCallback((patch: Partial<VibeState>) => {
+    setSettings((s) => ({ ...s, vibe: { ...s.vibe, ...patch } }))
+  }, [])
+
+  /**
+   * Unlike `applyEqPreset`, a Vibe preset also carries `rate` and
+   * `pitchLock` — the whole point of "Slowed" or "Nightcore" is the tempo
+   * change, which lives on `Settings` directly rather than nested under
+   * `vibe` (it's the same value the Playback section's Speed slider reads).
+   */
+  const applyVibePreset = useCallback((name: string) => {
+    setSettings((s) => {
+      const preset = VIBE_PRESET_MAP.get(name)
+      if (!preset) return s
+      return {
+        ...s,
+        rate: preset.rate,
+        pitchLock: preset.pitchLock,
+        vibe: { ...preset.vibe, preset: name },
+      }
     })
   }, [])
 
@@ -1475,6 +1505,8 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     updateSettings,
     setEq,
     applyEqPreset,
+    updateVibe,
+    applyVibePreset,
 
     loop,
     markLoop,

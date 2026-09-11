@@ -146,7 +146,7 @@ export function EqualizerPanel() {
         />
       </Row>
 
-      <Row title="Speed" hint="Pitch is preserved, so voices stay voices">
+      <Row title="Speed" hint="Pitch lock lives in Vibe Mode, if you want it to shift too">
         <span className="text-ink-faint">
           <SpeedIcon className="w-4 h-4" />
         </span>

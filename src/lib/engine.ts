@@ -1,4 +1,4 @@
-import { EQ_FREQUENCIES } from '../types'
+import { EQ_FREQUENCIES, type VibeState } from '../types'
 
 /**
  * The audio engine.
@@ -12,16 +12,26 @@ import { EQ_FREQUENCIES } from '../types'
  * Graph:
  *
  *   elementA -> gainA -\
- *                       +-> preamp -> EQ×10 -> compressor -> panner
- *   elementB -> gainB -/                                        |
- *                                                               v
- *                              destination <- analyser <- master
+ *                       +-> preamp -> EQ×10 -> compressor -> panner -\
+ *   elementB -> gainB -/                                             |
+ *                                                                    v
+ *          vibeFilter <- crusher <- distortion <--------------------+
+ *               |
+ *               +----------------------------> masterGain -\
+ *               +-> reverbConvolver -> reverbWet ----------> +-> analyser -> destination
+ *               +-> reverbDry (unity) ----------------------/
  *
- * Everything between preamp and panner is a pass-through until the user
- * turns it on: EQ band gains sit at 0 dB, the compressor is bypassed by a
- * ratio of 1, the panner sits centred. Building the chain once and leaving
+ * Everything between preamp and the reverb send is a pass-through until the
+ * user turns it on: EQ band gains sit at 0 dB, the compressor is bypassed by
+ * a ratio of 1, the panner sits centred, the distortion curve is null (a
+ * WaveShaperNode with no curve is a plain wire), the crusher's per-block
+ * callback copies input straight to output, the sweep filter is an allpass,
+ * and the reverb send sits at zero wet. Building the chain once and leaving
  * it flat is far cheaper than rewiring the graph when a switch flips, and it
- * means a setting change can never drop audio mid-track.
+ * means a setting change can never drop audio mid-track. Vibe Mode (the
+ * distortion/crusher/filter/reverb stretch of the chain) is what backs the
+ * app's second listening mode — slowed, nightcore, crushed, and the rest —
+ * layered on top of the same EQ and compressor the main player always had.
  */
 
 const DEFAULT_CROSSFADE = 0.14 // seconds of overlap between tracks
@@ -58,6 +68,18 @@ export class Engine {
   private master: GainNode | null = null
   private analyser: AnalyserNode | null = null
   private decks: [Deck, Deck] | null = null
+
+  /* -------------------------------------------------------- vibe mode -- */
+  private distortionNode: WaveShaperNode | null = null
+  private vibeFilter: BiquadFilterNode | null = null
+  private reverbConvolver: ConvolverNode | null = null
+  private reverbWetGain: GainNode | null = null
+  /** Live-read from the crusher's audio callback; not a scheduled param. */
+  private crushAmount = 0
+  /** Memo guards so a settings re-render doesn't regenerate an impulse
+   *  response or distortion curve every time an unrelated setting changes. */
+  private reverbDecaySeconds = -1
+  private distortionAmount = -1
   private active = 0
   private raf = 0
   private crossfading = false
@@ -139,6 +161,59 @@ export class Engine {
     const panner = ctx.createStereoPanner()
     panner.pan.value = 0
 
+    // Distortion: a WaveShaperNode with no curve is a plain wire, so this
+    // sits flat until Vibe Mode sets one.
+    const distortionNode = ctx.createWaveShaper()
+    distortionNode.oversample = '4x'
+
+    // Bitcrusher: ScriptProcessorNode rather than an AudioWorklet, so the
+    // effect is one file with no separate module to build or serve. The
+    // callback below reads `this.crushAmount` live and just copies input to
+    // output when it's zero — negligible cost while the effect is off.
+    const crusher = ctx.createScriptProcessor(4096, 2, 2)
+    crusher.onaudioprocess = (e) => {
+      const amount = this.crushAmount
+      const input = e.inputBuffer
+      const output = e.outputBuffer
+      if (amount <= 0.001) {
+        for (let ch = 0; ch < input.numberOfChannels; ch++) {
+          output.copyToChannel(input.getChannelData(ch), ch)
+        }
+        return
+      }
+      // amount 0..1 -> bit depth 16..3 and a sample-and-hold factor 1..23 —
+      // quantization for the "crushed" grit, hold for the aliased lo-fi buzz.
+      const step = Math.pow(0.5, Math.round(16 - amount * 13))
+      const hold = 1 + Math.round(amount * 22)
+      for (let ch = 0; ch < input.numberOfChannels; ch++) {
+        const inData = input.getChannelData(ch)
+        const outData = output.getChannelData(ch)
+        let held = 0
+        for (let i = 0; i < inData.length; i++) {
+          if (i % hold === 0) held = step * Math.round(inData[i] / step)
+          outData[i] = held
+        }
+      }
+    }
+
+    // Sweep filter: allpass (bypass) until Vibe Mode pushes it negative
+    // (low-pass, "underwater") or positive (high-pass, "telephone").
+    const vibeFilter = ctx.createBiquadFilter()
+    vibeFilter.type = 'allpass'
+    vibeFilter.frequency.value = 350
+    vibeFilter.Q.value = 0.7
+
+    // Reverb send: a synthetic impulse response (no external asset to fetch)
+    // feeding a wet gain, in parallel with a unity dry gain — both connect
+    // straight to master, which sums them, so there's no separate mix node.
+    const reverbConvolver = ctx.createConvolver()
+    reverbConvolver.normalize = true
+    reverbConvolver.buffer = generateImpulseResponse(ctx, 2)
+    const reverbWetGain = ctx.createGain()
+    reverbWetGain.gain.value = 0
+    const reverbDryGain = ctx.createGain()
+    reverbDryGain.gain.value = 1
+
     const master = ctx.createGain()
     master.gain.value = this.volume
 
@@ -148,7 +223,8 @@ export class Engine {
     analyser.minDecibels = -85
     analyser.maxDecibels = -12
 
-    // preamp -> band0 -> … -> band9 -> compressor -> panner -> master
+    // preamp -> band0 -> … -> band9 -> compressor -> panner -> distortion ->
+    // crusher -> vibeFilter -> { reverbDry, reverbConvolver -> reverbWet } -> master
     let node: AudioNode = preamp
     for (const b of bands) {
       node.connect(b)
@@ -156,7 +232,14 @@ export class Engine {
     }
     node.connect(compressor)
     compressor.connect(panner)
-    panner.connect(master)
+    panner.connect(distortionNode)
+    distortionNode.connect(crusher)
+    crusher.connect(vibeFilter)
+    vibeFilter.connect(reverbDryGain)
+    vibeFilter.connect(reverbConvolver)
+    reverbConvolver.connect(reverbWetGain)
+    reverbDryGain.connect(master)
+    reverbWetGain.connect(master)
     master.connect(analyser)
     analyser.connect(ctx.destination)
 
@@ -175,6 +258,11 @@ export class Engine {
     this.bands = bands
     this.compressor = compressor
     this.panner = panner
+    this.distortionNode = distortionNode
+    this.vibeFilter = vibeFilter
+    this.reverbConvolver = reverbConvolver
+    this.reverbWetGain = reverbWetGain
+    this.reverbDecaySeconds = 2
     this.master = master
     this.analyser = analyser
     this.decks = [makeDeck(), makeDeck()]
@@ -293,10 +381,19 @@ export class Engine {
   }
 
   private rate = 1
+  /** Off gives the vinyl/tape behaviour Vibe Mode's slowed and nightcore
+   *  presets want — pitch moves with speed — instead of the browser's
+   *  transparent time-stretch. */
+  private preservesPitchOn = true
 
-  /** 0.25×…4×. `preservesPitch` keeps voices from turning into chipmunks. */
+  /** 0.25×…4×. */
   setRate(v: number) {
     this.rate = Math.max(0.25, Math.min(4, v))
+    this.applyRate()
+  }
+
+  setPreservesPitch(on: boolean) {
+    this.preservesPitchOn = on
     this.applyRate()
   }
 
@@ -310,8 +407,72 @@ export class Engine {
       d.el.playbackRate = this.rate
       // Vendor-prefixed on older Safari/WebKit; the standard name lands first
       // where it exists, and the prefixed assignment is a harmless no-op.
-      d.el.preservesPitch = true
-      ;(d.el as unknown as { webkitPreservesPitch?: boolean }).webkitPreservesPitch = true
+      d.el.preservesPitch = this.preservesPitchOn
+      ;(d.el as unknown as { webkitPreservesPitch?: boolean }).webkitPreservesPitch =
+        this.preservesPitchOn
+    }
+  }
+
+  /* --------------------------------------------------------- vibe mode -- */
+
+  /**
+   * Push a whole Vibe state in one call — mirrors `setEq`. `enabled: false`
+   * zeroes the wet send, drops the distortion curve, and flattens the
+   * filter rather than disconnecting anything, so a setting change can
+   * never click or drop audio mid-track.
+   */
+  setVibe(state: VibeState) {
+    this.init()
+    const ctx = this.ctx
+    if (!ctx || !this.reverbWetGain) return
+    const t = ctx.currentTime
+    const on = state.enabled
+
+    const wetTarget = on ? Math.max(0, Math.min(1, state.reverbWet)) : 0
+    this.reverbWetGain.gain.setTargetAtTime(wetTarget, t, 0.05)
+
+    const decay = Math.max(0.2, Math.min(8, state.reverbDecay))
+    if (this.reverbConvolver && Math.abs(decay - this.reverbDecaySeconds) > 0.05) {
+      this.reverbDecaySeconds = decay
+      this.reverbConvolver.buffer = generateImpulseResponse(ctx, decay)
+    }
+
+    const distAmount = on ? Math.max(0, Math.min(1, state.distortion)) : 0
+    if (this.distortionNode && Math.abs(distAmount - this.distortionAmount) > 0.004) {
+      this.distortionAmount = distAmount
+      this.distortionNode.curve = distAmount <= 0.001 ? null : makeDistortionCurve(distAmount)
+    }
+
+    // Live-read by the crusher's audio callback — no node to reconfigure.
+    this.crushAmount = on ? Math.max(0, Math.min(1, state.crush)) : 0
+
+    this.applyVibeFilter(on ? state.filter : 0)
+  }
+
+  /**
+   * -1 (low-pass — muffled, "underwater") … 0 (bypass) … 1 (high-pass —
+   * thin, "telephone"). Logarithmic sweep, same shape as the DJ mixer's
+   * per-deck filter — duplicated rather than shared, since the two engines
+   * are deliberately independent audio paths.
+   */
+  private applyVibeFilter(value: number) {
+    const f = this.vibeFilter
+    const ctx = this.ctx
+    if (!f || !ctx) return
+    const v = Math.max(-1, Math.min(1, value))
+    const t = ctx.currentTime
+    if (Math.abs(v) < 0.02) {
+      f.type = 'allpass'
+      return
+    }
+    if (v < 0) {
+      f.type = 'lowpass'
+      f.frequency.setTargetAtTime(22000 * Math.pow(120 / 22000, -v), t, 0.02)
+      f.Q.setTargetAtTime(0.8 + -v * 2, t, 0.02)
+    } else {
+      f.type = 'highpass'
+      f.frequency.setTargetAtTime(20 * Math.pow(8000 / 20, v), t, 0.02)
+      f.Q.setTargetAtTime(0.8 + v * 2, t, 0.02)
     }
   }
 
@@ -381,7 +542,7 @@ export class Engine {
     deck.trackId = trackId
     deck.el.src = deck.url
     deck.el.playbackRate = this.rate
-    deck.el.preservesPitch = true
+    deck.el.preservesPitch = this.preservesPitchOn
   }
 
   private stopDeck(deck: Deck) {
@@ -636,6 +797,46 @@ export class Engine {
 /** dB → linear gain. 0 dB is unity; -12 dB is about a quarter of the power. */
 export function dbToGain(db: number) {
   return Math.pow(10, db / 20)
+}
+
+/**
+ * A synthetic reverb impulse response — exponentially-decaying stereo white
+ * noise. No external audio asset to fetch or bundle, and it's cheap enough
+ * to regenerate whenever the decay time actually changes (a few hundred
+ * thousand samples, computed in a millisecond or two).
+ */
+function generateImpulseResponse(ctx: AudioContext, seconds: number): AudioBuffer {
+  const rate = ctx.sampleRate
+  const length = Math.max(1, Math.floor(rate * seconds))
+  const buffer = ctx.createBuffer(2, length, rate)
+  for (let ch = 0; ch < 2; ch++) {
+    const data = buffer.getChannelData(ch)
+    for (let i = 0; i < length; i++) {
+      // A steeper-than-linear tail reads as a room, not a ramp.
+      const decay = Math.pow(1 - i / length, 2.2)
+      data[i] = (Math.random() * 2 - 1) * decay
+    }
+  }
+  return buffer
+}
+
+/**
+ * The standard WaveShaperNode distortion curve. `amount` is 0..1; the curve
+ * itself is built over the classic 0..100 "drive" range this formula
+ * assumes. Not remotely neutral at amount 0 (it's roughly a 3x attenuation,
+ * not identity) — callers must set `curve = null` for a true bypass rather
+ * than calling this with 0, which is exactly what `setVibe` does.
+ */
+function makeDistortionCurve(amount: number): Float32Array<ArrayBuffer> {
+  const k = amount * 100
+  const n = 8192
+  const curve = new Float32Array(n)
+  const deg = Math.PI / 180
+  for (let i = 0; i < n; i++) {
+    const x = (i * 2) / n - 1
+    curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x))
+  }
+  return curve
 }
 
 export const engine = new Engine()

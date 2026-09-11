@@ -80,15 +80,22 @@ export function AboutPanel() {
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">New in {DECK_VERSION}</span>
+          Vibe Mode: a second way to listen. Presets for slowed + reverb,
+          nightcore, chopped &amp; screwed, 8-bit, distorted, underwater and
+          telephone, plus manual reverb, bitcrush, distortion, filter and a
+          tempo slider with an optional pitch lock — colours everything that
+          plays until you turn it off.
+        </p>
+        <p>
+          <span className="label !text-[9px] block mb-1">Also since 2.01</span>
           DJ mode: two independent decks with waveforms, a 3-band EQ, a sweep
           filter, cue points, pitch-bendable tempo with key lock, tap tempo and
           an equal-power crossfader — load any track from your library onto
           either deck and mix it live. One-tap Auto Mix beatmatches and blends
           for you with a proper bass swap, and a built-in cheat sheet explains
-          every control. Everything from 2.01 is still here: a
-          ten-band equalizer, a command palette, an editable queue, favourites
-          and ratings, four visualizer modes, smart views, a sleep timer, A↔B
-          looping and drag-and-drop import.
+          every control. A ten-band equalizer, a command palette, an editable
+          queue, favourites and ratings, four visualizer modes, smart views, a
+          sleep timer, A↔B looping and drag-and-drop import.
         </p>
       </div>
 

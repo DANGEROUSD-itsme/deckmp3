@@ -528,3 +528,19 @@ export function HelpIcon({ className }: P) {
     </svg>
   )
 }
+
+/* ===========================================================================
+   V2.03 — Vibe Mode's own glyph. A cassette shell — the universal shorthand
+   for "slowed, warped, lo-fi" that DjIcon's turntable shouldn't also carry.
+   =========================================================================== */
+
+export function VibeIcon({ className }: P) {
+  return (
+    <svg className={className} {...base(1.5)}>
+      <rect x="2.5" y="5" width="19" height="14" rx="2" />
+      <circle cx="8.5" cy="12" r="2.3" />
+      <circle cx="15.5" cy="12" r="2.3" />
+      <path d="M9.8 12h4.4M6 8.5h1.2M16.8 8.5H18" />
+    </svg>
+  )
+}

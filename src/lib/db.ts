@@ -248,5 +248,6 @@ export async function loadSettings(): Promise<Settings> {
     ...base,
     ...raw,
     eq: { ...base.eq, ...(raw.eq ?? {}) },
+    vibe: { ...base.vibe, ...(raw.vibe ?? {}) },
   }
 }

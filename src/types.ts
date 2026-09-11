@@ -74,8 +74,8 @@ export interface ScanProgress {
    =========================================================================== */
 
 /** Build identity, printed as silkscreen on the sidebar and in About. */
-export const DECK_VERSION = '2.02'
-export const DECK_CODENAME = 'Two Decks'
+export const DECK_VERSION = '2.03'
+export const DECK_CODENAME = 'Vibe Check'
 
 /** Which surface the Now Playing well is rendering. */
 export type VisualizerMode = 'ring' | 'bars' | 'wave' | 'orbit' | 'off'
@@ -145,8 +145,12 @@ export interface Settings {
   density: Density
   /** Seconds of overlap between tracks. 0 disables the crossfade entirely. */
   crossfade: number
-  /** Multiply playback rate. 1 is normal; pitch is preserved by the browser. */
+  /** Multiply playback rate. 1 is normal. */
   rate: number
+  /** Keep pitch constant as `rate` changes. Off gives the vinyl/tape
+   *  behaviour Vibe Mode's slowed and nightcore presets want — pitch moves
+   *  with speed — rather than transparent time-stretching. */
+  pitchLock: boolean
   /** -1 hard left … 0 centre … +1 hard right. */
   balance: number
   /** Dynamic-range compressor — the "late night" switch. */
@@ -167,6 +171,7 @@ export interface Settings {
   /** Restore the previous queue and playhead on launch. */
   resumeOnLaunch: boolean
   eq: EqState
+  vibe: VibeState
 }
 
 export const defaultSettings = (): Settings => ({
@@ -175,6 +180,7 @@ export const defaultSettings = (): Settings => ({
   density: 'comfortable',
   crossfade: 0.14,
   rate: 1,
+  pitchLock: true,
   balance: 0,
   nightMode: false,
   smoothPause: true,
@@ -186,6 +192,7 @@ export const defaultSettings = (): Settings => ({
   gridSize: 168,
   resumeOnLaunch: true,
   eq: defaultEq(),
+  vibe: defaultVibe(),
 })
 
 /** Per-track listening history. Written on play, never on scan. */
@@ -275,3 +282,99 @@ export interface SleepTimer {
   endOfTrack: boolean
   minutes: number
 }
+
+/* ===========================================================================
+   Vibe Mode. A second, always-on effects colour for ordinary listening,
+   distinct from DJ mode's live two-deck mixing: one track, one set of
+   effects, applied to everything that plays until you turn it off.
+   =========================================================================== */
+
+export interface VibeState {
+  enabled: boolean
+  /** Name of the preset last applied, or 'Custom' once a slider moves. */
+  preset: string
+  /** Wet mix of the reverb send, 0..1. */
+  reverbWet: number
+  /** Decay tail length, seconds. */
+  reverbDecay: number
+  /** Bitcrush/downsample amount, 0 (clean) .. 1 (8-bit gutter). */
+  crush: number
+  /** Waveshaper drive, 0 (clean) .. 1 (fuzzed out). */
+  distortion: number
+  /** Sweep filter: -1 (muffled/underwater) .. 0 (flat) .. 1 (thin/tinny). */
+  filter: number
+}
+
+export const defaultVibe = (): VibeState => ({
+  enabled: false,
+  preset: 'Off',
+  reverbWet: 0,
+  reverbDecay: 2,
+  crush: 0,
+  distortion: 0,
+  filter: 0,
+})
+
+/**
+ * Rate and pitchLock ride on top of the existing `Settings.rate` speed
+ * control rather than duplicating it — Vibe Mode's "Tempo" slider and the
+ * Playback section's "Speed" slider are the same value on purpose, so
+ * changing one is reflected in the other.
+ */
+export interface VibePreset {
+  name: string
+  rate: number
+  pitchLock: boolean
+  vibe: Omit<VibeState, 'preset'>
+}
+
+export const VIBE_PRESETS: VibePreset[] = [
+  {
+    name: 'Off',
+    rate: 1,
+    pitchLock: true,
+    vibe: { enabled: false, reverbWet: 0, reverbDecay: 2, crush: 0, distortion: 0, filter: 0 },
+  },
+  {
+    name: 'Slowed + Reverb',
+    rate: 0.82,
+    pitchLock: false,
+    vibe: { enabled: true, reverbWet: 0.55, reverbDecay: 3.2, crush: 0, distortion: 0, filter: -0.1 },
+  },
+  {
+    name: 'Nightcore',
+    rate: 1.28,
+    pitchLock: false,
+    vibe: { enabled: true, reverbWet: 0.08, reverbDecay: 0.8, crush: 0, distortion: 0, filter: 0 },
+  },
+  {
+    name: 'Chopped & Screwed',
+    rate: 0.68,
+    pitchLock: false,
+    vibe: { enabled: true, reverbWet: 0.35, reverbDecay: 2.5, crush: 0.1, distortion: 0, filter: -0.15 },
+  },
+  {
+    name: '8-Bit',
+    rate: 1,
+    pitchLock: true,
+    vibe: { enabled: true, reverbWet: 0, reverbDecay: 1, crush: 0.75, distortion: 0.15, filter: 0 },
+  },
+  {
+    name: 'Distorted',
+    rate: 1,
+    pitchLock: true,
+    vibe: { enabled: true, reverbWet: 0.05, reverbDecay: 1.5, crush: 0.1, distortion: 0.65, filter: 0 },
+  },
+  {
+    name: 'Underwater',
+    rate: 0.95,
+    pitchLock: true,
+    vibe: { enabled: true, reverbWet: 0.4, reverbDecay: 4, crush: 0, distortion: 0, filter: -0.55 },
+  },
+  {
+    name: 'Telephone',
+    rate: 1,
+    pitchLock: true,
+    vibe: { enabled: true, reverbWet: 0, reverbDecay: 1, crush: 0.3, distortion: 0.1, filter: 0.35 },
+  },
+]

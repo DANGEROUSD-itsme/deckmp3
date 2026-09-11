@@ -13,6 +13,7 @@ import { TrackMenuProvider } from './components/ContextMenu'
 import { CommandPalette } from './components/CommandPalette'
 import { QueueView } from './components/QueueView'
 import { EqualizerPanel } from './components/EqualizerPanel'
+import { VibePanel } from './components/VibePanel'
 import { SettingsPanel } from './components/SettingsPanel'
 import { ShortcutsOverlay } from './components/ShortcutsOverlay'
 import { AboutPanel } from './components/AboutPanel'
@@ -128,6 +129,9 @@ function useKeyboardShortcuts(
           break
         case 'KeyE':
           openPanel(panel === 'equalizer' ? 'none' : 'equalizer')
+          break
+        case 'KeyV':
+          openPanel(panel === 'vibe' ? 'none' : 'vibe')
           break
         case 'KeyD':
           onOpenDJ()
@@ -308,6 +312,7 @@ function Panels({ onNavigate }: { onNavigate: (v: View) => void }) {
       {panel === 'palette' && <CommandPalette key="palette" onNavigate={onNavigate} />}
       {panel === 'queue' && <QueueView key="queue" />}
       {panel === 'equalizer' && <EqualizerPanel key="eq" />}
+      {panel === 'vibe' && <VibePanel key="vibe" />}
       {panel === 'settings' && <SettingsPanel key="settings" />}
       {panel === 'shortcuts' && <ShortcutsOverlay key="shortcuts" />}
       {panel === 'about' && <AboutPanel key="about" />}

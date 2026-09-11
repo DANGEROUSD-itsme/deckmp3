@@ -4,13 +4,14 @@ import { useDeck } from '../store/deck'
 import { useDJ } from '../store/dj'
 import { fuzzyRank, highlightRuns } from '../lib/fuzzy'
 import { fmtTime } from '../lib/format'
-import { SMART_VIEWS, type Track } from '../types'
+import { SMART_VIEWS, VIBE_PRESETS, type Track } from '../types'
 import { Scrim, useOverlay } from './ui'
 import {
   ChartIcon,
   CommandIcon,
   DiscIcon,
   DjIcon,
+  VibeIcon,
   FolderIcon,
   GearIcon,
   HeartIcon,
@@ -88,6 +89,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
     setSleep,
     rescan,
     chooseFolder,
+    applyVibePreset,
   } = deck
 
   const [query, setQuery] = useState('')
@@ -187,6 +189,14 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
         keywords: 'eq bass treble tone sound',
         icon: <SlidersIcon className={ICON} />,
         run: () => openPanel('equalizer'),
+      },
+      {
+        id: 'vibe',
+        label: 'Open Vibe Mode',
+        group: 'Panels',
+        keywords: 'effects reverb slowed nightcore crush distortion filter fx',
+        icon: <VibeIcon className={ICON} />,
+        run: () => openPanel('vibe'),
       },
       {
         id: 'settings',
@@ -298,6 +308,21 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
       run: () => setSleep('end-of-track'),
     })
 
+    for (const preset of VIBE_PRESETS) {
+      if (preset.name === 'Off') continue
+      out.push({
+        id: `vibe-${preset.name}`,
+        label: `Vibe: ${preset.name}`,
+        group: 'Vibe Mode',
+        keywords: 'effects fx reverb slow fast crush distort filter tempo',
+        icon: <VibeIcon className={ICON} />,
+        run: () => {
+          applyVibePreset(preset.name)
+          openPanel('vibe')
+        },
+      })
+    }
+
     for (const view of SMART_VIEWS) {
       out.push({
         id: `smart-${view.id}`,
@@ -334,6 +359,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
 
     return out
   }, [
+    applyVibePreset,
     chooseFolder,
     current,
     cycleRepeat,

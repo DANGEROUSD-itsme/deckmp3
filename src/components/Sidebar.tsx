@@ -20,6 +20,7 @@ import {
   SparkIcon,
   SunIcon,
   TrashIcon,
+  VibeIcon,
 } from './icons'
 
 export type View =
@@ -249,6 +250,10 @@ export function Sidebar({ view, onNavigate }: Props) {
         <button onClick={() => openPanel('equalizer')} className="nav-item" title="Equalizer">
           <SlidersIcon className="w-[18px] h-[18px] shrink-0" />
           <span className="hidden lg:inline">Equalizer</span>
+        </button>
+        <button onClick={() => openPanel('vibe')} className="nav-item" title="Vibe mode (V)">
+          <VibeIcon className="w-[18px] h-[18px] shrink-0" />
+          <span className="hidden lg:inline">Vibe Mode</span>
         </button>
         <button onClick={() => openPanel('stats')} className="nav-item" title="Statistics">
           <ChartIcon className="w-[18px] h-[18px] shrink-0" />
