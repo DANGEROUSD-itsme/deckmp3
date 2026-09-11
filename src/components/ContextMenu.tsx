@@ -1,11 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDeck } from '../store/deck'
+import { useDJ } from '../store/dj'
+import type { DeckSide } from '../lib/djEngine'
 import type { Track } from '../types'
 import {
   AddToQueueIcon,
   ChevronIcon,
   CopyIcon,
+  DjIcon,
   HeartIcon,
   InfoIcon,
   LayersIcon,
@@ -94,7 +97,9 @@ function Menu({ request, onClose }: { request: MenuRequest; onClose: () => void 
     setRating,
     statsFor,
     toast,
+    resolveFile,
   } = useDeck()
+  const { loadDeck, openMixer } = useDJ()
   const { track } = request
   const [submenu, setSubmenu] = useState(false)
   const stats = statsFor(track.id)
@@ -123,6 +128,19 @@ function Menu({ request, onClose }: { request: MenuRequest; onClose: () => void 
   const artistIds = tracks
     .filter((t) => t.albumArtist.toLowerCase() === track.albumArtist.toLowerCase())
     .map((t) => t.id)
+
+  const loadToDeck = (side: DeckSide) => {
+    void (async () => {
+      const file = await resolveFile(track)
+      if (!file) {
+        toast(`Missing file: ${track.title}`, 'error')
+        return
+      }
+      await loadDeck(side, track, file)
+      openMixer()
+      toast(`Loaded \u201c${track.title}\u201d to Deck ${side.toUpperCase()}.`, 'success')
+    })()
+  }
 
   const copyDetails = () => {
     const text = `${track.artist} — ${track.title} (${track.album}${track.year ? `, ${track.year}` : ''})`
@@ -168,6 +186,19 @@ function Menu({ request, onClose }: { request: MenuRequest; onClose: () => void 
           icon={<AddToQueueIcon className="w-3.5 h-3.5" />}
           label="Add to queue"
           onClick={act(() => addToQueue([track.id]))}
+        />
+
+        <Divider />
+
+        <Item
+          icon={<DjIcon className="w-3.5 h-3.5" />}
+          label="Load to Deck A"
+          onClick={act(() => loadToDeck('a'))}
+        />
+        <Item
+          icon={<DjIcon className="w-3.5 h-3.5" />}
+          label="Load to Deck B"
+          onClick={act(() => loadToDeck('b'))}
         />
 
         <Divider />

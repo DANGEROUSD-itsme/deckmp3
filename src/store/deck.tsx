@@ -85,6 +85,10 @@ interface DeckValue {
   progress: ScanProgress
   supported: boolean
   chooseFolder: () => Promise<void>
+  /** Resolve a Track to a playable File — the same lookup playback uses.
+   *  Consumed by the DJ mixer, which needs bytes but has no idea whether
+   *  they live behind a live directory handle or copied into IndexedDB. */
+  resolveFile: (track: Track) => Promise<File | null>
   grantAccess: () => Promise<void>
   rescan: () => Promise<void>
   forgetLibrary: () => Promise<void>
@@ -1415,6 +1419,7 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     progress,
     supported: supportsFileSystemAccess(),
     chooseFolder,
+    resolveFile: fileFor,
     grantAccess,
     rescan,
     forgetLibrary,

@@ -29,6 +29,7 @@ const GROUPS: { name: string; items: [string[], string][] }[] = [
       [['N'], 'Now playing'],
       [['Q'], 'Queue'],
       [['E'], 'Equalizer'],
+      [['D'], 'DJ mode'],
       [['?'], 'This list'],
       [['Esc'], 'Close whatever is open'],
     ],

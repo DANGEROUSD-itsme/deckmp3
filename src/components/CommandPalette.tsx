@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useDeck } from '../store/deck'
+import { useDJ } from '../store/dj'
 import { fuzzyRank, highlightRuns } from '../lib/fuzzy'
 import { fmtTime } from '../lib/format'
 import { SMART_VIEWS, type Track } from '../types'
@@ -9,6 +10,7 @@ import {
   ChartIcon,
   CommandIcon,
   DiscIcon,
+  DjIcon,
   FolderIcon,
   GearIcon,
   HeartIcon,
@@ -61,6 +63,7 @@ const ICON = 'w-4 h-4'
 
 export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => void }) {
   const deck = useDeck()
+  const { openMixer } = useDJ()
   const {
     closePanel,
     openPanel,
@@ -156,6 +159,14 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
         keywords: 'up next list',
         icon: <QueueIcon className={ICON} />,
         run: () => openPanel('queue'),
+      },
+      {
+        id: 'dj',
+        label: 'Open DJ mode',
+        group: 'Panels',
+        keywords: 'mixer decks crossfader beatmatch',
+        icon: <DjIcon className={ICON} />,
+        run: openMixer,
       },
       {
         id: 'eq',
@@ -316,6 +327,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
     cycleRepeat,
     isPlaying,
     next,
+    openMixer,
     onNavigate,
     openPanel,
     playNow,
@@ -341,7 +353,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
       // for, not an alphabetical dump of every command.
       return commands
         .filter((c) =>
-          ['play', 'next', 'queue', 'eq', 'surprise', 'settings', 'shortcuts', 'about'].includes(
+          ['play', 'next', 'dj', 'queue', 'eq', 'surprise', 'settings', 'shortcuts', 'about'].includes(
             c.id
           )
         )

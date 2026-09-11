@@ -491,3 +491,30 @@ export function RefreshIcon({ className }: P) {
     </svg>
   )
 }
+
+/* ===========================================================================
+   V2.02 — the DJ mixer's own two glyphs.
+   =========================================================================== */
+
+export function DjIcon({ className }: P) {
+  // Two platters and a crossfader — reads as "mixer" at 18px, not "settings".
+  return (
+    <svg className={className} {...base(1.5)}>
+      <circle cx="6.5" cy="7.5" r="4" />
+      <circle cx="6.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="17.5" cy="7.5" r="4" />
+      <circle cx="17.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
+      <rect x="3.5" y="16" width="17" height="4.5" rx="1.2" />
+      <rect x="10.5" y="16.7" width="3" height="3.1" rx="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
+export function FlagIcon({ className }: P) {
+  return (
+    <svg className={className} {...base(1.6)}>
+      <path d="M6 21V4" />
+      <path d="M6 4.5h11l-3 3.5 3 3.5H6" />
+    </svg>
+  )
+}

@@ -80,11 +80,13 @@ export function AboutPanel() {
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">New in {DECK_VERSION}</span>
-          A ten-band equalizer with a preamp and twelve presets, night mode,
-          stereo balance and speed control. A command palette on ⌘K. An editable
-          queue. Favourites, ratings and play counts. Four visualizer modes,
-          artist and genre browsing, smart views, a sleep timer, A↔B looping,
-          six accent colours and drag-and-drop import.
+          DJ mode: two independent decks with waveforms, a 3-band EQ, a sweep
+          filter, cue points, pitch-bendable tempo with key lock, tap tempo and
+          an equal-power crossfader — load any track from your library onto
+          either deck and mix it live. Everything from 2.01 is still here: a
+          ten-band equalizer, a command palette, an editable queue, favourites
+          and ratings, four visualizer modes, smart views, a sleep timer, A↔B
+          looping and drag-and-drop import.
         </p>
       </div>
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { DeckProvider, useDeck } from './store/deck'
+import { DJProvider, useDJ } from './store/dj'
 import { engine } from './lib/engine'
 import { Sidebar, type View } from './components/Sidebar'
 import { LibraryView } from './components/LibraryView'
@@ -19,6 +20,7 @@ import { StatsPanel } from './components/StatsPanel'
 import { TrackInfoModal } from './components/TrackInfoModal'
 import { Toasts } from './components/Toasts'
 import { ConfirmDialog } from './components/ConfirmDialog'
+import { DJMixer } from './components/dj/DJMixer'
 import { UploadIcon } from './components/icons'
 
 /**
@@ -30,7 +32,11 @@ import { UploadIcon } from './components/icons'
  *      the browser is already going to activate it — otherwise focusing the
  *      play button and pressing Space toggled playback twice.
  */
-function useKeyboardShortcuts(onOpenNowPlaying: () => void, onToggleTheme: () => void) {
+function useKeyboardShortcuts(
+  onOpenNowPlaying: () => void,
+  onToggleTheme: () => void,
+  onOpenDJ: () => void
+) {
   const {
     toggle,
     next,
@@ -123,6 +129,9 @@ function useKeyboardShortcuts(onOpenNowPlaying: () => void, onToggleTheme: () =>
         case 'KeyE':
           openPanel(panel === 'equalizer' ? 'none' : 'equalizer')
           break
+        case 'KeyD':
+          onOpenDJ()
+          break
         case 'KeyT':
           onToggleTheme()
           break
@@ -153,6 +162,7 @@ function useKeyboardShortcuts(onOpenNowPlaying: () => void, onToggleTheme: () =>
     cycleRepeat,
     markLoop,
     next,
+    onOpenDJ,
     onOpenNowPlaying,
     onToggleTheme,
     openPanel,
@@ -310,9 +320,16 @@ function Shell() {
   const [view, setView] = useState<View>({ kind: 'library' })
   const [nowPlayingOpen, setNowPlayingOpen] = useState(false)
   const { status, toggleTheme } = useDeck()
+  const dj = useDJ()
 
   const openNowPlaying = useCallback(() => setNowPlayingOpen(true), [])
-  useKeyboardShortcuts(openNowPlaying, toggleTheme)
+  // DJ mode and Now Playing are both full-screen; opening one puts the other
+  // away rather than stacking two edge-to-edge overlays.
+  const openDJ = useCallback(() => {
+    setNowPlayingOpen(false)
+    dj.openMixer()
+  }, [dj])
+  useKeyboardShortcuts(openNowPlaying, toggleTheme, openDJ)
 
   return (
     <div className="h-full flex flex-col">
@@ -349,6 +366,10 @@ function Shell() {
         {nowPlayingOpen && <NowPlaying onClose={() => setNowPlayingOpen(false)} />}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {dj.open && <DJMixer onClose={dj.closeMixer} />}
+      </AnimatePresence>
+
       <Panels
         onNavigate={(v) => {
           setView(v)
@@ -367,9 +388,11 @@ function Shell() {
 export default function App() {
   return (
     <DeckProvider>
-      <TrackMenuProvider>
-        <Shell />
-      </TrackMenuProvider>
+      <DJProvider>
+        <TrackMenuProvider>
+          <Shell />
+        </TrackMenuProvider>
+      </DJProvider>
     </DeckProvider>
   )
 }

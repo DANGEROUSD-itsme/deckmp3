@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDeck } from '../store/deck'
+import { useDJ } from '../store/dj'
 import { DECK_VERSION, SMART_VIEWS, type SmartViewId } from '../types'
 import {
   ChartIcon,
   ChevronIcon,
   CommandIcon,
   DiscIcon,
+  DjIcon,
   FolderIcon,
   GearIcon,
   HeartIcon,
@@ -45,6 +47,7 @@ export function Sidebar({ view, onNavigate }: Props) {
     smartList,
     upNext,
   } = useDeck()
+  const { openMixer } = useDJ()
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
   const [smartOpen, setSmartOpen] = useState(true)
@@ -111,6 +114,11 @@ export function Sidebar({ view, onNavigate }: Props) {
               {upNext.length}
             </span>
           )}
+        </button>
+
+        <button onClick={openMixer} className="nav-item" title="DJ mode (D)">
+          <DjIcon className="w-[18px] h-[18px] shrink-0" />
+          <span className="hidden lg:inline flex-1 text-left">DJ Mode</span>
         </button>
 
         {/* --- Smart views --- */}
