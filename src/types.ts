@@ -74,8 +74,8 @@ export interface ScanProgress {
    =========================================================================== */
 
 /** Build identity, printed as silkscreen on the sidebar and in About. */
-export const DECK_VERSION = '2.03'
-export const DECK_CODENAME = 'Vibe Check'
+export const DECK_VERSION = '4.0'
+export const DECK_CODENAME = 'Signal Sync'
 
 /** Which surface the Now Playing well is rendering. */
 export type VisualizerMode = 'ring' | 'bars' | 'wave' | 'orbit' | 'off'

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useDeck } from '../store/deck'
 import {
   ACCENTS,
@@ -10,7 +11,93 @@ import {
   type VisualizerMode,
 } from '../types'
 import { Row, SectionLabel, Segmented, Sheet, Slider, Toggle } from './ui'
-import { GearIcon, MoonIcon, SunIcon, WaveIcon } from './icons'
+import { CloudIcon, GearIcon, MoonIcon, SunIcon, WaveIcon } from './icons'
+
+/**
+ * Sign-in + sync status. Entirely optional — `syncAvailable` is false on any
+ * build with no Supabase project wired up, and this whole section just
+ * doesn't render then. Signing in only syncs metadata (playlists, ratings,
+ * settings); your actual audio files never leave the device.
+ */
+function AccountSection() {
+  const { syncAvailable, syncStatus, syncEmail, signInWithEmail, signOut } = useDeck()
+  const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  if (!syncAvailable) return null
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email.trim() || busy) return
+    setBusy(true)
+    setError(null)
+    const { error: err } = await signInWithEmail(email.trim())
+    setBusy(false)
+    if (err) setError(err)
+    else setSent(true)
+  }
+
+  return (
+    <>
+      <SectionLabel>Account &amp; sync</SectionLabel>
+
+      {syncEmail ? (
+        <>
+          <Row
+            title="Signed in"
+            hint={
+              syncStatus === 'syncing'
+                ? 'Syncing…'
+                : syncStatus === 'error'
+                  ? 'Last sync failed — will retry on your next change'
+                  : `Synced as ${syncEmail}`
+            }
+          >
+            <span className="text-ink-faint">
+              <CloudIcon className="w-4 h-4" />
+            </span>
+            <button onClick={() => void signOut()} className="ghost-btn">
+              Sign out
+            </button>
+          </Row>
+        </>
+      ) : (
+        <Row
+          title="Sync across devices"
+          hint={
+            sent
+              ? `Check ${email} for a sign-in link`
+              : 'Playlists, ratings, presets and settings — your music files always stay local'
+          }
+        >
+          {sent ? (
+            <button onClick={() => setSent(false)} className="ghost-btn">
+              Use a different email
+            </button>
+          ) : (
+            <form onSubmit={submit} className="flex items-center gap-1.5 min-w-0">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="field !w-auto !py-1.5 min-w-0"
+                aria-label="Email for sync sign-in"
+              />
+              <button type="submit" disabled={busy} className="ghost-btn shrink-0">
+                {busy ? 'Sending…' : 'Send link'}
+              </button>
+            </form>
+          )}
+        </Row>
+      )}
+      {error && <p className="label mt-1 !text-[10px] normal-case tracking-normal text-red-500">{error}</p>}
+    </>
+  )
+}
 
 /**
  * Every preference in one sheet. Changes apply live — there is no Save
@@ -38,6 +125,8 @@ export function SettingsPanel() {
       onClose={closePanel}
       width="sm:max-w-xl"
     >
+      <AccountSection />
+
       <SectionLabel>Appearance</SectionLabel>
 
       <Row title="Theme" hint="System follows your OS as it changes">

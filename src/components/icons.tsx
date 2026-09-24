@@ -544,3 +544,16 @@ export function VibeIcon({ className }: P) {
     </svg>
   )
 }
+
+/* ===========================================================================
+   V4 — the account/sync affordance. A plain cloud, deliberately the least
+   decorated icon in the set: sync is meant to feel optional, not a feature.
+   =========================================================================== */
+
+export function CloudIcon({ className }: P) {
+  return (
+    <svg className={className} {...base(1.6)}>
+      <path d="M7 18a4.5 4.5 0 0 1-.4-8.98A5.5 5.5 0 0 1 17.2 8.1 4 4 0 0 1 16.5 18H7Z" />
+    </svg>
+  )
+}

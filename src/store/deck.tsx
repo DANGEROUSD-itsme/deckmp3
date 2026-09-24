@@ -29,6 +29,19 @@ import { engine } from '../lib/engine'
 import { artUrl, revokeAllArt } from '../lib/art'
 import { clearSwatches } from '../lib/color'
 import { newId, shuffled } from '../lib/format'
+import { supabase, syncEnabled } from '../lib/supabase'
+import type { Session } from '@supabase/supabase-js'
+import {
+  deletePlaylistRemote,
+  mergePlaylists,
+  mergeStats,
+  pullPlaylists,
+  pullSettings,
+  pullStats,
+  pushSettings,
+  upsertPlaylistRemote,
+  upsertStatsRemote,
+} from '../lib/sync'
 import {
   clearDirHandle,
   clearLibrary,
@@ -45,6 +58,7 @@ import {
   loadTheme,
   pruneArt,
   putPlaylist,
+  putManyStats,
   putStats,
   putTracks,
   saveDirHandle,
@@ -66,6 +80,7 @@ import {
 
 type Theme = 'light' | 'dark'
 type LibraryStatus = 'loading' | 'empty' | 'needs-permission' | 'ready' | 'scanning'
+export type SyncStatus = 'signed-out' | 'syncing' | 'synced' | 'error'
 
 /** Which overlay panel is up. Only one at a time, so this is a plain enum. */
 export type PanelId =
@@ -176,6 +191,14 @@ interface DeckValue {
   panel: PanelId
   openPanel: (p: PanelId) => void
   closePanel: () => void
+
+  /* account + sync — all optional; a build with no Supabase env vars never
+   * calls out, and everything else in DECK stays fully local either way */
+  syncAvailable: boolean
+  syncStatus: SyncStatus
+  syncEmail: string | null
+  signInWithEmail: (email: string) => Promise<{ error: string | null }>
+  signOut: () => Promise<void>
 }
 
 const Ctx = createContext<DeckValue | null>(null)
@@ -221,6 +244,8 @@ export function DeckProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark')
   const [settings, setSettings] = useState<Settings>(defaultSettings)
   const [stats, setStats] = useState<Map<string, TrackStats>>(() => new Map())
+  const [session, setSession] = useState<Session | null>(null)
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('signed-out')
 
   const [queue, setQueue] = useState<string[]>([])
   const [order, setOrder] = useState<number[]>([])
@@ -260,6 +285,16 @@ export function DeckProvider({ children }: { children: ReactNode }) {
   /* Mirrors, so engine callbacks always see fresh values without re-binding. */
   const live = useRef({ queue, order, cursor, repeat, shuffle, byId, current })
   live.current = { queue, order, cursor, repeat, shuffle, byId, current }
+
+  /** Read by the sign-in merge below, which runs once and shouldn't re-bind
+   *  on every playlist/settings edit. */
+  const playlistsRef = useRef(playlists)
+  playlistsRef.current = playlists
+  const settingsAtSyncRef = useRef(settings)
+  settingsAtSyncRef.current = settings
+  /** Read by the three sync push points below without rebinding them. */
+  const sessionRef = useRef<Session | null>(null)
+  sessionRef.current = session
 
   /* -------------------------------------------------------------- toasts -- */
 
@@ -443,7 +478,10 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     engine.setVibe(settings.vibe)
     if (settings.theme !== 'system') setTheme(settings.theme)
     if (!restoredRef.current) return
-    const t = window.setTimeout(() => void saveSettings(settings), 250)
+    const t = window.setTimeout(() => {
+      void saveSettings(settings)
+      if (sessionRef.current) void pushSettings(sessionRef.current.user.id, settings)
+    }, 250)
     return () => window.clearTimeout(t)
   }, [settings])
 
@@ -753,6 +791,7 @@ export function DeckProvider({ children }: { children: ReactNode }) {
       statsRef.current = next
       setStats(next)
       void putStats(updated)
+      if (sessionRef.current) void upsertStatsRemote(sessionRef.current.user.id, updated)
       return updated
     },
     []
@@ -779,6 +818,89 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     setStats(new Map())
     toast('Listening history cleared.', 'info')
   }, [toast])
+
+  /* -------------------------------------------------------- account/sync -- */
+
+  /**
+   * Cross-device sync, entirely opt-in. Signing in merges whatever's on the
+   * server into what's already local (see mergePlaylists/mergeStats in
+   * lib/sync.ts for how conflicts are resolved) and writes the merged result
+   * back to both sides; after that, local pushes go out automatically at
+   * three choke points — the settings-save effect above, mutateStats above,
+   * and the playlist mutators below. Audio files themselves are never
+   * touched — only metadata leaves the device, and only once signed in.
+   */
+  const runInitialSync = useCallback(async (userId: string) => {
+    setSyncStatus('syncing')
+    try {
+      const [remoteSettings, remotePlaylists, remoteStats] = await Promise.all([
+        pullSettings(userId),
+        pullPlaylists(userId),
+        pullStats(userId),
+      ])
+
+      // Settings has no per-field timestamp, so the simplest honest rule is
+      // "remote wins on sign-in" — this device adopts whatever you last
+      // synced, same as any other account-based settings sync. From here on
+      // every local change pushes up and becomes the new remote state.
+      if (remoteSettings) {
+        setSettings(remoteSettings)
+        await saveSettings(remoteSettings)
+      } else {
+        await pushSettings(userId, settingsAtSyncRef.current)
+      }
+
+      const mergedPlaylists = mergePlaylists(playlistsRef.current, remotePlaylists)
+      setPlaylists(mergedPlaylists)
+      await Promise.all(mergedPlaylists.map((p) => putPlaylist(p)))
+      await Promise.all(mergedPlaylists.map((p) => upsertPlaylistRemote(userId, p)))
+
+      const mergedStats = mergeStats(statsRef.current, remoteStats)
+      statsRef.current = mergedStats
+      setStats(mergedStats)
+      await putManyStats([...mergedStats.values()])
+      await Promise.all([...mergedStats.values()].map((s) => upsertStatsRemote(userId, s)))
+
+      setSyncStatus('synced')
+    } catch {
+      setSyncStatus('error')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!syncEnabled || !supabase) return
+    let cancelled = false
+    supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return
+      setSession(data.session)
+      if (data.session) void runInitialSync(data.session.user.id)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
+      setSession(next)
+      if (event === 'SIGNED_IN' && next) void runInitialSync(next.user.id)
+      if (event === 'SIGNED_OUT') setSyncStatus('signed-out')
+    })
+    return () => {
+      cancelled = true
+      sub.subscription.unsubscribe()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runInitialSync])
+
+  const signInWithEmail = useCallback(async (email: string) => {
+    if (!supabase) return { error: 'Sync is not configured on this build.' }
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.href },
+    })
+    return { error: error?.message ?? null }
+  }, [])
+
+  const signOut = useCallback(async () => {
+    if (!supabase) return
+    await supabase.auth.signOut()
+    setSyncStatus('signed-out')
+  }, [])
 
   /**
    * Count a play once the listener has actually stayed with the track. The
@@ -1292,6 +1414,7 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     }
     await putPlaylist(p)
     setPlaylists((all) => [...all, p])
+    if (sessionRef.current) void upsertPlaylistRemote(sessionRef.current.user.id, p)
     return p
   }, [])
 
@@ -1309,7 +1432,10 @@ export function DeckProvider({ children }: { children: ReactNode }) {
         updated = { ...fn(found), updatedAt: Date.now() }
         return all.map((p) => (p.id === id ? (updated as Playlist) : p))
       })
-      if (updated) await putPlaylist(updated)
+      if (updated) {
+        await putPlaylist(updated)
+        if (sessionRef.current) void upsertPlaylistRemote(sessionRef.current.user.id, updated)
+      }
     },
     []
   )
@@ -1351,6 +1477,7 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     async (id: string) => {
       await dbDeletePlaylist(id)
       setPlaylists((all) => all.filter((p) => p.id !== id))
+      if (sessionRef.current) void deletePlaylistRemote(sessionRef.current.user.id, id)
     },
     []
   )
@@ -1527,6 +1654,12 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     panel,
     openPanel,
     closePanel,
+
+    syncAvailable: syncEnabled,
+    syncStatus,
+    syncEmail: session?.user.email ?? null,
+    signInWithEmail,
+    signOut,
   }
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

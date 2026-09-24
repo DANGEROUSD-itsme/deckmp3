@@ -80,6 +80,14 @@ export function AboutPanel() {
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">New in {DECK_VERSION}</span>
+          Sign in (Settings → Account &amp; sync) to follow your playlists,
+          ratings, favourites and settings between devices. It's entirely
+          optional and syncs metadata only — your actual MP3s never leave
+          this device, and DECK works exactly the same offline whether or
+          not you sign in.
+        </p>
+        <p>
+          <span className="label !text-[9px] block mb-1">Also in 2.03</span>
           Vibe Mode: a second way to listen. Presets for slowed + reverb,
           nightcore, chopped &amp; screwed, 8-bit, distorted, underwater and
           telephone, plus manual reverb, bitcrush, distortion, filter and a
