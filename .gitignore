@@ -26,3 +26,6 @@ dist-ssr
 # Electron
 dist-electron/
 release/
+
+# wrangler (Cloudflare CLI cache)
+.wrangler/
