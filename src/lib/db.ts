@@ -42,13 +42,26 @@ interface DeckDB extends DBSchema {
     key: string
     value: unknown
   }
+  /**
+   * Synced-lyrics lookups, cached by track id so the same track never hits
+   * the lookup twice. A row with `lines: null` and `plain: null` records a
+   * genuine "nothing found" rather than leaving it to look unfetched.
+   */
+  lyrics: {
+    key: string
+    value: {
+      id: string
+      lines: { time: number; text: string }[] | null
+      plain: string | null
+    }
+  }
 }
 
 let dbp: Promise<IDBPDatabase<DeckDB>> | null = null
 
 export function db() {
   if (!dbp) {
-    dbp = openDB<DeckDB>('deck', 3, {
+    dbp = openDB<DeckDB>('deck', 4, {
       upgrade(d, oldVersion) {
         if (oldVersion < 1) {
           const tracks = d.createObjectStore('tracks', { keyPath: 'id' })
@@ -66,6 +79,9 @@ export function db() {
           const stats = d.createObjectStore('stats', { keyPath: 'id' })
           stats.createIndex('plays', 'plays')
           stats.createIndex('lastPlayed', 'lastPlayed')
+        }
+        if (oldVersion < 4) {
+          d.createObjectStore('lyrics', { keyPath: 'id' })
         }
       },
     })
@@ -250,4 +266,16 @@ export async function loadSettings(): Promise<Settings> {
     eq: { ...base.eq, ...(raw.eq ?? {}) },
     vibe: { ...base.vibe, ...(raw.vibe ?? {}) },
   }
+}
+
+/* ---------------------------------------------------------------- lyrics -- */
+
+type LyricsRow = DeckDB['lyrics']['value']
+
+export async function getLyrics(id: string): Promise<LyricsRow | undefined> {
+  return (await db()).get('lyrics', id)
+}
+
+export async function putLyrics(row: LyricsRow) {
+  return (await db()).put('lyrics', row)
 }

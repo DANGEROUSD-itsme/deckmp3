@@ -588,6 +588,18 @@
     mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent 100%);
   }
 
+  /* Both edges — for a scroll area with content flowing past in either
+     direction, like the lyrics view. */
+  .fade-y {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 64px,
+      #000 calc(100% - 64px),
+      transparent 100%
+    );
+  }
+
   .drag-none {
     -webkit-user-drag: none;
     user-select: none;

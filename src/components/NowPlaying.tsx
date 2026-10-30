@@ -5,6 +5,7 @@ import { fmtRate, fmtTime } from '../lib/format'
 import { artSwatch, peekSwatch } from '../lib/color'
 import { VISUALIZER_MODES, type VisualizerMode } from '../types'
 import { Cover } from './Cover'
+import { LyricsView } from './LyricsView'
 import { Oscilloscope, SpectrumBars } from './Spectrum'
 import { useTrackMenu } from './ContextMenu'
 import {
@@ -209,52 +210,62 @@ export function NowPlaying({ onClose }: { onClose: () => void }) {
 
       <div className="relative flex-1 min-h-0 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 px-6 sm:px-12 py-6 overflow-y-auto">
         {/* The visualizer sits behind the cover, in its own stacking layer so
-            3D repaint never forces the rest of the view to re-render. */}
-        <div className="relative w-full max-w-[320px] sm:max-w-[460px] aspect-square shrink-0">
-          {(mode === 'ring' || mode === 'orbit') && (
-            <Suspense fallback={null}>
-              <Visualizer
-                className="absolute inset-[-34%] pointer-events-none"
-                mode={mode}
-              />
-            </Suspense>
-          )}
-          {mode === 'bars' && (
-            <SpectrumBars
-              className="absolute -inset-x-[8%] -bottom-[14%] h-[38%] pointer-events-none"
-              active={isPlaying}
-            />
-          )}
-          {mode === 'wave' && (
-            <Oscilloscope
-              className="absolute -inset-x-[10%] top-1/2 -translate-y-1/2 h-[45%] pointer-events-none"
-              active={isPlaying}
-            />
-          )}
-
-          <motion.div
-            layoutId={`cover-${current.id}`}
-            transition={{ layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }}
-            className="absolute inset-0 well rounded-lg overflow-hidden"
-          >
-            <Cover
-              artKey={current.artKey}
-              title={current.title}
-              className="w-full h-full"
-              rounded="rounded-lg"
-              spin={isPlaying}
-            />
-          </motion.div>
-
-          {/* A soft halo in the album's own colour, under the sleeve. */}
-          <div
-            className="absolute inset-0 -z-10 rounded-lg blur-3xl pointer-events-none"
-            style={{
-              background: 'rgb(var(--ambient) / calc(var(--ambient-strength) * 0.35))',
-              transform: 'scale(0.92) translateY(6%)',
-            }}
+            3D repaint never forces the rest of the view to re-render.
+            Lyrics wants room to flow rather than a square, so it gets its
+            own, much larger slot instead. */}
+        {mode === 'lyrics' ? (
+          <LyricsView
+            track={current}
+            position={position}
+            className="w-full max-w-xl h-[46vh] lg:h-[62vh] shrink-0"
           />
-        </div>
+        ) : (
+          <div className="relative w-full max-w-[320px] sm:max-w-[460px] aspect-square shrink-0">
+            {(mode === 'ring' || mode === 'orbit') && (
+              <Suspense fallback={null}>
+                <Visualizer
+                  className="absolute inset-[-34%] pointer-events-none"
+                  mode={mode}
+                />
+              </Suspense>
+            )}
+            {mode === 'bars' && (
+              <SpectrumBars
+                className="absolute -inset-x-[8%] -bottom-[14%] h-[38%] pointer-events-none"
+                active={isPlaying}
+              />
+            )}
+            {mode === 'wave' && (
+              <Oscilloscope
+                className="absolute -inset-x-[10%] top-1/2 -translate-y-1/2 h-[45%] pointer-events-none"
+                active={isPlaying}
+              />
+            )}
+
+            <motion.div
+              layoutId={`cover-${current.id}`}
+              transition={{ layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }}
+              className="absolute inset-0 well rounded-lg overflow-hidden"
+            >
+              <Cover
+                artKey={current.artKey}
+                title={current.title}
+                className="w-full h-full"
+                rounded="rounded-lg"
+                spin={isPlaying}
+              />
+            </motion.div>
+
+            {/* A soft halo in the album's own colour, under the sleeve. */}
+            <div
+              className="absolute inset-0 -z-10 rounded-lg blur-3xl pointer-events-none"
+              style={{
+                background: 'rgb(var(--ambient) / calc(var(--ambient-strength) * 0.35))',
+                transform: 'scale(0.92) translateY(6%)',
+              }}
+            />
+          </div>
+        )}
 
         <div className="w-full max-w-md flex flex-col items-center lg:items-start text-center lg:text-left">
           <p className="label">{current.album}</p>

@@ -80,12 +80,20 @@ export function AboutPanel() {
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">New in {DECK_VERSION}</span>
+          A Lyrics visualizer mode — open Now Playing, switch the visualizer
+          (top right) to "Lyrics", and synced lines flow past in time with
+          the track, looked up live from lrclib.net. Click a line to jump
+          there. Profanity is masked with asterisks by default; both the
+          lookup and the masking can be turned off under Settings → Lyrics.
+          Nothing is sent anywhere except the track's artist, title, album
+          and length — never the audio itself.
+        </p>
+        <p>
+          <span className="label !text-[9px] block mb-1">Also in 5.0</span>
           Live accent: while something plays, the whole app's accent — not
           just the Now Playing backdrop — switches to a colour pulled from
           its cover, then settles back to your chosen accent the moment it
-          stops. Toggle it under Settings → Now playing → Live accent. The
-          browser tab title now also shows what's playing, so you can tell
-          at a glance without switching back to DECK.
+          stops. The browser tab title also shows what's playing.
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">Also in 4.0</span>

@@ -235,6 +235,25 @@ export function SettingsPanel() {
         />
       </Row>
 
+      <Row
+        title="Lyrics"
+        hint="Look up synced lyrics from lrclib.net for whatever's playing"
+      >
+        <Toggle
+          on={settings.lyricsEnabled}
+          onChange={(lyricsEnabled) => updateSettings({ lyricsEnabled })}
+          label="Lyrics lookup"
+        />
+      </Row>
+
+      <Row title="Censor lyrics" hint="Mask profanity in lyrics with asterisks">
+        <Toggle
+          on={settings.censorLyrics}
+          onChange={(censorLyrics) => updateSettings({ censorLyrics })}
+          label="Censor lyrics"
+        />
+      </Row>
+
       <Row title="Spectrum strip" hint="The live analyser under the transport bar">
         <span className="text-ink-faint">
           <WaveIcon className="w-4 h-4" />

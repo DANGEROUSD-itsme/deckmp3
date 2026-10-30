@@ -74,17 +74,18 @@ export interface ScanProgress {
    =========================================================================== */
 
 /** Build identity, printed as silkscreen on the sidebar and in About. */
-export const DECK_VERSION = '5.0'
-export const DECK_CODENAME = 'True Colors'
+export const DECK_VERSION = '6.0'
+export const DECK_CODENAME = 'Word for Word'
 
 /** Which surface the Now Playing well is rendering. */
-export type VisualizerMode = 'ring' | 'bars' | 'wave' | 'orbit' | 'off'
+export type VisualizerMode = 'ring' | 'bars' | 'wave' | 'orbit' | 'lyrics' | 'off'
 
 export const VISUALIZER_MODES: { id: VisualizerMode; label: string; hint: string }[] = [
   { id: 'ring', label: 'Ring', hint: 'Instanced 3D spectrum ring' },
   { id: 'bars', label: 'Bars', hint: 'Classic log-band analyser' },
   { id: 'wave', label: 'Wave', hint: 'Raw oscilloscope trace' },
   { id: 'orbit', label: 'Orbit', hint: 'Particles driven by bass' },
+  { id: 'lyrics', label: 'Lyrics', hint: 'Synced lyrics, fetched live when available' },
   { id: 'off', label: 'Off', hint: 'Cover art only' },
 ]
 
@@ -164,6 +165,12 @@ export interface Settings {
    *  the visualizer) switches to a colour pulled from its cover — not just
    *  the Now Playing backdrop. Reverts to your chosen accent on pause. */
   liveAccent: boolean
+  /** Look up synced lyrics from lrclib.net for whatever's playing. The only
+   *  setting that sends metadata (artist/title/album/duration — never the
+   *  audio) to a third party, and only when the Lyrics visualizer is open. */
+  lyricsEnabled: boolean
+  /** Mask profanity in fetched lyrics. */
+  censorLyrics: boolean
   /** Keep the transport spectrum strip running. */
   spectrumStrip: boolean
   /** Animate list entries. Off is instant, for very large libraries. */
@@ -191,6 +198,8 @@ export const defaultSettings = (): Settings => ({
   visualizer: 'ring',
   ambientArt: true,
   liveAccent: true,
+  lyricsEnabled: true,
+  censorLyrics: true,
   spectrumStrip: true,
   listAnimation: true,
   scrobbleAt: 20,
