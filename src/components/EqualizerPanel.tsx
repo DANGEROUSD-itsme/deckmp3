@@ -46,7 +46,7 @@ export function EqualizerPanel() {
     >
       <Row
         title="Equalizer"
-        hint={eq.enabled ? `Active — ${eq.preset}` : 'Bypassed, all bands flat'}
+        hint={eq.enabled ? `Active: ${eq.preset}` : 'Bypassed, all bands flat'}
       >
         <Toggle on={eq.enabled} onChange={(v) => setEq({ enabled: v })} label="Equalizer" />
       </Row>

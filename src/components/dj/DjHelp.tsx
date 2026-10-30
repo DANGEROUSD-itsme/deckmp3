@@ -25,7 +25,7 @@ export function DjHelp({ onClose }: { onClose: () => void }) {
           <span className="text-signal font-medium">Fastest path:</span> load a
           track on each deck, hit play on one, then press{' '}
           <span className="text-signal font-medium">Auto Mix</span>. It blends
-          the crossfader across and swaps the bass for you — that alone gets
+          the crossfader across and swaps the bass for you, which alone gets
           you a clean transition with zero manual mixing.
         </p>
       </div>
@@ -38,12 +38,12 @@ export function DjHelp({ onClose }: { onClose: () => void }) {
         </li>
         <li>
           <b>Play A, cue up B.</b> Crossfader all the way to A, hit play.
-          Watch B's waveform for a clean spot to bring it in — usually right
+          Watch B's waveform for a clean spot to bring it in, usually right
           at the start of a phrase.
         </li>
         <li>
           <b>Match the tempo.</b> Tap <b>TAP</b> a few times in time with each
-          deck's beat, then hit <b>SYNC</b> on the deck you're bringing in —
+          deck's beat, then hit <b>SYNC</b> on the deck you're bringing in:
           it nudges that deck's tempo to match the other.
         </li>
         <li>
@@ -53,7 +53,7 @@ export function DjHelp({ onClose }: { onClose: () => void }) {
         <li>
           <b>Swap the bass as you cross.</b> Pull A's <b>LOW</b> down while
           B's <b>LOW</b> comes up. This is most of what makes a transition
-          sound clean instead of muddy — Auto Mix does exactly this move.
+          sound clean instead of muddy. Auto Mix does exactly this move.
         </li>
       </ol>
 
@@ -65,7 +65,7 @@ export function DjHelp({ onClose }: { onClose: () => void }) {
         </Row>
         <Row term="TEMPO + KEY">
           Speeds up or slows down the deck. KEY LOCK keeps the pitch from
-          shifting with it — off, it behaves like a real turntable (faster =
+          shifting with it. Off, it behaves like a real turntable (faster =
           higher pitched).
         </Row>
         <Row term="FILTER">
@@ -74,7 +74,7 @@ export function DjHelp({ onClose }: { onClose: () => void }) {
         </Row>
         <Row term="EQ (HI/MID/LOW)">
           Boost or cut each band. Pulled all the way down, a band is
-          effectively silent — that's how you "kill the bass."
+          effectively silent, that's how you "kill the bass."
         </Row>
         <Row term="Crossfader">
           Blends between the two decks. Centre is 50/50; either edge is that

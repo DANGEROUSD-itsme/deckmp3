@@ -25,7 +25,7 @@ export function VibePanel() {
   return (
     <Sheet
       title="Vibe Mode"
-      subtitle="Slowed, sped up, crushed, drowned — a second way to hear your library"
+      subtitle="Slowed, sped up, crushed, drowned: a second way to hear your library"
       icon={<VibeIcon className="w-[18px] h-[18px]" />}
       onClose={closePanel}
       width="sm:max-w-lg"
@@ -42,7 +42,7 @@ export function VibePanel() {
     >
       <Row
         title="Vibe Mode"
-        hint={vibe.enabled ? `Active — ${vibe.preset}` : 'Off — playing normally'}
+        hint={vibe.enabled ? `Active: ${vibe.preset}` : 'Off, playing normally'}
       >
         <Toggle
           on={vibe.enabled}
@@ -95,8 +95,8 @@ export function VibePanel() {
         title="Lock pitch"
         hint={
           settings.pitchLock
-            ? 'On — tempo changes without changing pitch'
-            : 'Off — pitch follows tempo, like a tape or a turntable'
+            ? 'On, tempo changes without changing pitch'
+            : 'Off, pitch follows tempo, like a tape or a turntable'
         }
       >
         <Toggle

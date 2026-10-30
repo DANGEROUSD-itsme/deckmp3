@@ -88,7 +88,7 @@ export function StatsPanel() {
         <Tile label="Rated" value={fmtCount(summary.rated)} />
         <Tile
           label="Years"
-          value={summary.span ? `${summary.span[0]}–${summary.span[1]}` : '—'}
+          value={summary.span ? `${summary.span[0]}–${summary.span[1]}` : '–'}
         />
       </div>
 

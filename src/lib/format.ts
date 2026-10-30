@@ -135,7 +135,7 @@ export function initials(name: string) {
 
 /** "3.4 MB" — file sizes in the track info panel. */
 export function fmtBytes(bytes: number) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return '—'
+  if (!Number.isFinite(bytes) || bytes <= 0) return '–'
   const units = ['B', 'KB', 'MB', 'GB']
   let v = bytes
   let u = 0

@@ -184,7 +184,7 @@ export function DeckPanel({ side }: { side: DeckSide }) {
                   ? 'border-signal text-signal'
                   : 'border-line text-ink-faint hover:text-ink-dim'
               }`}
-              title="Key lock — keep pitch constant across tempo changes"
+              title="Key lock: keep pitch constant across tempo changes"
             >
               KEY
             </button>

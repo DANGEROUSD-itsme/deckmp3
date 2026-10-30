@@ -35,8 +35,13 @@ export const LyricsView = memo(function LyricsView({
   )
   const [activeIndex, setActiveIndex] = useState(-1)
   const listRef = useRef<HTMLDivElement>(null)
+  // Whether the list has ever actually been positioned for *this* track —
+  // reset below on every track change, so a late lyrics fetch (see the
+  // positioning effect) gets the snap-not-slide treatment again each time.
+  const hasPositionedRef = useRef(false)
 
   useEffect(() => {
+    hasPositionedRef.current = false
     if (!settings.lyricsEnabled) {
       setResult(null)
       return
@@ -101,7 +106,23 @@ export const LyricsView = memo(function LyricsView({
     const container = list.parentElement
     if (!container) return
     const target = row.offsetTop + row.offsetHeight / 2 - container.clientHeight / 2
-    list.style.transform = `translateY(${-target}px)`
+    if (!hasPositionedRef.current) {
+      // The very first real position for this track — this is the one that
+      // was looking "out of sync": if lyrics finish fetching after playback
+      // has already moved well past the first line, this would otherwise
+      // *animate* the whole 700ms glide from the top down to wherever the
+      // song actually is, which reads as the lyrics lagging behind the
+      // audio rather than a cosmetic catch-up. Jump straight there instead,
+      // then hand off to the normal transition for every line after this.
+      list.style.transition = 'none'
+      list.style.transform = `translateY(${-target}px)`
+      requestAnimationFrame(() => {
+        list.style.transition = ''
+      })
+      hasPositionedRef.current = true
+    } else {
+      list.style.transform = `translateY(${-target}px)`
+    }
   }, [activeIndex])
 
   if (!settings.lyricsEnabled) {

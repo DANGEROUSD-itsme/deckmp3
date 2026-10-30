@@ -51,7 +51,7 @@ function AccountSection() {
               syncStatus === 'syncing'
                 ? 'Syncing…'
                 : syncStatus === 'error'
-                  ? 'Last sync failed — will retry on your next change'
+                  ? 'Last sync failed, will retry on your next change'
                   : `Synced as ${syncEmail}`
             }
           >
@@ -69,7 +69,7 @@ function AccountSection() {
           hint={
             sent
               ? `Check ${email} for a sign-in link`
-              : 'Playlists, ratings, presets and settings — your music files always stay local'
+              : 'Playlists, ratings, presets and settings: your music files always stay local'
           }
         >
           {sent ? (

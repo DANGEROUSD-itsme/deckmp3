@@ -51,14 +51,14 @@ export function AboutPanel() {
           Version {DECK_VERSION}
         </motion.p>
         <p className="label mt-1.5 normal-case tracking-normal">
-          “{DECK_CODENAME}” — second-generation faceplate
+          “{DECK_CODENAME}”, second-generation faceplate
         </p>
 
         <div className="rule my-5" />
 
         <p className="text-[13px] text-ink-dim leading-relaxed max-w-sm mx-auto">
-          This is DECK v{DECK_VERSION}. It reads your MP3s once — tags, artwork,
-          durations — and then plays them entirely on your own machine. Nothing
+          This is DECK v{DECK_VERSION}. It reads your MP3s once (tags, artwork,
+          durations) and then plays them entirely on your own machine. Nothing
           is uploaded, nothing is streamed, and nothing phones home. Close the
           tab, pull the network cable, and it still works.
         </p>
@@ -80,18 +80,18 @@ export function AboutPanel() {
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">New in {DECK_VERSION}</span>
-          A Lyrics visualizer mode — open Now Playing, switch the visualizer
+          A Lyrics visualizer mode: open Now Playing, switch the visualizer
           (top right) to "Lyrics", and synced lines flow past in time with
           the track, looked up live from lrclib.net. Click a line to jump
           there. Profanity is masked with asterisks by default; both the
           lookup and the masking can be turned off under Settings → Lyrics.
           Nothing is sent anywhere except the track's artist, title, album
-          and length — never the audio itself.
+          and length, never the audio itself.
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">Also in 5.0</span>
-          Live accent: while something plays, the whole app's accent — not
-          just the Now Playing backdrop — switches to a colour pulled from
+          Live accent: while something plays, the whole app's accent (not
+          just the Now Playing backdrop) switches to a colour pulled from
           its cover, then settles back to your chosen accent the moment it
           stops. The browser tab title also shows what's playing.
         </p>
@@ -99,7 +99,7 @@ export function AboutPanel() {
           <span className="label !text-[9px] block mb-1">Also in 4.0</span>
           Sign in (Settings → Account &amp; sync) to follow your playlists,
           ratings, favourites and settings between devices. It's entirely
-          optional and syncs metadata only — your actual MP3s never leave
+          optional and syncs metadata only: your actual MP3s never leave
           this device, and DECK works exactly the same offline whether or
           not you sign in.
         </p>
@@ -108,14 +108,14 @@ export function AboutPanel() {
           Vibe Mode: a second way to listen. Presets for slowed + reverb,
           nightcore, chopped &amp; screwed, 8-bit, distorted, underwater and
           telephone, plus manual reverb, bitcrush, distortion, filter and a
-          tempo slider with an optional pitch lock — colours everything that
+          tempo slider with an optional pitch lock, colouring everything that
           plays until you turn it off.
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">Also since 2.01</span>
           DJ mode: two independent decks with waveforms, a 3-band EQ, a sweep
           filter, cue points, pitch-bendable tempo with key lock, tap tempo and
-          an equal-power crossfader — load any track from your library onto
+          an equal-power crossfader. Load any track from your library onto
           either deck and mix it live. One-tap Auto Mix beatmatches and blends
           for you with a proper bass swap, and a built-in cheat sheet explains
           every control. A ten-band equalizer, a command palette, an editable
@@ -125,7 +125,7 @@ export function AboutPanel() {
       </div>
 
       <p className="label mt-6 text-center normal-case tracking-normal">
-        Developed by{' '}
+        A{' '}
         <a
           href="https://studiosdpe.com"
           target="_blank"
@@ -133,7 +133,8 @@ export function AboutPanel() {
           className="text-signal hover:underline"
         >
           studiosdpe.com
-        </a>
+        </a>{' '}
+        original, by Dheera Jayachitra
       </p>
     </Sheet>
   )

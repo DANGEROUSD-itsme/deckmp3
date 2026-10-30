@@ -58,8 +58,8 @@ export function EmptyLibrary({ status }: { status: 'empty' | 'loading' }) {
             <h2 className="display-wide text-xl mb-2">Reconnect your library</h2>
             <p className="text-sm text-ink-dim leading-relaxed mb-6">
               {supported
-                ? 'Your browser needs permission again after closing the tab. Nothing was lost — just say the word.'
-                : 'Your browser can’t keep a folder open between visits. Reselect the same folder — DECK already knows the tags and art, so this is instant.'}
+                ? 'Your browser needs permission again after closing the tab. Nothing was lost, just say the word.'
+                : 'Your browser can’t keep a folder open between visits. Reselect the same folder: DECK already knows the tags and art, so this is instant.'}
             </p>
             <button onClick={() => void grantAccess()} className="pill-btn">
               {supported ? 'Grant access' : 'Reselect folder'}
@@ -89,7 +89,7 @@ export function EmptyLibrary({ status }: { status: 'empty' | 'loading' }) {
               <p className="text-xs text-ink-faint mt-4 leading-relaxed">
                 This browser doesn't support the File System Access API, so
                 DECK copies your tracks into its own storage the first time.
-                After that it launches straight to your library — fully
+                After that it launches straight to your library, fully
                 offline, no reselecting.
               </p>
             )}

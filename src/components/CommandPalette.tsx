@@ -133,7 +133,7 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
       },
       {
         id: 'repeat',
-        label: `Repeat: ${repeat === 'off' ? 'off' : repeat === 'all' ? 'all' : 'one'} — cycle`,
+        label: `Repeat: ${repeat === 'off' ? 'off' : repeat === 'all' ? 'all' : 'one'}, cycle`,
         group: 'Transport',
         keywords: 'loop again',
         icon: <RepeatIcon className={ICON} />,

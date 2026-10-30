@@ -322,7 +322,7 @@ function ArtistDetail({
                 <p className="text-[12.5px] mt-1.5 truncate group-hover:text-signal transition-colors">
                   {a.title}
                 </p>
-                <p className="label !text-[9px] mt-0.5">{a.year ?? '—'}</p>
+                <p className="label !text-[9px] mt-0.5">{a.year ?? '–'}</p>
               </button>
             ))}
           </div>

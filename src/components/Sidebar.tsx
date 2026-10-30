@@ -79,7 +79,7 @@ export function Sidebar({ view, onNavigate }: Props) {
         <button
           onClick={() => openPanel('about')}
           className="flex items-center gap-2.5 group"
-          title={`DECK v${DECK_VERSION} — about`}
+          title={`DECK v${DECK_VERSION}, about`}
         >
           <span className="w-7 h-7 rounded-full bg-signal grid place-items-center shrink-0 transition-transform group-hover:scale-110">
             <span className="w-2 h-2 rounded-full bg-panel-deep" />
@@ -143,7 +143,7 @@ export function Sidebar({ view, onNavigate }: Props) {
               key={sv.id}
               onClick={() => onNavigate({ kind: 'smart', id: sv.id })}
               className={`nav-item ${active ? 'nav-item-active' : ''}`}
-              title={`${sv.name} — ${sv.hint}`}
+              title={`${sv.name}: ${sv.hint}`}
             >
               {sv.id === 'favorites' ? (
                 <HeartIcon className="w-[18px] h-[18px] shrink-0" filled={active} />

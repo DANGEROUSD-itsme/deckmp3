@@ -409,9 +409,9 @@ export function TransportBar({ onOpenNowPlaying }: { onOpenNowPlaying: () => voi
               aria-pressed={!!loop?.b}
               title={
                 loop?.b
-                  ? `Looping ${fmtTime(loop.a)}–${fmtTime(loop.b)} — click to clear`
+                  ? `Looping ${fmtTime(loop.a)}–${fmtTime(loop.b)}, click to clear`
                   : loop
-                    ? 'Loop start set — press again for the end'
+                    ? 'Loop start set, press again for the end'
                     : 'A↔B loop (L)'
               }
             >

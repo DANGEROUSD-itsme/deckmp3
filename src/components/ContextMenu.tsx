@@ -143,7 +143,7 @@ function Menu({ request, onClose }: { request: MenuRequest; onClose: () => void 
   }
 
   const copyDetails = () => {
-    const text = `${track.artist} — ${track.title} (${track.album}${track.year ? `, ${track.year}` : ''})`
+    const text = `${track.artist} - ${track.title} (${track.album}${track.year ? `, ${track.year}` : ''})`
     void navigator.clipboard
       ?.writeText(text)
       .then(() => toast('Track details copied.', 'success'))

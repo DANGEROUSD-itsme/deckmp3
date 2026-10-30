@@ -98,13 +98,13 @@ export function TrackInfoModal() {
       <SectionLabel>Tags</SectionLabel>
       <dl className="grid grid-cols-2 gap-x-6">
         <Field label="Album artist" value={track.albumArtist} />
-        <Field label="Genre" value={track.genre ?? '—'} />
+        <Field label="Genre" value={track.genre ?? '–'} />
         <Field
           label="Track"
-          value={track.trackNo ? String(track.trackNo) : '—'}
+          value={track.trackNo ? String(track.trackNo) : '–'}
         />
-        <Field label="Disc" value={track.discNo ? String(track.discNo) : '—'} />
-        <Field label="Year" value={track.year ? String(track.year) : '—'} />
+        <Field label="Disc" value={track.discNo ? String(track.discNo) : '–'} />
+        <Field label="Year" value={track.year ? String(track.year) : '–'} />
         <Field label="Duration" value={fmtTime(track.duration)} />
       </dl>
 
@@ -113,7 +113,7 @@ export function TrackInfoModal() {
         <Field label="Size" value={fmtBytes(track.size)} />
         <Field
           label="Modified"
-          value={track.lastModified ? fmtRelative(track.lastModified) : '—'}
+          value={track.lastModified ? fmtRelative(track.lastModified) : '–'}
         />
         <Field label="Added" value={fmtRelative(track.addedAt)} />
         <Field label="Artwork" value={track.artKey ? 'Embedded' : 'None'} />
