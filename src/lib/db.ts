@@ -55,13 +55,26 @@ interface DeckDB extends DBSchema {
       plain: string | null
     }
   }
+  /**
+   * Hum to Find's per-track melody fingerprint — the semitone-delta
+   * sequence traced by whatever's melodically dominant in the track, used
+   * to match a hummed query. Expensive to compute (a full decode + pitch
+   * analysis pass), so it's cached permanently like lyrics rather than
+   * redone every session. `version` is compared against the current
+   * algorithm version at read time; a mismatch means re-analyze rather
+   * than trust a stale fingerprint from before a scoring change.
+   */
+  humContours: {
+    key: string
+    value: { id: string; deltas: number[]; version: number }
+  }
 }
 
 let dbp: Promise<IDBPDatabase<DeckDB>> | null = null
 
 export function db() {
   if (!dbp) {
-    dbp = openDB<DeckDB>('deck', 4, {
+    dbp = openDB<DeckDB>('deck', 5, {
       upgrade(d, oldVersion) {
         if (oldVersion < 1) {
           const tracks = d.createObjectStore('tracks', { keyPath: 'id' })
@@ -82,6 +95,9 @@ export function db() {
         }
         if (oldVersion < 4) {
           d.createObjectStore('lyrics', { keyPath: 'id' })
+        }
+        if (oldVersion < 5) {
+          d.createObjectStore('humContours', { keyPath: 'id' })
         }
       },
     })
@@ -278,4 +294,20 @@ export async function getLyrics(id: string): Promise<LyricsRow | undefined> {
 
 export async function putLyrics(row: LyricsRow) {
   return (await db()).put('lyrics', row)
+}
+
+/* ----------------------------------------------------------- hum contours -- */
+
+type HumContourRow = DeckDB['humContours']['value']
+
+export async function getHumContour(id: string): Promise<HumContourRow | undefined> {
+  return (await db()).get('humContours', id)
+}
+
+export async function putHumContour(row: HumContourRow) {
+  return (await db()).put('humContours', row)
+}
+
+export async function getAllHumContours(): Promise<HumContourRow[]> {
+  return (await db()).getAll('humContours')
 }

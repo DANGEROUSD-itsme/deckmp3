@@ -18,6 +18,7 @@ import {
   InfoIcon,
   KeyboardIcon,
   LayersIcon,
+  MicIcon,
   MoonIcon,
   NextIcon,
   PauseIcon,
@@ -213,6 +214,14 @@ export function CommandPalette({ onNavigate }: { onNavigate: (v: NavTarget) => v
         keywords: 'numbers counts top artists',
         icon: <ChartIcon className={ICON} />,
         run: () => openPanel('stats'),
+      },
+      {
+        id: 'hum',
+        label: 'Hum to Find',
+        group: 'Panels',
+        keywords: 'sing mic microphone recognize song melody find',
+        icon: <MicIcon className={ICON} />,
+        run: () => openPanel('hum'),
       },
       {
         id: 'shortcuts',

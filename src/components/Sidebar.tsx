@@ -13,6 +13,7 @@ import {
   GearIcon,
   HeartIcon,
   InfoIcon,
+  MicIcon,
   MoonIcon,
   PlusIcon,
   QueueIcon,
@@ -258,6 +259,10 @@ export function Sidebar({ view, onNavigate }: Props) {
         <button onClick={() => openPanel('stats')} className="nav-item" title="Statistics">
           <ChartIcon className="w-[18px] h-[18px] shrink-0" />
           <span className="hidden lg:inline">Statistics</span>
+        </button>
+        <button onClick={() => openPanel('hum')} className="nav-item" title="Hum to Find">
+          <MicIcon className="w-[18px] h-[18px] shrink-0" />
+          <span className="hidden lg:inline">Hum to Find</span>
         </button>
         <button
           onClick={() => void chooseFolder()}

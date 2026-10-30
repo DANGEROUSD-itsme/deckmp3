@@ -93,6 +93,7 @@ export type PanelId =
   | 'about'
   | 'stats'
   | 'palette'
+  | 'hum'
 
 interface DeckValue {
   /* library */

@@ -18,6 +18,7 @@ import { SettingsPanel } from './components/SettingsPanel'
 import { ShortcutsOverlay } from './components/ShortcutsOverlay'
 import { AboutPanel } from './components/AboutPanel'
 import { StatsPanel } from './components/StatsPanel'
+import { HumSearchPanel } from './components/HumSearchPanel'
 import { TrackInfoModal } from './components/TrackInfoModal'
 import { Toasts } from './components/Toasts'
 import { ConfirmDialog } from './components/ConfirmDialog'
@@ -317,6 +318,7 @@ function Panels({ onNavigate }: { onNavigate: (v: View) => void }) {
       {panel === 'shortcuts' && <ShortcutsOverlay key="shortcuts" />}
       {panel === 'about' && <AboutPanel key="about" />}
       {panel === 'stats' && <StatsPanel key="stats" />}
+      {panel === 'hum' && <HumSearchPanel key="hum" />}
     </AnimatePresence>
   )
 }
