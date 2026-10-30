@@ -27,7 +27,7 @@ import type {
 import { ACCENTS, EQ_PRESETS, VIBE_PRESETS, defaultSettings, emptyStats } from '../types'
 import { engine } from '../lib/engine'
 import { artUrl, revokeAllArt } from '../lib/art'
-import { clearSwatches } from '../lib/color'
+import { artSwatch, clearSwatches, peekSwatch } from '../lib/color'
 import { newId, shuffled } from '../lib/format'
 import { supabase, syncEnabled } from '../lib/supabase'
 import type { Session } from '@supabase/supabase-js'
@@ -440,6 +440,47 @@ export function DeckProvider({ children }: { children: ReactNode }) {
       ?.setAttribute('content', theme === 'dark' ? '#0f0f12' : '#b8b3aa')
     if (restoredRef.current) void saveTheme(theme)
   }, [theme, settings.accent, settings.density])
+
+  /**
+   * Live accent: while something plays, `--signal` (and its glow) switch to
+   * a colour pulled from the cover, overriding the chosen accent at the root
+   * element — every component that reads `--signal` picks it up for free,
+   * no prop drilling. An inline style always wins over the `[data-accent]`
+   * rule above, so clearing it on pause/pick-a-new-accent/no-art is enough
+   * to fall straight back to normal with no extra bookkeeping.
+   */
+  useEffect(() => {
+    const root = document.documentElement
+    const artKey = current?.artKey ?? null
+    if (!settings.liveAccent || !isPlaying || !artKey) {
+      root.style.removeProperty('--signal')
+      root.style.removeProperty('--signal-glow')
+      return
+    }
+    let cancelled = false
+    const apply = (swatch: ReturnType<typeof peekSwatch>) => {
+      if (cancelled || !swatch) return
+      root.style.setProperty('--signal', `rgb(${swatch.accent})`)
+      root.style.setProperty('--signal-glow', `rgb(${swatch.accent} / 0.3)`)
+    }
+    apply(peekSwatch(artKey))
+    void artSwatch(artKey).then(apply)
+    return () => {
+      cancelled = true
+      root.style.removeProperty('--signal')
+      root.style.removeProperty('--signal-glow')
+    }
+  }, [current?.artKey, isPlaying, settings.liveAccent])
+
+  /**
+   * The tab title. Picking DECK out of a row of tabs — or glancing over to
+   * see whether it's still playing — shouldn't require switching to it.
+   */
+  useEffect(() => {
+    document.title = current
+      ? `${isPlaying ? '▶' : '⏸'} ${current.title} — ${current.artist}`
+      : 'DECK'
+  }, [current, isPlaying])
 
   /** In 'system' mode, follow the OS as it changes rather than only at launch. */
   useEffect(() => {

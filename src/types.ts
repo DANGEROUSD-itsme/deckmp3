@@ -74,8 +74,8 @@ export interface ScanProgress {
    =========================================================================== */
 
 /** Build identity, printed as silkscreen on the sidebar and in About. */
-export const DECK_VERSION = '4.0'
-export const DECK_CODENAME = 'Signal Sync'
+export const DECK_VERSION = '5.0'
+export const DECK_CODENAME = 'True Colors'
 
 /** Which surface the Now Playing well is rendering. */
 export type VisualizerMode = 'ring' | 'bars' | 'wave' | 'orbit' | 'off'
@@ -160,6 +160,10 @@ export interface Settings {
   visualizer: VisualizerMode
   /** Tint the Now Playing backdrop with colour sampled from the cover. */
   ambientArt: boolean
+  /** While something plays, the whole app's accent (buttons, highlights,
+   *  the visualizer) switches to a colour pulled from its cover — not just
+   *  the Now Playing backdrop. Reverts to your chosen accent on pause. */
+  liveAccent: boolean
   /** Keep the transport spectrum strip running. */
   spectrumStrip: boolean
   /** Animate list entries. Off is instant, for very large libraries. */
@@ -186,6 +190,7 @@ export const defaultSettings = (): Settings => ({
   smoothPause: true,
   visualizer: 'ring',
   ambientArt: true,
+  liveAccent: true,
   spectrumStrip: true,
   listAnimation: true,
   scrobbleAt: 20,

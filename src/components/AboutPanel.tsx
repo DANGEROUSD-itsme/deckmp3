@@ -80,6 +80,15 @@ export function AboutPanel() {
         </p>
         <p>
           <span className="label !text-[9px] block mb-1">New in {DECK_VERSION}</span>
+          Live accent: while something plays, the whole app's accent — not
+          just the Now Playing backdrop — switches to a colour pulled from
+          its cover, then settles back to your chosen accent the moment it
+          stops. Toggle it under Settings → Now playing → Live accent. The
+          browser tab title now also shows what's playing, so you can tell
+          at a glance without switching back to DECK.
+        </p>
+        <p>
+          <span className="label !text-[9px] block mb-1">Also in 4.0</span>
           Sign in (Settings → Account &amp; sync) to follow your playlists,
           ratings, favourites and settings between devices. It's entirely
           optional and syncs metadata only — your actual MP3s never leave

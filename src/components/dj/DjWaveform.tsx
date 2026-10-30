@@ -87,7 +87,10 @@ export function DjWaveform({
     const themeObserver = new MutationObserver(() => {
       accent = getComputedStyle(document.documentElement).getPropertyValue('--signal').trim() || '#ff6a3d'
     })
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-accent'] })
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-accent', 'style'],
+    })
 
     const draw = () => {
       raf = requestAnimationFrame(draw)

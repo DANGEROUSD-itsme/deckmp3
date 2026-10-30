@@ -63,7 +63,8 @@ export function SpectrumStrip({ className = '', active = true }: CanvasProps) {
     })
     themeObserver.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class', 'data-accent'],
+      // 'style' is what changes when the live accent takes over on play.
+      attributeFilter: ['class', 'data-accent', 'style'],
     })
 
     const draw = () => {
@@ -143,6 +144,13 @@ export function SpectrumBars({ className = '', active = true }: CanvasProps) {
     resize()
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
+    const themeObserver = new MutationObserver(() => {
+      colour = readColor('--signal', '#ff6a3d')
+    })
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-accent', 'style'],
+    })
 
     const draw = () => {
       raf = requestAnimationFrame(draw)
@@ -195,6 +203,7 @@ export function SpectrumBars({ className = '', active = true }: CanvasProps) {
     return () => {
       cancelAnimationFrame(raf)
       observer.disconnect()
+      themeObserver.disconnect()
     }
   }, [active])
 
@@ -225,6 +234,13 @@ export function Oscilloscope({ className = '', active = true }: CanvasProps) {
     resize()
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
+    const themeObserver = new MutationObserver(() => {
+      colour = readColor('--signal', '#ff6a3d')
+    })
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-accent', 'style'],
+    })
 
     const draw = () => {
       raf = requestAnimationFrame(draw)
@@ -277,6 +293,7 @@ export function Oscilloscope({ className = '', active = true }: CanvasProps) {
     return () => {
       cancelAnimationFrame(raf)
       observer.disconnect()
+      themeObserver.disconnect()
     }
   }, [active])
 
@@ -314,6 +331,14 @@ export function VuMeter({ className = '', active = true }: CanvasProps) {
     resize()
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
+    const themeObserver = new MutationObserver(() => {
+      colour = readColor('--signal', '#ff6a3d')
+      dim = readColor('--ink-faint', '#625e57')
+    })
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-accent', 'style'],
+    })
 
     const SEGMENTS = 14
 
@@ -353,6 +378,7 @@ export function VuMeter({ className = '', active = true }: CanvasProps) {
     return () => {
       cancelAnimationFrame(raf)
       observer.disconnect()
+      themeObserver.disconnect()
     }
   }, [active])
 

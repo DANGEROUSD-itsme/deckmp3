@@ -37,7 +37,10 @@ function useThemeColor(variable: string, fallback: string) {
     }
     read()
     const observer = new MutationObserver(read)
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-accent', 'style'],
+    })
     return () => observer.disconnect()
   }, [variable])
 

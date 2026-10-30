@@ -224,6 +224,17 @@ export function SettingsPanel() {
         />
       </Row>
 
+      <Row
+        title="Live accent"
+        hint="While something plays, the whole app's accent follows its cover"
+      >
+        <Toggle
+          on={settings.liveAccent}
+          onChange={(liveAccent) => updateSettings({ liveAccent })}
+          label="Live accent"
+        />
+      </Row>
+
       <Row title="Spectrum strip" hint="The live analyser under the transport bar">
         <span className="text-ink-faint">
           <WaveIcon className="w-4 h-4" />
