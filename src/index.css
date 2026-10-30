@@ -617,21 +617,47 @@
      "alive" feeling lives entirely on the one active line below instead:
      a single continuously-animating element is negligible.
 
-     Distance from the active line (`--dist`, set once per line when the
-     active index changes — never per frame) drives a continuous falloff
-     instead of a hard near/far cutoff, so the whole column reads as one
-     smooth gradient flowing past rather than lines popping between fixed
-     states. */
+     Distance from the active line (`data-dist`, set once per line when the
+     active index changes) drives the falloff. This used to be a single
+     `--dist` custom property feeding `opacity`/`transform` through calc() —
+     genuinely smoother-looking, but it meant every one of the 30+ visible
+     lines had a *unique* style (its own distance), so the browser could
+     never reuse a cached computed style between them and had to resolve
+     each one from scratch on every line change. Clamping distance to a
+     handful of buckets below means at most ~7 distinct styles exist no
+     matter how many lines are on screen, so most of them share a cached
+     style — a worthwhile simplification on its own, though profiling later
+     showed the real cost on every line change was elsewhere (see
+     `censor()` in profanity.ts). */
   .lyric-line {
-    --fall: min(1, calc(var(--dist, 6) * 0.16));
-    opacity: calc(0.62 - var(--fall) * 0.42);
-    transform: scale(calc(1 - var(--fall) * 0.055));
+    opacity: 0.2;
+    transform: scale(0.945);
     color: var(--ink-dim);
     transition:
       opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
       transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
       color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
       filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lyric-line[data-dist='1'] {
+    opacity: 0.55;
+    transform: scale(0.992);
+  }
+  .lyric-line[data-dist='2'] {
+    opacity: 0.48;
+    transform: scale(0.984);
+  }
+  .lyric-line[data-dist='3'] {
+    opacity: 0.4;
+    transform: scale(0.973);
+  }
+  .lyric-line[data-dist='4'] {
+    opacity: 0.32;
+    transform: scale(0.962);
+  }
+  .lyric-line[data-dist='5'] {
+    opacity: 0.26;
+    transform: scale(0.953);
   }
   /* A dedicated enter animation, not just a `transition` between two
      values: a plain transition only animates as far as the old and new

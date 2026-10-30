@@ -39,9 +39,13 @@ export const LyricsView = memo(function LyricsView({
   // reset below on every track change, so a late lyrics fetch (see the
   // positioning effect) gets the snap-not-slide treatment again each time.
   const hasPositionedRef = useRef(false)
+  // Row height + container height, measured once per track and reused for
+  // every line after that — see the positioning effect for why.
+  const metricsRef = useRef<{ rowHeight: number; containerHeight: number } | null>(null)
 
   useEffect(() => {
     hasPositionedRef.current = false
+    metricsRef.current = null
     if (!settings.lyricsEnabled) {
       setResult(null)
       return
@@ -97,15 +101,30 @@ export const LyricsView = memo(function LyricsView({
 
   // Follow the active line with a transform instead of scrollIntoView — a
   // single compositor-friendly property, written straight to the DOM (not
-  // through React state) and recomputed only when the line actually
-  // changes, not on every scroll/layout tick.
+  // through React state).
+  //
+  // The first version re-measured `row.offsetTop`/`offsetHeight` and
+  // `container.clientHeight` on *every* line change. Reading those forces
+  // the browser to flush layout synchronously right then, which is worth
+  // avoiding on principle even though it turned out not to be the main
+  // cost at a line change (see `censor()` in profanity.ts for that). Rows
+  // all share the same height, so this measures once per track and reuses
+  // that for pure arithmetic on every line after — no DOM reads at all once
+  // a track has its first real line.
   useLayoutEffect(() => {
     const list = listRef.current
     const row = list?.children[activeIndex] as HTMLElement | undefined
     if (!list || !row) return
     const container = list.parentElement
     if (!container) return
-    const target = row.offsetTop + row.offsetHeight / 2 - container.clientHeight / 2
+
+    if (!metricsRef.current) {
+      metricsRef.current = { rowHeight: row.offsetHeight, containerHeight: container.clientHeight }
+    }
+    const { rowHeight, containerHeight } = metricsRef.current
+    const ROW_GAP = 12 // px — matches the list's `gap-3`
+    const target = activeIndex * (rowHeight + ROW_GAP) + rowHeight / 2 - containerHeight / 2
+
     if (!hasPositionedRef.current) {
       // The very first real position for this track — this is the one that
       // was looking "out of sync": if lyrics finish fetching after playback
@@ -166,7 +185,6 @@ export const LyricsView = memo(function LyricsView({
       <div
         ref={listRef}
         className="max-w-md mx-auto flex flex-col gap-3 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
-        style={{ paddingTop: '50%', paddingBottom: '50%' }}
       >
         {lines.map((line, i) => {
           if (i < windowStart || i >= windowEnd) {
@@ -182,7 +200,7 @@ export const LyricsView = memo(function LyricsView({
               key={i}
               onClick={() => seek(line.time)}
               data-state={isActive ? 'active' : 'far'}
-              style={{ ['--dist' as string]: distance }}
+              data-dist={Math.min(distance, 6)}
               className="lyric-line relative text-left text-xl sm:text-2xl leading-snug font-medium"
             >
               <span>{text}</span>
