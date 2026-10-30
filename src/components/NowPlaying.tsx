@@ -222,8 +222,20 @@ export function NowPlaying({ onClose }: { onClose: () => void }) {
           <div className="relative w-full max-w-[320px] sm:max-w-[460px] aspect-square shrink-0">
             {(mode === 'ring' || mode === 'orbit') && (
               <Suspense fallback={null}>
+                {/* The ring/orbit halo deliberately bleeds past the cover's own
+                    box. At widths right around where this row switches from
+                    stacked to side-by-side (lg:), the cover sits close enough
+                    to the edge that a full -34% bleed pushes part of the ring
+                    past the viewport edge — and since the row below is
+                    `overflow-y-auto`, the browser silently forces its
+                    `overflow-x` to `auto` too (a standard CSS quirk: either
+                    axis set to non-`visible` promotes the other off
+                    `visible`), so that off-screen slice gets clipped for
+                    good, with no way to scroll back to it. Capping the bleed
+                    until there's reliably enough room avoids that; it still
+                    grows to the full halo once the layout has slack. */}
                 <Visualizer
-                  className="absolute inset-[-34%] pointer-events-none"
+                  className="absolute inset-[-8%] xl:inset-[-26%] 2xl:inset-[-34%] pointer-events-none"
                   mode={mode}
                 />
               </Suspense>
