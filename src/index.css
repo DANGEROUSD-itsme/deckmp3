@@ -615,20 +615,23 @@
      many simultaneous infinite animations is real, ongoing main-thread
      work even though each one individually only touches `transform`. The
      "alive" feeling lives entirely on the one active line below instead:
-     a single continuously-animating element is negligible. */
+     a single continuously-animating element is negligible.
+
+     Distance from the active line (`--dist`, set once per line when the
+     active index changes — never per frame) drives a continuous falloff
+     instead of a hard near/far cutoff, so the whole column reads as one
+     smooth gradient flowing past rather than lines popping between fixed
+     states. */
   .lyric-line {
-    opacity: 0.22;
-    transform: scale(0.96);
+    --fall: min(1, calc(var(--dist, 6) * 0.16));
+    opacity: calc(0.62 - var(--fall) * 0.42);
+    transform: scale(calc(1 - var(--fall) * 0.055));
     color: var(--ink-dim);
     transition:
-      opacity 0.4s ease,
-      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-      color 0.4s ease,
-      filter 0.4s ease;
-  }
-  .lyric-line[data-state='near'] {
-    opacity: 0.58;
-    transform: scale(0.99);
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .lyric-line[data-state='active'] {
     opacity: 1;

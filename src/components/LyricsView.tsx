@@ -144,7 +144,7 @@ export const LyricsView = memo(function LyricsView({
     <div className={`relative overflow-hidden fade-y px-4 ${className}`}>
       <div
         ref={listRef}
-        className="max-w-md mx-auto flex flex-col gap-3 transition-transform duration-500 will-change-transform"
+        className="max-w-md mx-auto flex flex-col gap-3 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
         style={{ paddingTop: '50%', paddingBottom: '50%' }}
       >
         {lines.map((line, i) => {
@@ -155,13 +155,13 @@ export const LyricsView = memo(function LyricsView({
           }
           const distance = Math.abs(i - activeIndex)
           const isActive = i === activeIndex
-          const state = isActive ? 'active' : distance <= 2 ? 'near' : 'far'
           const text = line.text ? mask(line.text) : ' '
           return (
             <button
               key={i}
               onClick={() => seek(line.time)}
-              data-state={state}
+              data-state={isActive ? 'active' : 'far'}
+              style={{ ['--dist' as string]: distance }}
               className="lyric-line relative text-left text-xl sm:text-2xl leading-snug font-medium"
             >
               <span>{text}</span>
