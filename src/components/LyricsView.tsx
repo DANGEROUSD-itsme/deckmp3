@@ -136,9 +136,9 @@ export const LyricsView = memo(function LyricsView({
   }
 
   // A window around the active line keeps very long lyric sheets from
-  // animating hundreds of off-screen rows at once.
-  const windowStart = Math.max(0, activeIndex - 40)
-  const windowEnd = Math.min(lines.length, Math.max(activeIndex + 40, 40))
+  // rendering hundreds of off-screen rows at once.
+  const windowStart = Math.max(0, activeIndex - 18)
+  const windowEnd = Math.min(lines.length, Math.max(activeIndex + 18, 18))
 
   return (
     <div className={`relative overflow-hidden fade-y px-4 ${className}`}>
@@ -162,7 +162,6 @@ export const LyricsView = memo(function LyricsView({
               key={i}
               onClick={() => seek(line.time)}
               data-state={state}
-              style={{ ['--float-delay' as string]: `${(i % 7) * -0.6}s` }}
               className="lyric-line relative text-left text-xl sm:text-2xl leading-snug font-medium"
             >
               <span>{text}</span>

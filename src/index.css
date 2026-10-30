@@ -610,22 +610,25 @@
      which forced a repaint every frame and was enough to glitch playback.
      =========================================================================== */
 
+  /* No continuous `animation` on the default (far/dimmed) state on purpose
+     — there can be 70-150+ of these on screen, and a browser running that
+     many simultaneous infinite animations is real, ongoing main-thread
+     work even though each one individually only touches `transform`. The
+     "alive" feeling lives entirely on the one active line below instead:
+     a single continuously-animating element is negligible. */
   .lyric-line {
     opacity: 0.22;
     transform: scale(0.96);
     color: var(--ink-dim);
     transition:
-      opacity 0.45s ease,
-      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-      color 0.45s ease,
-      filter 0.45s ease;
-    animation: lyric-float 5s ease-in-out infinite;
-    animation-delay: var(--float-delay, 0s);
+      opacity 0.4s ease,
+      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      color 0.4s ease,
+      filter 0.4s ease;
   }
   .lyric-line[data-state='near'] {
     opacity: 0.58;
     transform: scale(0.99);
-    animation: none;
   }
   .lyric-line[data-state='active'] {
     opacity: 1;
@@ -642,16 +645,6 @@
     }
     50% {
       transform: scale(1.12);
-    }
-  }
-
-  @keyframes lyric-float {
-    0%,
-    100% {
-      transform: scale(0.96) translateY(0);
-    }
-    50% {
-      transform: scale(0.96) translateY(-3px);
     }
   }
 
