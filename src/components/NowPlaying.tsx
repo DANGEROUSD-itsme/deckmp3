@@ -216,7 +216,6 @@ export function NowPlaying({ onClose }: { onClose: () => void }) {
         {mode === 'lyrics' ? (
           <LyricsView
             track={current}
-            position={position}
             className="w-full max-w-xl h-[46vh] lg:h-[62vh] shrink-0"
           />
         ) : (

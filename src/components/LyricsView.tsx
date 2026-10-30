@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { engine } from '../lib/engine'
 import { lyricsFor, peekLyrics, type LyricsResult } from '../lib/lyrics'
 import { censor } from '../lib/profanity'
 import { useDeck } from '../store/deck'
@@ -7,26 +7,34 @@ import type { Track } from '../types'
 
 /**
  * The "Lyrics" visualizer mode: synced lines that flow past, the active one
- * lit up and centred, the rest dimmed by distance — the karaoke-style view
- * the ring/bars/wave/orbit modes don't try to be. Falls back to a static
+ * glowing and centred, the rest dimmed by distance. Falls back to a static
  * block when lrclib only has plain text, and to a quiet empty state when it
  * has nothing at all.
+ *
+ * Deliberately reads the engine's clock itself on its own rAF loop instead
+ * of taking `position` as a prop: NowPlaying's scrubber already re-renders
+ * ~20x/second from `usePosition()`, and a lyrics line only actually changes
+ * a few dozen times per song. Re-rendering a hundred-plus animated lines at
+ * scrubber-rate was the actual cause of the audio glitching — the engine's
+ * ScriptProcessorNode-based bitcrush (see engine.ts) shares the main thread
+ * with React, and that much layout/animation work per frame was enough to
+ * starve it. `memo` below keeps NowPlaying's own re-renders from cascading
+ * into this component at all; internally, only an actual line change (not
+ * every tick) triggers a re-render.
  */
-export function LyricsView({
+export const LyricsView = memo(function LyricsView({
   track,
-  position,
   className = '',
 }: {
   track: Track
-  position: number
   className?: string
 }) {
   const { settings, seek } = useDeck()
   const [result, setResult] = useState<LyricsResult | null | undefined>(() =>
     peekLyrics(track.id)
   )
-  const containerRef = useRef<HTMLDivElement>(null)
-  const activeRef = useRef<HTMLButtonElement>(null)
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const listRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!settings.lyricsEnabled) {
@@ -45,15 +53,55 @@ export function LyricsView({
 
   const lines = result?.lines ?? null
 
-  const activeIndex = useMemo(() => {
-    if (!lines || !lines.length) return -1
-    let i = 0
-    while (i + 1 < lines.length && lines[i + 1].time <= position) i++
-    return lines[i].time <= position ? i : -1
-  }, [lines, position])
-
+  // The only per-frame work: find the active line. No style writes here —
+  // the karaoke fill (below) is a plain CSS animation with its duration set
+  // once when a line becomes active, so the browser's compositor drives it
+  // with zero ongoing JS cost. An earlier version drove the fill by writing
+  // a CSS variable every frame, which forced a repaint every frame too
+  // (`background-position` isn't compositor-only like `transform`) — on a
+  // hundred-plus lines that was enough main-thread work to start glitching
+  // the audio, since engine.ts's ScriptProcessorNode-based bitcrush shares
+  // the main thread with everything else.
   useEffect(() => {
-    activeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    if (!lines || !lines.length) return
+    let raf = 0
+    let lastIndex = -1
+    const tick = () => {
+      raf = requestAnimationFrame(tick)
+      const position = engine.position
+      let i = 0
+      while (i + 1 < lines.length && lines[i + 1].time <= position) i++
+      const idx = lines[i].time <= position ? i : -1
+      if (idx !== lastIndex) {
+        lastIndex = idx
+        setActiveIndex(idx)
+      }
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [lines])
+
+  // How long the active line has to fill, derived only when the line
+  // actually changes — cheap, and it's what lets the CSS animation below
+  // run itself rather than being pushed frame by frame.
+  const fillSeconds = useMemo(() => {
+    if (!lines || activeIndex < 0) return 0
+    const next = lines[activeIndex + 1]?.time ?? lines[activeIndex].time + 4
+    return Math.max(0.4, next - lines[activeIndex].time)
+  }, [lines, activeIndex])
+
+  // Follow the active line with a transform instead of scrollIntoView — a
+  // single compositor-friendly property, written straight to the DOM (not
+  // through React state) and recomputed only when the line actually
+  // changes, not on every scroll/layout tick.
+  useLayoutEffect(() => {
+    const list = listRef.current
+    const row = list?.children[activeIndex] as HTMLElement | undefined
+    if (!list || !row) return
+    const container = list.parentElement
+    if (!container) return
+    const target = row.offsetTop + row.offsetHeight / 2 - container.clientHeight / 2
+    list.style.transform = `translateY(${-target}px)`
   }, [activeIndex])
 
   if (!settings.lyricsEnabled) {
@@ -77,7 +125,6 @@ export function LyricsView({
   const mask = (s: string) => (settings.censorLyrics ? censor(s) : s)
 
   if (!lines || !lines.length) {
-    // lrclib had text but no per-line timing — still worth showing.
     return (
       <div className={`overflow-y-auto fade-y px-4 ${className}`}>
         <p className="label !text-[9px] mb-3 text-center">Not time-synced</p>
@@ -88,38 +135,58 @@ export function LyricsView({
     )
   }
 
+  // A window around the active line keeps very long lyric sheets from
+  // animating hundreds of off-screen rows at once.
+  const windowStart = Math.max(0, activeIndex - 40)
+  const windowEnd = Math.min(lines.length, Math.max(activeIndex + 40, 40))
+
   return (
-    <div
-      ref={containerRef}
-      className={`overflow-y-auto fade-y px-4 py-[20vh] ${className}`}
-    >
-      <div className="max-w-md mx-auto flex flex-col gap-3">
+    <div className={`relative overflow-hidden fade-y px-4 ${className}`}>
+      <div
+        ref={listRef}
+        className="max-w-md mx-auto flex flex-col gap-3 transition-transform duration-500 will-change-transform"
+        style={{ paddingTop: '50%', paddingBottom: '50%' }}
+      >
         {lines.map((line, i) => {
+          if (i < windowStart || i >= windowEnd) {
+            // Kept as a spacer so offsetTop math for every real row above
+            // and below the window stays correct without rendering it.
+            return <div key={i} className="h-[1.875rem]" aria-hidden="true" />
+          }
           const distance = Math.abs(i - activeIndex)
           const isActive = i === activeIndex
+          const state = isActive ? 'active' : distance <= 2 ? 'near' : 'far'
+          const text = line.text ? mask(line.text) : ' '
           return (
-            <motion.button
+            <button
               key={i}
-              ref={isActive ? activeRef : undefined}
               onClick={() => seek(line.time)}
-              initial={false}
-              animate={{
-                opacity: isActive ? 1 : Math.max(0.2, 1 - distance * 0.22),
-                scale: isActive ? 1 : 0.97,
-              }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className={`text-left text-xl sm:text-2xl leading-snug font-medium transition-colors ${
-                isActive ? 'text-signal' : 'text-ink-dim hover:text-ink'
-              } ${!line.text ? 'h-3' : ''}`}
+              data-state={state}
+              style={{ ['--float-delay' as string]: `${(i % 7) * -0.6}s` }}
+              className="lyric-line relative text-left text-xl sm:text-2xl leading-snug font-medium"
             >
-              {line.text ? mask(line.text) : null}
-            </motion.button>
+              <span>{text}</span>
+              {isActive && (
+                // The karaoke fill: an identical, brighter copy of the same
+                // text, revealed left-to-right by a plain CSS animation
+                // whose duration (how long until the next line) is set
+                // once, not driven frame by frame.
+                <span
+                  key={activeIndex}
+                  aria-hidden="true"
+                  className="lyric-line-fill absolute inset-0"
+                  style={{ animationDuration: `${fillSeconds}s` }}
+                >
+                  {text}
+                </span>
+              )}
+            </button>
           )
         })}
       </div>
     </div>
   )
-}
+})
 
 function EmptyState({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
