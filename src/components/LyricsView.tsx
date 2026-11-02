@@ -140,9 +140,21 @@ export const LyricsView = memo(function LyricsView({
       })
       hasPositionedRef.current = true
     } else {
+      // A flat 700ms transition falls behind during a fast-moving verse:
+      // if lines are landing closer together than that, each new one
+      // retargets the CSS transition before the last glide finishes, so
+      // the scroll position asymptotically chases the target without ever
+      // reaching it — the highlighted line visibly drifts toward (and can
+      // slide past) the fade mask at the top/bottom of the frame instead
+      // of staying centered. `fillSeconds` is already "time until the next
+      // line" (see above); capping the transition comfortably under that
+      // guarantees each glide actually finishes before the next one starts,
+      // only shortening it when the lyrics are moving fast enough to need it.
+      const ms = Math.max(120, Math.min(700, fillSeconds * 1000 * 0.82))
+      list.style.transitionDuration = `${ms}ms`
       list.style.transform = `translateY(${-target}px)`
     }
-  }, [activeIndex])
+  }, [activeIndex, fillSeconds])
 
   if (!settings.lyricsEnabled) {
     return (
@@ -184,7 +196,7 @@ export const LyricsView = memo(function LyricsView({
     <div className={`relative overflow-hidden fade-y px-4 ${className}`}>
       <div
         ref={listRef}
-        className="max-w-md mx-auto flex flex-col gap-3 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
+        className="max-w-md mx-auto flex flex-col gap-3 transition-transform ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
       >
         {lines.map((line, i) => {
           if (i < windowStart || i >= windowEnd) {
