@@ -4,6 +4,7 @@ import { useDeck, usePosition } from '../store/deck'
 import { fmtRate, fmtTime } from '../lib/format'
 import { engine } from '../lib/engine'
 import { Cover } from './Cover'
+import { PictureInPictureButton } from './MiniPlayer'
 import { SpectrumStrip, VuMeter } from './Spectrum'
 import { useTrackMenu } from './ContextMenu'
 import {
@@ -446,6 +447,8 @@ export function TransportBar({ onOpenNowPlaying }: { onOpenNowPlaying: () => voi
                 <span className="readout label !text-[9px]">{upNext.length}</span>
               )}
             </button>
+
+            <PictureInPictureButton />
 
             {/* Two channels of level. Cosmetic, and the room knows it. */}
             <div className="flex items-end gap-[3px] h-7 w-4 shrink-0 mx-1" aria-hidden>
